@@ -43,7 +43,7 @@ try {
   }
   
   console.log(`✅ Coverage ${avgCoverage}% meets threshold`)
-} catch (_error) {
+} catch {
   console.error('⚠️  No coverage data found, run tests first')
   process.exit(0) // Don't fail on first run
 }
