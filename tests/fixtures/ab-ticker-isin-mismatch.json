@@ -1,0 +1,14 @@
+{
+  "symbol": "AB",
+  "exchange": "LSE",
+  "currency": "GBP",
+  "source": "yahoo",
+  "identifiers": { "isin": "US0028241000" },
+  "bars": [
+    { "timestamp": "2024-01-02", "open": 31.1, "high": 31.6, "low": 30.9, "close": 31.4, "volume": 1520000 },
+    { "timestamp": "2024-01-03", "open": 31.4, "high": 31.9, "low": 31.2, "close": 31.7, "volume": 1480000 },
+    { "timestamp": "2024-01-04", "open": 31.7, "high": 32.0, "low": 31.4, "close": 31.6, "volume": 1610000 },
+    { "timestamp": "2024-01-05", "open": 31.6, "high": 32.2, "low": 31.5, "close": 32.0, "volume": 1550000 },
+    { "timestamp": "2024-01-08", "open": 32.0, "high": 32.4, "low": 31.8, "close": 32.2, "volume": 1490000 }
+  ]
+}

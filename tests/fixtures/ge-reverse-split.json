@@ -1,0 +1,18 @@
+{
+  "symbol": "GE",
+  "source": "vendor",
+  "currency": "USD",
+  "bars": [
+    { "timestamp": "2021-07-20", "open": 12.72, "high": 12.84, "low": 12.61, "close": 12.7, "volume": 5400000 },
+    { "timestamp": "2021-07-21", "open": 12.74, "high": 12.9, "low": 12.7, "close": 12.85, "volume": 5600000 },
+    { "timestamp": "2021-07-22", "open": 12.86, "high": 12.92, "low": 12.74, "close": 12.79, "volume": 4800000 },
+    { "timestamp": "2021-07-23", "open": 12.82, "high": 12.96, "low": 12.8, "close": 12.9, "volume": 5100000 },
+    { "timestamp": "2021-07-26", "open": 12.88, "high": 12.91, "low": 12.75, "close": 12.83, "volume": 4600000 },
+    { "timestamp": "2021-07-27", "open": 12.9, "high": 13.2, "low": 12.88, "close": 13.11, "volume": 8900000 },
+    { "timestamp": "2021-07-28", "open": 13.1, "high": 13.14, "low": 12.99, "close": 13.05, "volume": 6200000 },
+    { "timestamp": "2021-07-29", "open": 13.03, "high": 13.06, "low": 12.9, "close": 12.98, "volume": 5000000 },
+    { "timestamp": "2021-07-30", "open": 12.96, "high": 13.0, "low": 12.85, "close": 12.92, "volume": 5300000 },
+    { "timestamp": "2021-08-02", "open": 12.95, "high": 13.05, "low": 12.88, "close": 12.97, "volume": 5800000 }
+  ],
+  "splits": [{ "exDate": "2021-08-02", "numerator": 1, "denominator": 8 }]
+}

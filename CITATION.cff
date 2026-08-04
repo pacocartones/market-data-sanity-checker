@@ -1,0 +1,14 @@
+cff-version: 1.2.0
+message: If you use this software, please cite it as below.
+type: software
+title: market-data-sanity-checker
+abstract: >-
+  Trust layer for market data: validate, score and explain anomalies in OHLCV,
+  dividends, splits and fundamentals before they break your product.
+authors:
+  - family-names: Sánchez
+    given-names: Manuel
+license: MIT
+version: 1.1.0
+date-released: 2026-07-31
+url: https://github.com/pacocartones/market-data-sanity-checker

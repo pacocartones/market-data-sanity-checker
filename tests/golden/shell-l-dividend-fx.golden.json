@@ -1,0 +1,7 @@
+{
+  "fixture": "shell-l-dividend-fx.json",
+  "sanity_score": 85,
+  "findings": [
+    { "rule": "DIVIDEND_FX_MISMATCH", "severity": "warning", "action": "flag", "where": { "date": "2024-02-07" } }
+  ]
+}

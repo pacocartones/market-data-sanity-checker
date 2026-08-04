@@ -1,0 +1,19 @@
+{
+  "symbol": "MOB.ST",
+  "source": "yahoo",
+  "currency": "SEK",
+  "bars": [
+    { "timestamp": "2023-04-03", "open": 96.2, "high": 97.4, "low": 95.8, "close": 97.0, "volume": 152000 },
+    { "timestamp": "2023-04-04", "open": 97.1, "high": 98.0, "low": 96.5, "close": 97.6, "volume": 148000 },
+    { "timestamp": "2023-04-05", "open": 97.8, "high": 98.6, "low": 97.2, "close": 98.2, "volume": 161000 },
+    { "timestamp": "2023-04-06", "open": 98.0, "high": 98.9, "low": 97.5, "close": 98.4, "volume": 155000 },
+    { "timestamp": "2023-04-11", "open": 98.3, "high": 99.1, "low": 97.9, "close": 98.8, "volume": 149000 },
+    { "timestamp": "2023-04-12", "open": 98.6, "high": 99.4, "low": 98.1, "close": 99.0, "volume": 158000 },
+    { "timestamp": "2023-04-13", "open": 99.0, "high": 99.8, "low": 98.5, "close": 99.4, "volume": 163000 },
+    { "timestamp": "2023-04-14", "open": 49.8, "high": 50.2, "low": 49.3, "close": 49.7, "volume": 326000 },
+    { "timestamp": "2023-04-17", "open": 49.6, "high": 50.0, "low": 49.2, "close": 49.8, "volume": 311000 },
+    { "timestamp": "2023-04-18", "open": 49.9, "high": 50.4, "low": 49.6, "close": 50.1, "volume": 298000 },
+    { "timestamp": "2023-04-19", "open": 50.2, "high": 50.7, "low": 49.9, "close": 50.4, "volume": 285000 },
+    { "timestamp": "2023-04-20", "open": 50.3, "high": 50.9, "low": 50.0, "close": 50.6, "volume": 276000 }
+  ]
+}

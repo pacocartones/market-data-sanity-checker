@@ -1,0 +1,726 @@
+{
+  "generated_at": "2026-07-31T22:54:32.771Z",
+  "range": "1y",
+  "provider": "yahoo",
+  "results": [
+    {
+      "symbol": "AAPL",
+      "sanity_score": 95,
+      "bars": 251,
+      "findings": [
+        {
+          "rule": "RETURN_SPIKE",
+          "severity": "info",
+          "where": {
+            "date": "2025-08-06"
+          },
+          "explanation": "Daily return of 5.1% is a statistical outlier (modified z-score 4.3, threshold 3.5) with no corporate action registered. It may be a real market move or a bad tick — verify against a second source before consuming it. (statistically anomalous but within ordinary earnings-move magnitude)",
+          "occurrences": 7
+        }
+      ]
+    },
+    {
+      "symbol": "MSFT",
+      "sanity_score": 85,
+      "bars": 251,
+      "findings": [
+        {
+          "rule": "RETURN_SPIKE",
+          "severity": "warning",
+          "where": {
+            "date": "2026-01-29"
+          },
+          "explanation": "Daily return of -10.0% is a statistical outlier (modified z-score -6.9, threshold 3.5) with no corporate action registered. It may be a real market move or a bad tick — verify against a second source before consuming it.",
+          "occurrences": 4
+        }
+      ]
+    },
+    {
+      "symbol": "NVDA",
+      "sanity_score": 95,
+      "bars": 251,
+      "findings": [
+        {
+          "rule": "RETURN_SPIKE",
+          "severity": "info",
+          "where": {
+            "date": "2026-02-06"
+          },
+          "explanation": "Daily return of 7.9% is a statistical outlier (modified z-score 3.5, threshold 3.5) with no corporate action registered. It may be a real market move or a bad tick — verify against a second source before consuming it. (statistically anomalous but within ordinary earnings-move magnitude)",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "symbol": "AMZN",
+      "sanity_score": 85,
+      "bars": 251,
+      "findings": [
+        {
+          "rule": "RETURN_SPIKE",
+          "severity": "warning",
+          "where": {
+            "date": "2025-10-31"
+          },
+          "explanation": "Daily return of 9.6% is a statistical outlier (modified z-score 5.3, threshold 3.5) with no corporate action registered. It may be a real market move or a bad tick — verify against a second source before consuming it.",
+          "occurrences": 2
+        }
+      ]
+    },
+    {
+      "symbol": "META",
+      "sanity_score": 85,
+      "bars": 251,
+      "findings": [
+        {
+          "rule": "RETURN_SPIKE",
+          "severity": "warning",
+          "where": {
+            "date": "2025-10-30"
+          },
+          "explanation": "Daily return of -11.3% is a statistical outlier (modified z-score -6.4, threshold 3.5) with no corporate action registered. It may be a real market move or a bad tick — verify against a second source before consuming it.",
+          "occurrences": 8
+        }
+      ]
+    },
+    {
+      "symbol": "GOOGL",
+      "sanity_score": 85,
+      "bars": 251,
+      "findings": [
+        {
+          "rule": "RETURN_SPIKE",
+          "severity": "warning",
+          "where": {
+            "date": "2025-09-03"
+          },
+          "explanation": "Daily return of 9.1% is a statistical outlier (modified z-score 5.8, threshold 3.5) with no corporate action registered. It may be a real market move or a bad tick — verify against a second source before consuming it.",
+          "occurrences": 5
+        }
+      ]
+    },
+    {
+      "symbol": "TSLA",
+      "sanity_score": 85,
+      "bars": 251,
+      "findings": [
+        {
+          "rule": "RETURN_SPIKE",
+          "severity": "warning",
+          "where": {
+            "date": "2026-07-23"
+          },
+          "explanation": "Daily return of -14.5% is a statistical outlier (modified z-score -5.4, threshold 3.5) with no corporate action registered. It may be a real market move or a bad tick — verify against a second source before consuming it.",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "symbol": "AVGO",
+      "sanity_score": 85,
+      "bars": 251,
+      "findings": [
+        {
+          "rule": "RETURN_SPIKE",
+          "severity": "warning",
+          "where": {
+            "date": "2025-09-05"
+          },
+          "explanation": "Daily return of 9.4% is a statistical outlier (modified z-score 3.8, threshold 3.5) with no corporate action registered. It may be a real market move or a bad tick — verify against a second source before consuming it.",
+          "occurrences": 6
+        }
+      ]
+    },
+    {
+      "symbol": "AMD",
+      "sanity_score": 85,
+      "bars": 251,
+      "findings": [
+        {
+          "rule": "RETURN_SPIKE",
+          "severity": "warning",
+          "where": {
+            "date": "2025-10-06"
+          },
+          "explanation": "Daily return of 23.7% is a statistical outlier (modified z-score 7.1, threshold 3.5) with no corporate action registered. It may be a real market move or a bad tick — verify against a second source before consuming it.",
+          "occurrences": 5
+        }
+      ]
+    },
+    {
+      "symbol": "NFLX",
+      "sanity_score": 85,
+      "bars": 251,
+      "findings": [
+        {
+          "rule": "RETURN_SPIKE",
+          "severity": "warning",
+          "where": {
+            "date": "2025-10-22"
+          },
+          "explanation": "Daily return of -10.1% is a statistical outlier (modified z-score -6.5, threshold 3.5) with no corporate action registered. It may be a real market move or a bad tick — verify against a second source before consuming it.",
+          "occurrences": 6
+        }
+      ]
+    },
+    {
+      "symbol": "KO",
+      "sanity_score": 95,
+      "bars": 251,
+      "findings": [
+        {
+          "rule": "RETURN_SPIKE",
+          "severity": "info",
+          "where": {
+            "date": "2025-10-21"
+          },
+          "explanation": "Daily return of 4.1% is a statistical outlier (modified z-score 4.1, threshold 3.5) with no corporate action registered. It may be a real market move or a bad tick — verify against a second source before consuming it. (statistically anomalous but within ordinary earnings-move magnitude)",
+          "occurrences": 2
+        }
+      ]
+    },
+    {
+      "symbol": "PG",
+      "sanity_score": 100,
+      "bars": 251,
+      "findings": []
+    },
+    {
+      "symbol": "JNJ",
+      "sanity_score": 100,
+      "bars": 251,
+      "findings": []
+    },
+    {
+      "symbol": "PEP",
+      "sanity_score": 95,
+      "bars": 251,
+      "findings": [
+        {
+          "rule": "RETURN_SPIKE",
+          "severity": "info",
+          "where": {
+            "date": "2025-10-09"
+          },
+          "explanation": "Daily return of 4.2% is a statistical outlier (modified z-score 3.7, threshold 3.5) with no corporate action registered. It may be a real market move or a bad tick — verify against a second source before consuming it. (statistically anomalous but within ordinary earnings-move magnitude)",
+          "occurrences": 3
+        }
+      ]
+    },
+    {
+      "symbol": "MCD",
+      "sanity_score": 95,
+      "bars": 251,
+      "findings": [
+        {
+          "rule": "RETURN_SPIKE",
+          "severity": "info",
+          "where": {
+            "date": "2026-07-02"
+          },
+          "explanation": "Daily return of 4.2% is a statistical outlier (modified z-score 4.0, threshold 3.5) with no corporate action registered. It may be a real market move or a bad tick — verify against a second source before consuming it. (statistically anomalous but within ordinary earnings-move magnitude)",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "symbol": "WMT",
+      "sanity_score": 95,
+      "bars": 251,
+      "findings": [
+        {
+          "rule": "RETURN_SPIKE",
+          "severity": "info",
+          "where": {
+            "date": "2025-08-21"
+          },
+          "explanation": "Daily return of -4.5% is a statistical outlier (modified z-score -3.6, threshold 3.5) with no corporate action registered. It may be a real market move or a bad tick — verify against a second source before consuming it. (statistically anomalous but within ordinary earnings-move magnitude)",
+          "occurrences": 4
+        }
+      ]
+    },
+    {
+      "symbol": "VZ",
+      "sanity_score": 95,
+      "bars": 251,
+      "findings": [
+        {
+          "rule": "RETURN_SPIKE",
+          "severity": "info",
+          "where": {
+            "date": "2025-10-06"
+          },
+          "explanation": "Daily return of -5.1% is a statistical outlier (modified z-score -4.5, threshold 3.5) with no corporate action registered. It may be a real market move or a bad tick — verify against a second source before consuming it. (statistically anomalous but within ordinary earnings-move magnitude)",
+          "occurrences": 4
+        }
+      ]
+    },
+    {
+      "symbol": "T",
+      "sanity_score": 95,
+      "bars": 251,
+      "findings": [
+        {
+          "rule": "RETURN_SPIKE",
+          "severity": "info",
+          "where": {
+            "date": "2026-01-28"
+          },
+          "explanation": "Daily return of 4.7% is a statistical outlier (modified z-score 3.5, threshold 3.5) with no corporate action registered. It may be a real market move or a bad tick — verify against a second source before consuming it. (statistically anomalous but within ordinary earnings-move magnitude)",
+          "occurrences": 3
+        }
+      ]
+    },
+    {
+      "symbol": "XOM",
+      "sanity_score": 95,
+      "bars": 251,
+      "findings": [
+        {
+          "rule": "RETURN_SPIKE",
+          "severity": "info",
+          "where": {
+            "date": "2026-04-01"
+          },
+          "explanation": "Daily return of -5.2% is a statistical outlier (modified z-score -3.9, threshold 3.5) with no corporate action registered. It may be a real market move or a bad tick — verify against a second source before consuming it. (statistically anomalous but within ordinary earnings-move magnitude)",
+          "occurrences": 2
+        }
+      ]
+    },
+    {
+      "symbol": "CVX",
+      "sanity_score": 95,
+      "bars": 251,
+      "findings": [
+        {
+          "rule": "RETURN_SPIKE",
+          "severity": "info",
+          "where": {
+            "date": "2026-01-05"
+          },
+          "explanation": "Daily return of 5.1% is a statistical outlier (modified z-score 4.0, threshold 3.5) with no corporate action registered. It may be a real market move or a bad tick — verify against a second source before consuming it. (statistically anomalous but within ordinary earnings-move magnitude)",
+          "occurrences": 4
+        }
+      ]
+    },
+    {
+      "symbol": "JPM",
+      "sanity_score": 95,
+      "bars": 251,
+      "findings": [
+        {
+          "rule": "RETURN_SPIKE",
+          "severity": "info",
+          "where": {
+            "date": "2025-12-09"
+          },
+          "explanation": "Daily return of -4.7% is a statistical outlier (modified z-score -4.1, threshold 3.5) with no corporate action registered. It may be a real market move or a bad tick — verify against a second source before consuming it. (statistically anomalous but within ordinary earnings-move magnitude)",
+          "occurrences": 3
+        }
+      ]
+    },
+    {
+      "symbol": "BAC",
+      "sanity_score": 95,
+      "bars": 251,
+      "findings": [
+        {
+          "rule": "RETURN_SPIKE",
+          "severity": "info",
+          "where": {
+            "date": "2026-02-27"
+          },
+          "explanation": "Daily return of -4.7% is a statistical outlier (modified z-score -4.0, threshold 3.5) with no corporate action registered. It may be a real market move or a bad tick — verify against a second source before consuming it. (statistically anomalous but within ordinary earnings-move magnitude)",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "symbol": "WFC",
+      "sanity_score": 95,
+      "bars": 251,
+      "findings": [
+        {
+          "rule": "RETURN_SPIKE",
+          "severity": "info",
+          "where": {
+            "date": "2025-10-14"
+          },
+          "explanation": "Daily return of 7.1% is a statistical outlier (modified z-score 4.6, threshold 3.5) with no corporate action registered. It may be a real market move or a bad tick — verify against a second source before consuming it. (statistically anomalous but within ordinary earnings-move magnitude)",
+          "occurrences": 3
+        }
+      ]
+    },
+    {
+      "symbol": "GS",
+      "sanity_score": 95,
+      "bars": 251,
+      "findings": [
+        {
+          "rule": "RETURN_SPIKE",
+          "severity": "info",
+          "where": {
+            "date": "2026-02-27"
+          },
+          "explanation": "Daily return of -7.5% is a statistical outlier (modified z-score -4.8, threshold 3.5) with no corporate action registered. It may be a real market move or a bad tick — verify against a second source before consuming it. (statistically anomalous but within ordinary earnings-move magnitude)",
+          "occurrences": 2
+        }
+      ]
+    },
+    {
+      "symbol": "MS",
+      "sanity_score": 95,
+      "bars": 251,
+      "findings": [
+        {
+          "rule": "RETURN_SPIKE",
+          "severity": "info",
+          "where": {
+            "date": "2026-01-15"
+          },
+          "explanation": "Daily return of 5.8% is a statistical outlier (modified z-score 3.7, threshold 3.5) with no corporate action registered. It may be a real market move or a bad tick — verify against a second source before consuming it. (statistically anomalous but within ordinary earnings-move magnitude)",
+          "occurrences": 2
+        }
+      ]
+    },
+    {
+      "symbol": "V",
+      "sanity_score": 85,
+      "bars": 251,
+      "findings": [
+        {
+          "rule": "RETURN_SPIKE",
+          "severity": "warning",
+          "where": {
+            "date": "2025-12-11"
+          },
+          "explanation": "Daily return of 6.1% is a statistical outlier (modified z-score 5.4, threshold 3.5) with no corporate action registered. It may be a real market move or a bad tick — verify against a second source before consuming it.",
+          "occurrences": 4
+        }
+      ]
+    },
+    {
+      "symbol": "MA",
+      "sanity_score": 95,
+      "bars": 251,
+      "findings": [
+        {
+          "rule": "RETURN_SPIKE",
+          "severity": "info",
+          "where": {
+            "date": "2025-12-11"
+          },
+          "explanation": "Daily return of 4.5% is a statistical outlier (modified z-score 3.7, threshold 3.5) with no corporate action registered. It may be a real market move or a bad tick — verify against a second source before consuming it. (statistically anomalous but within ordinary earnings-move magnitude)",
+          "occurrences": 4
+        }
+      ]
+    },
+    {
+      "symbol": "AXP",
+      "sanity_score": 85,
+      "bars": 251,
+      "findings": [
+        {
+          "rule": "RETURN_SPIKE",
+          "severity": "warning",
+          "where": {
+            "date": "2025-10-17"
+          },
+          "explanation": "Daily return of 7.3% is a statistical outlier (modified z-score 5.4, threshold 3.5) with no corporate action registered. It may be a real market move or a bad tick — verify against a second source before consuming it.",
+          "occurrences": 3
+        }
+      ]
+    },
+    {
+      "symbol": "BRK-B",
+      "sanity_score": 85,
+      "bars": 251,
+      "findings": [
+        {
+          "rule": "RETURN_SPIKE",
+          "severity": "warning",
+          "where": {
+            "date": "2026-03-02"
+          },
+          "explanation": "Daily return of -4.9% is a statistical outlier (modified z-score -5.9, threshold 3.5) with no corporate action registered. It may be a real market move or a bad tick — verify against a second source before consuming it.",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "symbol": "SCHW",
+      "sanity_score": 95,
+      "bars": 251,
+      "findings": [
+        {
+          "rule": "RETURN_SPIKE",
+          "severity": "info",
+          "where": {
+            "date": "2025-09-05"
+          },
+          "explanation": "Daily return of -5.7% is a statistical outlier (modified z-score -4.5, threshold 3.5) with no corporate action registered. It may be a real market move or a bad tick — verify against a second source before consuming it. (statistically anomalous but within ordinary earnings-move magnitude)",
+          "occurrences": 3
+        }
+      ]
+    },
+    {
+      "symbol": "GE",
+      "sanity_score": 95,
+      "bars": 251,
+      "findings": [
+        {
+          "rule": "RETURN_SPIKE",
+          "severity": "info",
+          "where": {
+            "date": "2026-01-22"
+          },
+          "explanation": "Daily return of -7.4% is a statistical outlier (modified z-score -4.2, threshold 3.5) with no corporate action registered. It may be a real market move or a bad tick — verify against a second source before consuming it. (statistically anomalous but within ordinary earnings-move magnitude)",
+          "occurrences": 3
+        }
+      ]
+    },
+    {
+      "symbol": "CAT",
+      "sanity_score": 85,
+      "bars": 251,
+      "findings": [
+        {
+          "rule": "RETURN_SPIKE",
+          "severity": "warning",
+          "where": {
+            "date": "2025-10-29"
+          },
+          "explanation": "Daily return of 11.6% is a statistical outlier (modified z-score 5.9, threshold 3.5) with no corporate action registered. It may be a real market move or a bad tick — verify against a second source before consuming it.",
+          "occurrences": 6
+        }
+      ]
+    },
+    {
+      "symbol": "BA",
+      "sanity_score": 95,
+      "bars": 251,
+      "findings": [
+        {
+          "rule": "RETURN_SPIKE",
+          "severity": "info",
+          "where": {
+            "date": "2025-10-30"
+          },
+          "explanation": "Daily return of -6.3% is a statistical outlier (modified z-score -3.8, threshold 3.5) with no corporate action registered. It may be a real market move or a bad tick — verify against a second source before consuming it. (statistically anomalous but within ordinary earnings-move magnitude)",
+          "occurrences": 3
+        }
+      ]
+    },
+    {
+      "symbol": "HON",
+      "sanity_score": 80,
+      "bars": 251,
+      "findings": [
+        {
+          "rule": "RETURN_SPIKE",
+          "severity": "warning",
+          "where": {
+            "date": "2025-10-23"
+          },
+          "explanation": "Daily return of 6.8% is a statistical outlier (modified z-score 5.8, threshold 3.5) with no corporate action registered. It may be a real market move or a bad tick — verify against a second source before consuming it.",
+          "occurrences": 7
+        },
+        {
+          "rule": "SPLIT_RATIO_IMPROBABLE",
+          "severity": "info",
+          "where": {
+            "date": "2026-06-29"
+          },
+          "explanation": "Split 1907-for-2000 on 2026-06-29 has ratio 0.9535 — within 0.05 of exactly 1:1. This is probably a spin-off recorded as a split: spin-offs generate non-round ratios near 1 (the child's value per parent share), and vendors such as Yahoo encode them as fractional splits — HON's 1907:2000 is a documented case. Verify against the issuer's announcement before adjusting prices.",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "symbol": "UPS",
+      "sanity_score": 85,
+      "bars": 251,
+      "findings": [
+        {
+          "rule": "RETURN_SPIKE",
+          "severity": "warning",
+          "where": {
+            "date": "2025-10-28"
+          },
+          "explanation": "Daily return of 8.0% is a statistical outlier (modified z-score 5.6, threshold 3.5) with no corporate action registered. It may be a real market move or a bad tick — verify against a second source before consuming it.",
+          "occurrences": 5
+        }
+      ]
+    },
+    {
+      "symbol": "DE",
+      "sanity_score": 95,
+      "bars": 251,
+      "findings": [
+        {
+          "rule": "RETURN_SPIKE",
+          "severity": "info",
+          "where": {
+            "date": "2025-08-14"
+          },
+          "explanation": "Daily return of -6.8% is a statistical outlier (modified z-score -4.2, threshold 3.5) with no corporate action registered. It may be a real market move or a bad tick — verify against a second source before consuming it. (statistically anomalous but within ordinary earnings-move magnitude)",
+          "occurrences": 5
+        }
+      ]
+    },
+    {
+      "symbol": "LMT",
+      "sanity_score": 85,
+      "bars": 251,
+      "findings": [
+        {
+          "rule": "RETURN_SPIKE",
+          "severity": "warning",
+          "where": {
+            "date": "2026-07-23"
+          },
+          "explanation": "Daily return of 10.5% is a statistical outlier (modified z-score 6.9, threshold 3.5) with no corporate action registered. It may be a real market move or a bad tick — verify against a second source before consuming it.",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "symbol": "RTX",
+      "sanity_score": 85,
+      "bars": 251,
+      "findings": [
+        {
+          "rule": "RETURN_SPIKE",
+          "severity": "warning",
+          "where": {
+            "date": "2025-10-21"
+          },
+          "explanation": "Daily return of 7.7% is a statistical outlier (modified z-score 6.4, threshold 3.5) with no corporate action registered. It may be a real market move or a bad tick — verify against a second source before consuming it.",
+          "occurrences": 4
+        }
+      ]
+    },
+    {
+      "symbol": "UNP",
+      "sanity_score": 85,
+      "bars": 251,
+      "findings": [
+        {
+          "rule": "RETURN_SPIKE",
+          "severity": "warning",
+          "where": {
+            "date": "2026-04-23"
+          },
+          "explanation": "Daily return of 8.8% is a statistical outlier (modified z-score 8.1, threshold 3.5) with no corporate action registered. It may be a real market move or a bad tick — verify against a second source before consuming it.",
+          "occurrences": 3
+        }
+      ]
+    },
+    {
+      "symbol": "FDX",
+      "sanity_score": 95,
+      "bars": 251,
+      "findings": [
+        {
+          "rule": "RETURN_SPIKE",
+          "severity": "info",
+          "where": {
+            "date": "2025-10-10"
+          },
+          "explanation": "Daily return of -5.2% is a statistical outlier (modified z-score -3.8, threshold 3.5) with no corporate action registered. It may be a real market move or a bad tick — verify against a second source before consuming it. (statistically anomalous but within ordinary earnings-move magnitude)",
+          "occurrences": 5
+        }
+      ]
+    },
+    {
+      "symbol": "SPY",
+      "sanity_score": 100,
+      "bars": 251,
+      "findings": []
+    },
+    {
+      "symbol": "QQQ",
+      "sanity_score": 85,
+      "bars": 251,
+      "findings": [
+        {
+          "rule": "RETURN_SPIKE",
+          "severity": "warning",
+          "where": {
+            "date": "2026-06-05"
+          },
+          "explanation": "Daily return of -4.8% is a statistical outlier (modified z-score -5.1, threshold 3.5) with no corporate action registered. It may be a real market move or a bad tick — verify against a second source before consuming it.",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "symbol": "IWM",
+      "sanity_score": 100,
+      "bars": 251,
+      "findings": []
+    },
+    {
+      "symbol": "DIA",
+      "sanity_score": 100,
+      "bars": 251,
+      "findings": []
+    },
+    {
+      "symbol": "VTI",
+      "sanity_score": 100,
+      "bars": 251,
+      "findings": []
+    },
+    {
+      "symbol": "VOO",
+      "sanity_score": 100,
+      "bars": 251,
+      "findings": []
+    },
+    {
+      "symbol": "ARKK",
+      "sanity_score": 100,
+      "bars": 251,
+      "findings": []
+    },
+    {
+      "symbol": "GLD",
+      "sanity_score": 85,
+      "bars": 251,
+      "findings": [
+        {
+          "rule": "RETURN_SPIKE",
+          "severity": "warning",
+          "where": {
+            "date": "2025-10-21"
+          },
+          "explanation": "Daily return of -6.4% is a statistical outlier (modified z-score -5.0, threshold 3.5) with no corporate action registered. It may be a real market move or a bad tick — verify against a second source before consuming it.",
+          "occurrences": 4
+        }
+      ]
+    },
+    {
+      "symbol": "TLT",
+      "sanity_score": 100,
+      "bars": 251,
+      "findings": []
+    },
+    {
+      "symbol": "EEM",
+      "sanity_score": 85,
+      "bars": 251,
+      "findings": [
+        {
+          "rule": "RETURN_SPIKE",
+          "severity": "warning",
+          "where": {
+            "date": "2026-03-03"
+          },
+          "explanation": "Daily return of -5.0% is a statistical outlier (modified z-score -5.1, threshold 3.5) with no corporate action registered. It may be a real market move or a bad tick — verify against a second source before consuming it.",
+          "occurrences": 6
+        }
+      ]
+    }
+  ]
+}

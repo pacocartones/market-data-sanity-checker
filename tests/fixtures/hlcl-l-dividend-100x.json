@@ -1,0 +1,18 @@
+{
+  "symbol": "HLCL.L",
+  "source": "yahoo",
+  "currency": "GBP",
+  "bars": [
+    { "timestamp": "2024-06-03", "open": 1.87, "high": 1.9, "low": 1.86, "close": 1.88, "volume": 412000 },
+    { "timestamp": "2024-06-04", "open": 1.88, "high": 1.91, "low": 1.87, "close": 1.89, "volume": 388000 },
+    { "timestamp": "2024-06-05", "open": 1.89, "high": 1.92, "low": 1.88, "close": 1.9, "volume": 405000 },
+    { "timestamp": "2024-06-06", "open": 1.9, "high": 1.93, "low": 1.89, "close": 1.91, "volume": 431000 },
+    { "timestamp": "2024-06-07", "open": 1.91, "high": 1.92, "low": 1.88, "close": 1.9, "volume": 397000 },
+    { "timestamp": "2024-06-10", "open": 1.89, "high": 1.91, "low": 1.87, "close": 1.89, "volume": 420000 },
+    { "timestamp": "2024-06-11", "open": 1.89, "high": 1.9, "low": 1.86, "close": 1.88, "volume": 376000 },
+    { "timestamp": "2024-06-12", "open": 1.88, "high": 1.92, "low": 1.87, "close": 1.9, "volume": 402000 }
+  ],
+  "dividends": [
+    { "exDate": "2024-06-10", "amount": 1.78, "type": "regular" }
+  ]
+}

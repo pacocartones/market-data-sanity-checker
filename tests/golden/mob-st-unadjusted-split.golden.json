@@ -1,0 +1,7 @@
+{
+  "fixture": "mob-st-unadjusted-split.json",
+  "sanity_score": 60,
+  "findings": [
+    { "rule": "SPLIT_NOT_ADJUSTED", "severity": "critical", "action": "block", "where": { "date": "2023-04-14" } }
+  ]
+}

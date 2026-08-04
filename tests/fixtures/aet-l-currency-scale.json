@@ -1,0 +1,17 @@
+{
+  "symbol": "AET.L",
+  "source": "yahoo",
+  "currency": "GBP",
+  "bars": [
+    { "timestamp": "2023-09-04", "open": 4.47, "high": 4.53, "low": 4.45, "close": 4.48, "volume": 412000 },
+    { "timestamp": "2023-09-05", "open": 4.5, "high": 4.55, "low": 4.48, "close": 4.51, "volume": 385000 },
+    { "timestamp": "2023-09-06", "open": 4.49, "high": 4.53, "low": 4.46, "close": 4.49, "volume": 401000 },
+    { "timestamp": "2023-09-07", "open": 4.51, "high": 4.56, "low": 4.49, "close": 4.52, "volume": 377000 },
+    { "timestamp": "2023-09-08", "open": 4.5, "high": 4.54, "low": 4.47, "close": 4.5, "volume": 398000 },
+    { "timestamp": "2023-09-11", "open": 449.5, "high": 453.2, "low": 447.8, "close": 449.8, "volume": 405000 },
+    { "timestamp": "2023-09-12", "open": 450.1, "high": 454.6, "low": 448.9, "close": 451.2, "volume": 391000 },
+    { "timestamp": "2023-09-13", "open": 451.0, "high": 453.8, "low": 448.5, "close": 450.5, "volume": 416000 },
+    { "timestamp": "2023-09-14", "open": 449.2, "high": 452.1, "low": 446.9, "close": 448.9, "volume": 382000 },
+    { "timestamp": "2023-09-15", "open": 450.8, "high": 455.3, "low": 449.6, "close": 452.1, "volume": 409000 }
+  ]
+}

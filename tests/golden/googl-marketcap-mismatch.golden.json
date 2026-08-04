@@ -1,0 +1,8 @@
+{
+  "fixture": "googl-marketcap-mismatch.json",
+  "sanity_score": 70,
+  "findings": [
+    { "rule": "INSUFFICIENT_DATA", "severity": "warning", "action": "flag", "where": null },
+    { "rule": "MARKETCAP_MISMATCH", "severity": "warning", "action": "flag", "where": { "date": "2024-06-07" } }
+  ]
+}

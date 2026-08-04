@@ -1,0 +1,8 @@
+{
+  "fixture": "bars-array.json",
+  "sanity_score": 80,
+  "findings": [
+    { "rule": "INSUFFICIENT_DATA", "severity": "warning", "action": "flag", "where": null },
+    { "rule": "CURRENCY_SUSPECT", "severity": "info", "action": "review", "where": null }
+  ]
+}

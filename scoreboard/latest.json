@@ -1,0 +1,89 @@
+{
+  "generated_at": "2026-07-31T22:55:20.933Z",
+  "basket": [
+    "AAPL",
+    "MSFT",
+    "NVDA",
+    "AMZN",
+    "META",
+    "GOOGL",
+    "TSLA",
+    "AVGO",
+    "JPM",
+    "V",
+    "KO",
+    "PG",
+    "JNJ",
+    "XOM",
+    "WMT",
+    "BRK-B",
+    "GE",
+    "CAT",
+    "BA",
+    "HON",
+    "SPY",
+    "QQQ",
+    "IWM",
+    "DIA",
+    "VTI",
+    "GLD",
+    "TLT",
+    "EEM",
+    "ARKK",
+    "NFLX"
+  ],
+  "range": "1y",
+  "providers": [
+    {
+      "provider": "yahoo",
+      "symbols_ok": 30,
+      "symbols_failed": 0,
+      "mean_score": 91.5,
+      "min_score": 80,
+      "worst_symbols": [
+        {
+          "symbol": "HON",
+          "score": 80,
+          "rules": [
+            "RETURN_SPIKE",
+            "SPLIT_RATIO_IMPROBABLE"
+          ]
+        },
+        {
+          "symbol": "MSFT",
+          "score": 85,
+          "rules": [
+            "RETURN_SPIKE"
+          ]
+        },
+        {
+          "symbol": "AMZN",
+          "score": 85,
+          "rules": [
+            "RETURN_SPIKE"
+          ]
+        },
+        {
+          "symbol": "META",
+          "score": 85,
+          "rules": [
+            "RETURN_SPIKE"
+          ]
+        },
+        {
+          "symbol": "GOOGL",
+          "score": 85,
+          "rules": [
+            "RETURN_SPIKE"
+          ]
+        }
+      ],
+      "total_findings": {
+        "critical": 0,
+        "warning": 14,
+        "info": 9
+      }
+    }
+  ],
+  "comparisons": []
+}

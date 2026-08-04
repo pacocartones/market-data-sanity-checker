@@ -1,0 +1,26 @@
+node_modules/
+dist/
+coverage/
+*.log
+.DS_Store
+
+# local secrets
+.env
+.env.*
+
+# audit history written by `mdsc check --save` (per-user data, not source)
+.mdsc/
+
+# ad-hoc dashboards generated with `--html <name>.html` at the repo root
+/*.html
+
+# Internal planning & progress tracking
+.internal/
+
+
+# Windows system files
+desktop.ini
+Desktop.ini
+*.tmp
+temp_*.txt
+

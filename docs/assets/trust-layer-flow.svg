@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="430" viewBox="0 0 960 430" role="img" aria-label="Architecture map — market data sources (Yahoo Finance, Alpha Vantage, your CSV/JSON) flow into mdsc, the trust layer, which validates with 36 rules, scores 0-100, explains and recommends block/flag/review; the verified output feeds your backtests, screeners, dashboards and ML pipelines, and can gate CI with exit codes">
+  <style>
+    text { font-family: ui-monospace, "SF Mono", "Cascadia Code", "JetBrains Mono", Menlo, Consolas, monospace; }
+    .fg { fill: #e6edf3; } .dim { fill: #8b949e; } .accent { fill: #58a6ff; }
+    .ok { fill: #3fb950; } .crit { fill: #f85149; }
+    .h { font-size: 12px; letter-spacing: .12em; }
+    .item { font-size: 15px; }
+    .item-sm { font-size: 13.5px; }
+    .small { font-size: 12px; }
+    .tiny { font-size: 10.5px; }
+    .stage { opacity: 0; animation: rise .5s ease forwards; }
+    .s1 { animation-delay: .15s } .s2 { animation-delay: .55s }
+    .s3 { animation-delay: .95s } .s4 { animation-delay: 1.35s } .s5 { animation-delay: 1.7s }
+    @keyframes rise { to { opacity: 1; } }
+    .flow { stroke-dasharray: 6 6; animation: dash 1.1s linear infinite; }
+    @keyframes dash { to { stroke-dashoffset: -12; } }
+    .pulse { animation: pulse 1.6s ease-in-out infinite; }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .3; } }
+    @media (prefers-reduced-motion: reduce) {
+      .stage { opacity: 1; animation: none; }
+      .flow, .pulse { animation: none; }
+    }
+  </style>
+
+  <rect x="1" y="1" width="958" height="428" rx="14" fill="#0d1117" stroke="#30363d"/>
+
+  <text x="480" y="46" text-anchor="middle" class="fg" style="font-size:20px; font-weight:700">the trust layer between your vendor and your code</text>
+  <text x="480" y="72" text-anchor="middle" class="dim" style="font-size:13px">flag, don't delete — your data is never rewritten</text>
+
+  <!-- DATA SOURCES -->
+  <g class="stage s1">
+    <rect x="28" y="100" width="252" height="250" rx="10" fill="#161b22" stroke="#30363d"/>
+    <text x="46" y="128" class="dim h">DATA SOURCES</text>
+    <text x="46" y="162" class="item"><tspan class="accent">▸</tspan> <tspan class="fg">Yahoo Finance</tspan> <tspan class="dim small">(keyless)</tspan></text>
+    <text x="46" y="194" class="item"><tspan class="accent">▸</tspan> <tspan class="fg">Alpha Vantage</tspan></text>
+    <text x="46" y="226" class="item"><tspan class="accent">▸</tspan> <tspan class="fg">your CSV / JSON</tspan></text>
+    <text x="46" y="258" class="item"><tspan class="accent">▸</tspan> <tspan class="fg">any vendor</tspan> <tspan class="dim small">— plugins</tspan></text>
+    <text x="46" y="316" class="dim tiny">OHLCV · dividends · splits</text>
+    <text x="46" y="334" class="dim tiny">fundamentals · identifiers</text>
+  </g>
+
+  <!-- MDSC -->
+  <g class="stage s3">
+    <rect x="354" y="100" width="252" height="250" rx="10" fill="#161b22" stroke="#1f6feb"/>
+    <text x="372" y="128" class="accent h">MDSC — TRUST LAYER</text>
+    <text x="372" y="162" class="item-sm fg">1 · validate — 36 rules</text>
+    <text x="372" y="194" class="item-sm fg">2 · score — 0 to 100</text>
+    <text x="372" y="226" class="item-sm fg">3 · explain — with evidence</text>
+    <text x="372" y="258" class="item-sm fg">4 · act — block/flag/review</text>
+    <rect x="366" y="278" width="228" height="58" rx="8" fill="#0d1117" stroke="#30363d"/>
+    <circle cx="382" cy="298" r="5" class="crit pulse"/>
+    <text x="394" y="302" class="small fg">SPLIT_NOT_ADJUSTED</text>
+    <text x="394" y="322" class="tiny dim">→ block · sanity_score 60/100</text>
+  </g>
+
+  <!-- YOUR PRODUCT -->
+  <g class="stage s5">
+    <rect x="680" y="100" width="252" height="250" rx="10" fill="#161b22" stroke="#30363d"/>
+    <text x="698" y="128" class="dim h">YOUR PRODUCT</text>
+    <text x="698" y="162" class="item"><tspan class="ok">▸</tspan> <tspan class="fg">backtests</tspan></text>
+    <text x="698" y="194" class="item"><tspan class="ok">▸</tspan> <tspan class="fg">screeners</tspan></text>
+    <text x="698" y="226" class="item"><tspan class="ok">▸</tspan> <tspan class="fg">dashboards</tspan></text>
+    <text x="698" y="258" class="item"><tspan class="ok">▸</tspan> <tspan class="fg">ML pipelines</tspan></text>
+    <text x="698" y="316" class="dim tiny">no bad tick reaches</text>
+    <text x="698" y="334" class="dim tiny">production unnoticed</text>
+  </g>
+
+  <!-- ARROWS -->
+  <g class="stage s2">
+    <line x1="284" y1="225" x2="344" y2="225" stroke="#58a6ff" stroke-width="2" class="flow"/>
+    <polygon points="352,225 342,220 342,230" fill="#58a6ff"/>
+    <text x="318" y="205" text-anchor="middle" class="dim tiny">raw data</text>
+    <text x="318" y="248" text-anchor="middle" class="dim tiny">untrusted</text>
+  </g>
+  <g class="stage s4">
+    <line x1="610" y1="225" x2="670" y2="225" stroke="#3fb950" stroke-width="2" class="flow"/>
+    <polygon points="678,225 668,220 668,230" fill="#3fb950"/>
+    <text x="644" y="205" text-anchor="middle" class="dim tiny">score + findings</text>
+    <text x="644" y="248" text-anchor="middle" class="dim tiny">CI gate</text>
+    <text x="644" y="262" text-anchor="middle" class="dim tiny">exit 1 blocks</text>
+  </g>
+
+  <text x="480" y="392" text-anchor="middle" class="dim" style="font-size:12px">detect · explain · score — before bad data breaks your product</text>
+</svg>

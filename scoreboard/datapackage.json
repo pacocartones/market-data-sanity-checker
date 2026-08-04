@@ -1,0 +1,51 @@
+{
+  "profile": "tabular-data-package",
+  "name": "market-data-provider-scoreboard",
+  "title": "Market Data Provider Scoreboard",
+  "description": "weekly audit of market data providers with mdsc sanity scores",
+  "homepage": "https://github.com/pacocartones/market-data-sanity-checker",
+  "created": "2026-07-31T22:55:20.933Z",
+  "resources": [
+    {
+      "name": "scoreboard",
+      "path": "latest.csv",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "name": "generated_at",
+            "type": "datetime"
+          },
+          {
+            "name": "provider",
+            "type": "string"
+          },
+          {
+            "name": "symbol",
+            "type": "string"
+          },
+          {
+            "name": "sanity_score",
+            "type": "integer"
+          },
+          {
+            "name": "critical",
+            "type": "integer"
+          },
+          {
+            "name": "warning",
+            "type": "integer"
+          },
+          {
+            "name": "info",
+            "type": "integer"
+          },
+          {
+            "name": "rules",
+            "type": "string"
+          }
+        ]
+      }
+    }
+  ]
+}

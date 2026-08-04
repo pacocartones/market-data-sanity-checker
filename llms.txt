@@ -1,0 +1,40 @@
+# market-data-sanity-checker
+
+> Trust layer for market data: validate, score and explain anomalies in OHLCV, dividends,
+> splits and fundamentals — before they break your screener, dashboard or tracker.
+> TypeScript library + CLI (`mdsc`), MIT licensed.
+
+## Key facts
+
+- Install: `npm install market-data-sanity-checker` (Node ≥ 20, zero config).
+- CLI check: `mdsc check --file aapl.csv --symbol AAPL --source yahoo` or fetch directly
+  with `mdsc check --provider yahoo --symbol AAPL --range 1y` (Yahoo is keyless;
+  Alpha Vantage needs `ALPHA_VANTAGE_API_KEY`).
+- CLI compare: `mdsc compare --symbol AAPL --providers yahoo,alpha-vantage` (or
+  `--files a.json,b.csv`) — multi-source divergence detection with a consistency score.
+- Rule corpus: 36 rules — 29 single-source (price/OHLCV, corporate actions, fundamentals,
+  metadata) plus 7 multi-source compare rules. Catalog: `mdsc rules --format json`.
+- Sanity score: `max(0, 100 − Σ penalties)` — critical −40, warning −15, info −5; each
+  rule penalizes once per dataset (repeated defects count as `occurrences`). Bands:
+  90–100 reliable, 70–89 usable with caution, 40–69 suspicious, <40 not fit for production.
+- Exit codes: `0` gate passed · `1` gate failed (critical findings, or
+  `--fail-on`/`--min-score`) · `2` operational error (file unreadable, invalid flags,
+  provider unavailable, invalid config).
+- Flag, don't delete: the tool detects, explains and scores — it never rewrites data.
+- Headline rules: `SPLIT_NOT_ADJUSTED` (Yahoo unadjusted splits = phantom −50% crashes),
+  `PRICE_SPIKE_INTRADAY` (Berkshire-2024-style bad ticks), `CURRENCY_SCALE_SUSPECT` and
+  `DIV_SCALE_100X` (pence/pounds ×100 errors), `SYMBOL_MAPPING_SUSPECT` (ticker reuse,
+  ISIN checksum), `SPLIT_MISMATCH` (cross-source split disagreement).
+- Every finding carries severity (critical/warning/info), recommended action
+  (block/flag/review), DAMA dimension, causal explanation, evidence and references.
+- CI gating: `--fail-on warning --min-score 80`; audit trail via `--save` + `mdsc history`;
+  self-contained interactive HTML dashboards via `--html` (single offline file, no server).
+
+## Docs
+
+- [README.md](README.md): quickstart, install, CLI/SDK usage, sanity score, full rule catalog, FAQ
+- [docs/examples.md](docs/examples.md): real caught-in-the-wild cases with reproducible output
+- [CONTRIBUTING.md](CONTRIBUTING.md): how to add a rule (stable ID, severity, reference, fixture)
+- [docs/fixtures.md](docs/fixtures.md): real-case fixtures anchoring the headline rules
+- [scoreboard/README.md](scoreboard/README.md): weekly public provider audit, reproducible with `pnpm scoreboard`
+- [CHANGELOG.md](CHANGELOG.md): release history

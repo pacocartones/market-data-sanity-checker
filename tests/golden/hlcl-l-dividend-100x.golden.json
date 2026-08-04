@@ -1,0 +1,9 @@
+{
+  "fixture": "hlcl-l-dividend-100x.json",
+  "sanity_score": 55,
+  "findings": [
+    { "rule": "DIV_SCALE_100X", "severity": "warning", "action": "flag", "where": { "date": "2024-06-10" } },
+    { "rule": "DIV_YIELD_IMPOSSIBLE", "severity": "warning", "action": "flag", "where": { "date": "2024-06-12" } },
+    { "rule": "INSUFFICIENT_DATA", "severity": "warning", "action": "flag", "where": null }
+  ]
+}

@@ -1,0 +1,38 @@
+name: Scoreboard
+
+on:
+  schedule:
+    # Mondays at 05:23 UTC (off the hour mark, on purpose)
+    - cron: '23 5 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  scoreboard:
+    runs-on: ubuntu-latest
+    steps:
+      # zizmor: ignore[artipacked] — git-auto-commit-action pushes through these persisted credentials (no token input of its own)
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          # Credentials must stay persisted: git-auto-commit-action has no token
+          # input of its own — it pushes through the git credentials that
+          # actions/checkout stores in the local git config (documented in its
+          # README). persist-credentials: false would break the weekly commit.
+          persist-credentials: true
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Run the scoreboard
+        run: pnpm scoreboard
+        env:
+          ALPHA_VANTAGE_API_KEY: ${{ secrets.ALPHA_VANTAGE_API_KEY }}
+      - name: Commit updated scoreboard
+        uses: stefanzweifel/git-auto-commit-action@b863ae1933cb653a53c021fe36dbb774e1fb9403 # v5
+        with:
+          commit_message: "chore(scoreboard): weekly provider audit [skip ci]"
+          file_pattern: "scoreboard/*"

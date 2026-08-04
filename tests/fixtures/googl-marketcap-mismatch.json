@@ -1,0 +1,16 @@
+{
+  "symbol": "GOOGL",
+  "source": "vendor",
+  "currency": "USD",
+  "bars": [
+    { "timestamp": "2024-06-03", "open": 139.5, "high": 141.2, "low": 138.9, "close": 140.1, "volume": 25100000 },
+    { "timestamp": "2024-06-04", "open": 140.0, "high": 140.9, "low": 138.7, "close": 139.8, "volume": 24300000 },
+    { "timestamp": "2024-06-05", "open": 139.9, "high": 141.4, "low": 139.2, "close": 140.5, "volume": 26800000 },
+    { "timestamp": "2024-06-06", "open": 140.6, "high": 141.9, "low": 140.0, "close": 141.2, "volume": 27900000 },
+    { "timestamp": "2024-06-07", "open": 141.0, "high": 141.5, "low": 139.4, "close": 140.0, "volume": 30200000 }
+  ],
+  "fundamentals": {
+    "marketCap": 999000000000,
+    "sharesOutstanding": 12500000000
+  }
+}

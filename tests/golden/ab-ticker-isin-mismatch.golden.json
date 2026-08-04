@@ -1,0 +1,8 @@
+{
+  "fixture": "ab-ticker-isin-mismatch.json",
+  "sanity_score": 70,
+  "findings": [
+    { "rule": "INSUFFICIENT_DATA", "severity": "warning", "action": "flag", "where": null },
+    { "rule": "SYMBOL_MAPPING_SUSPECT", "severity": "warning", "action": "flag", "where": null }
+  ]
+}

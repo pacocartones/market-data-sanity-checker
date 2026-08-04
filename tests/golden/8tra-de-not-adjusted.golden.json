@@ -1,0 +1,8 @@
+{
+  "fixture": "8tra-de-not-adjusted.json",
+  "sanity_score": 70,
+  "findings": [
+    { "rule": "DIV_NOT_ADJUSTED", "severity": "warning", "action": "flag", "where": { "date": "2023-06-08" } },
+    { "rule": "INSUFFICIENT_DATA", "severity": "warning", "action": "flag", "where": null }
+  ]
+}

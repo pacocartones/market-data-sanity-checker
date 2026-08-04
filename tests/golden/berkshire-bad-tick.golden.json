@@ -1,0 +1,8 @@
+{
+  "fixture": "berkshire-bad-tick.json",
+  "sanity_score": 45,
+  "findings": [
+    { "rule": "PRICE_SPIKE_INTRADAY", "severity": "critical", "action": "block", "where": { "date": "2024-06-03" } },
+    { "rule": "RETURN_SPIKE", "severity": "warning", "action": "flag", "where": { "date": "2024-06-03" } }
+  ]
+}

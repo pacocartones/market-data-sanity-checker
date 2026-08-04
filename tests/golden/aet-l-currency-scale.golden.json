@@ -1,0 +1,7 @@
+{
+  "fixture": "aet-l-currency-scale.json",
+  "sanity_score": 85,
+  "findings": [
+    { "rule": "CURRENCY_SCALE_SUSPECT", "severity": "warning", "action": "flag", "where": { "date": "2023-09-11" } }
+  ]
+}

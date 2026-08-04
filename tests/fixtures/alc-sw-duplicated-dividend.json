@@ -1,0 +1,15 @@
+{
+  "symbol": "ALC.SW",
+  "source": "yahoo",
+  "currency": "CHF",
+  "bars": [
+    { "timestamp": "2023-05-08", "open": 71.2, "high": 71.9, "low": 70.8, "close": 71.5, "volume": 812000 },
+    { "timestamp": "2023-05-09", "open": 71.3, "high": 71.8, "low": 70.9, "close": 71.3, "volume": 845000 },
+    { "timestamp": "2023-05-10", "open": 71.1, "high": 71.6, "low": 70.7, "close": 71.1, "volume": 830000 },
+    { "timestamp": "2023-05-11", "open": 71.0, "high": 71.5, "low": 70.6, "close": 71.2, "volume": 821000 }
+  ],
+  "dividends": [
+    { "exDate": "2023-05-09", "amount": 0.21, "type": "regular" },
+    { "exDate": "2023-05-10", "amount": 0.21, "type": "regular" }
+  ]
+}

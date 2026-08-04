@@ -1,0 +1,49 @@
+name: Bug report
+description: Report wrong behavior of the CLI or the library (crashes, false positives, wrong scores)
+title: "[bug] "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting. The more precisely you fill this in, the faster we can reproduce it.
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      description: A clear description of the bug — which rule, score or output is wrong, and why you think so.
+      placeholder: mdsc flags SPLIT_NOT_ADJUSTED on a series that was correctly adjusted...
+    validations:
+      required: true
+  - type: textarea
+    id: command
+    attributes:
+      label: Exact command or code
+      description: The exact CLI command or SDK snippet you ran (copy-paste, including flags).
+      placeholder: mdsc check --provider yahoo --symbol AAPL --range 1y
+    validations:
+      required: true
+  - type: textarea
+    id: output
+    attributes:
+      label: Actual vs expected output
+      description: Paste the actual output (or the relevant finding/report JSON) and state what you expected instead.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: Output of `mdsc --version` (or the version from your package.json).
+      placeholder: 1.1.0
+    validations:
+      required: true
+  - type: textarea
+    id: dataset
+    attributes:
+      label: Sample dataset (if applicable)
+      description: |
+        A minimal dataset that reproduces the problem (CSV/JSON). Reduce it to the fewest rows that still trigger the bug.
+        **Do not paste private or licensed market data** — public tickers only, and only the rows needed.
+    validations:
+      required: false

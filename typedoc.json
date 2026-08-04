@@ -1,0 +1,49 @@
+﻿{
+  "$schema": "https://typedoc.org/schema.json",
+  "entryPoints": ["src/index.ts"],
+  "out": "docs/api",
+  "plugin": [],
+  "excludePrivate": true,
+  "excludeProtected": true,
+  "excludeExternals": true,
+  "readme": "README.md",
+  "name": "market-data-sanity-checker",
+  "includeVersion": true,
+  "sort": ["source-order"],
+  "kindSortOrder": [
+    "Function",
+    "TypeAlias",
+    "Interface",
+    "Class",
+    "Constructor",
+    "Property",
+    "Method"
+  ],
+  "categorizeByGroup": true,
+  "defaultCategory": "Core",
+  "categoryOrder": [
+    "Core",
+    "Schema",
+    "Ingestion",
+    "Rules",
+    "Comparison",
+    "Connectors",
+    "Scoring",
+    "Reporting",
+    "History",
+    "Configuration",
+    "*"
+  ],
+  "gitRevision": "main",
+  "gitRemote": "origin",
+  "navigation": {
+    "includeCategories": true,
+    "includeGroups": true
+  },
+  "searchInComments": true,
+  "validation": {
+    "notExported": true,
+    "invalidLink": true,
+    "notDocumented": false
+  }
+}

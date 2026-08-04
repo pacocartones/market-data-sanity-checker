@@ -1,0 +1,19 @@
+{
+  "symbol": "BRK.A",
+  "source": "sip-cta",
+  "currency": "USD",
+  "bars": [
+    { "timestamp": "2024-05-20", "open": 620900, "high": 621300, "low": 620100, "close": 620400, "volume": 320 },
+    { "timestamp": "2024-05-21", "open": 620500, "high": 621500, "low": 620300, "close": 621100, "volume": 285 },
+    { "timestamp": "2024-05-22", "open": 621000, "high": 621300, "low": 620400, "close": 620700, "volume": 410 },
+    { "timestamp": "2024-05-23", "open": 620800, "high": 621800, "low": 620500, "close": 621500, "volume": 298 },
+    { "timestamp": "2024-05-24", "open": 621400, "high": 621600, "low": 620600, "close": 620900, "volume": 356 },
+    { "timestamp": "2024-05-28", "open": 621000, "high": 621700, "low": 620800, "close": 621300, "volume": 264 },
+    { "timestamp": "2024-05-29", "open": 621200, "high": 621400, "low": 620200, "close": 620600, "volume": 377 },
+    { "timestamp": "2024-05-30", "open": 620700, "high": 621500, "low": 620500, "close": 621200, "volume": 341 },
+    { "timestamp": "2024-05-31", "open": 621100, "high": 621200, "low": 620400, "close": 620800, "volume": 402 },
+    { "timestamp": "2024-06-03", "open": 621000, "high": 622000, "low": 185.15, "close": 185.15, "volume": 4931 },
+    { "timestamp": "2024-06-04", "open": 620900, "high": 621400, "low": 620600, "close": 621000, "volume": 517 },
+    { "timestamp": "2024-06-05", "open": 621100, "high": 621600, "low": 620800, "close": 621100, "volume": 389 }
+  ]
+}

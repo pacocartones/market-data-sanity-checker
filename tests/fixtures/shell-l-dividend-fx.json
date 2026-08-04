@@ -1,0 +1,21 @@
+{
+  "symbol": "SHEL.L",
+  "exchange": "LSE",
+  "source": "vendor",
+  "currency": "GBX",
+  "bars": [
+    { "timestamp": "2024-02-01", "open": 2282.0, "high": 2292.5, "low": 2278.0, "close": 2285.5, "volume": 5200000 },
+    { "timestamp": "2024-02-02", "open": 2286.0, "high": 2295.0, "low": 2283.5, "close": 2290.0, "volume": 5400000 },
+    { "timestamp": "2024-02-05", "open": 2294.0, "high": 2305.0, "low": 2290.5, "close": 2301.5, "volume": 5100000 },
+    { "timestamp": "2024-02-06", "open": 2300.0, "high": 2304.5, "low": 2293.0, "close": 2298.0, "volume": 5300000 },
+    { "timestamp": "2024-02-07", "open": 2299.5, "high": 2314.0, "low": 2296.5, "close": 2310.5, "volume": 5600000 },
+    { "timestamp": "2024-02-08", "open": 2308.0, "high": 2311.5, "low": 2300.0, "close": 2305.0, "volume": 4900000 },
+    { "timestamp": "2024-02-09", "open": 2306.5, "high": 2316.0, "low": 2304.0, "close": 2312.5, "volume": 5150000 },
+    { "timestamp": "2024-02-12", "open": 2311.0, "high": 2314.5, "low": 2303.5, "close": 2308.0, "volume": 5050000 },
+    { "timestamp": "2024-02-13", "open": 2309.0, "high": 2319.0, "low": 2306.0, "close": 2315.5, "volume": 5250000 },
+    { "timestamp": "2024-02-14", "open": 2316.5, "high": 2324.0, "low": 2312.5, "close": 2320.0, "volume": 5350000 }
+  ],
+  "dividends": [
+    { "exDate": "2024-02-07", "amount": 0.35, "currency": "USD", "type": "regular" }
+  ]
+}

@@ -1,0 +1,54 @@
+name: Rule proposal
+description: Propose a new validation rule for the corpus
+title: "[rule] "
+labels: [enhancement, rule-proposal]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        New rules follow the contract in [CONTRIBUTING.md](https://github.com/pacocartones/market-data-sanity-checker/blob/main/CONTRIBUTING.md):
+        no documented real-world case, no rule. Proposals without a reference URL are closed.
+  - type: input
+    id: rule-id
+    attributes:
+      label: Proposed rule ID
+      description: SCREAMING_SNAKE_CASE, stable — it becomes part of the public contract.
+      placeholder: DIV_CURRENCY_SCALE_SUSPECT
+    validations:
+      required: true
+  - type: textarea
+    id: detection
+    attributes:
+      label: What does it detect?
+      description: The data defect, its causal hypothesis, and the impact on downstream consumers.
+      placeholder: Dividends paid in a different currency than the price series, causing...
+    validations:
+      required: true
+  - type: input
+    id: reference
+    attributes:
+      label: Documented real-world case (URL)
+      description: Link to the incident, vendor documentation, or literature justifying the rule and its thresholds. Mandatory.
+      placeholder: https://...
+    validations:
+      required: true
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Proposed severity
+      description: When in doubt choose the lower one — false positives hurt more than false negatives.
+      options:
+        - critical (block)
+        - warning (flag)
+        - info (review)
+    validations:
+      required: true
+  - type: textarea
+    id: example-data
+    attributes:
+      label: Example data
+      description: |
+        A minimal dataset exhibiting the problem — ideally dirty data from the actual incident.
+        This becomes the test fixture. **Do not paste private or licensed market data.**
+    validations:
+      required: false

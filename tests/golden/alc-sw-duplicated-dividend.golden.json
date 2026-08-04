@@ -1,0 +1,8 @@
+{
+  "fixture": "alc-sw-duplicated-dividend.json",
+  "sanity_score": 70,
+  "findings": [
+    { "rule": "DIV_DUPLICATED", "severity": "warning", "action": "flag", "where": { "date": "2023-05-10" } },
+    { "rule": "INSUFFICIENT_DATA", "severity": "warning", "action": "flag", "where": null }
+  ]
+}

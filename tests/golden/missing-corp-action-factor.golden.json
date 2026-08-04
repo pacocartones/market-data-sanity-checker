@@ -1,0 +1,7 @@
+{
+  "fixture": "missing-corp-action-factor.json",
+  "sanity_score": 85,
+  "findings": [
+    { "rule": "CORPORATE_ACTION_MISSING_FROM_FACTOR", "severity": "warning", "action": "flag", "where": { "date": "2024-01-02" } }
+  ]
+}

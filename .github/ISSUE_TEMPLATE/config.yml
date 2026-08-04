@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Documentation (README)
+    url: https://github.com/pacocartones/market-data-sanity-checker#readme
+    about: Usage, configuration, rule catalog and FAQ — check here first.
+  - name: Provider scoreboard
+    url: https://github.com/pacocartones/market-data-sanity-checker/tree/main/scoreboard
+    about: Weekly audit of real provider data — check whether your issue is already visible there.

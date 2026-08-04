@@ -1,0 +1,88 @@
+﻿{
+    "name":  "market-data-sanity-checker",
+    "version":  "1.1.0",
+    "description":  "Trust layer for market data: validate, score and explain anomalies in OHLCV, dividends, splits and fundamentals before they break your product.",
+    "keywords":  [
+                     "market data",
+                     "data quality",
+                     "data validation",
+                     "validation",
+                     "ohlcv",
+                     "stock data",
+                     "stocks",
+                     "equities",
+                     "dividends",
+                     "splits",
+                     "corporate actions",
+                     "anomaly detection",
+                     "data observability",
+                     "financial data",
+                     "trading",
+                     "quant",
+                     "fintech",
+                     "yahoo finance",
+                     "sanity check",
+                     "cli"
+                 ],
+    "license":  "MIT",
+    "author":  "Manuel Sánchez",
+    "repository":  {
+                       "type":  "git",
+                       "url":  "git+https://github.com/pacocartones/market-data-sanity-checker.git"
+                   },
+    "bugs":  "https://github.com/pacocartones/market-data-sanity-checker/issues",
+    "homepage":  "https://github.com/pacocartones/market-data-sanity-checker#readme",
+    "type":  "module",
+    "main":  "./dist/index.js",
+    "types":  "./dist/index.d.ts",
+    "bin":  {
+                "mdsc":  "./dist/cli.js",
+                "market-data-sanity-checker":  "./dist/cli.js"
+            },
+    "exports":  {
+                    ".":  {
+                              "types":  "./dist/index.d.ts",
+                              "import":  "./dist/index.js"
+                          }
+                },
+    "files":  [
+                  "dist"
+              ],
+    "sideEffects":  false,
+    "engines":  {
+                    "node":  "\u003e=20"
+                },
+    "packageManager":  "pnpm@11.18.0",
+    "scripts":  {
+                    "build":  "tsup",
+                    "prepack":  "pnpm build",
+                    "dev":  "tsx src/cli.ts",
+                    "test":  "vitest run",
+                    "test:coverage":  "vitest run --coverage",
+                    "test:watch":  "vitest",
+                    "typecheck":  "tsc --noEmit",
+                    "lint":  "eslint .",
+                    "calibrate":  "tsx scripts/calibrate.ts",
+                    "scoreboard":  "tsx scripts/scoreboard.ts",
+                    "coverage:summary":  "tsx scripts/generate-coverage-summary.ts",
+                    "coverage:check":  "pnpm test:coverage \u0026\u0026 pnpm coverage:summary"
+                },
+    "dependencies":  {
+                         "commander":  "^12.1.0",
+                         "papaparse":  "^5.4.1",
+                         "zod":  "^3.24.1"
+                     },
+    "devDependencies":  {
+                            "@changesets/cli":  "^2.27.9",
+                            "@eslint/js":  "^9.17.0",
+                            "@types/node":  "^22.10.2",
+                            "@types/papaparse":  "^5.3.15",
+                            "@vitest/coverage-v8":  "^3.2.7",
+                            "eslint":  "^9.17.0",
+                            "tsup":  "^8.3.5",
+                            "tsx":  "^4.19.2",
+                            "typescript":  "^5.7.2",
+                            "typescript-eslint":  "^8.18.1",
+                            "vitest":  "^3.0.0"
+                        }
+}

@@ -1,0 +1,5 @@
+{
+  "fixture": "ge-reverse-split.json",
+  "sanity_score": 100,
+  "findings": []
+}
