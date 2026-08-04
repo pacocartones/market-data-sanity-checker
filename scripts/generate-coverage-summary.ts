@@ -1,4 +1,4 @@
-﻿import { readFileSync, writeFileSync } from 'fs'
+import { readFileSync, writeFileSync } from 'fs'
 import { join } from 'path'
 
 // Generate coverage summary badge endpoint
@@ -43,7 +43,7 @@ try {
   }
   
   console.log(`✅ Coverage ${avgCoverage}% meets threshold`)
-} catch (error) {
+} catch (_error) {
   console.error('⚠️  No coverage data found, run tests first')
   process.exit(0) // Don't fail on first run
 }
