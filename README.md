@@ -1,11 +1,11 @@
 ﻿# market-data-sanity-checker
 
-[![CI](https://github.com/pacocartones/market-data-sanity-checker/actions/workflows/ci.yml/badge.svg)](https://github.com/pacocartones/market-data-sanity-checker/actions/workflows/ci.yml)
+[![CI](https://github.com/pacocartones/market-data-sanity-checker-2/actions/workflows/ci.yml/badge.svg)](https://github.com/pacocartones/market-data-sanity-checker-2/actions/workflows/ci.yml)
 [![npm version](https://img.shields.io/npm/v/market-data-sanity-checker)](https://www.npmjs.com/package/market-data-sanity-checker)
 [![npm downloads](https://img.shields.io/npm/dm/market-data-sanity-checker)](https://www.npmjs.com/package/market-data-sanity-checker)
 [![node version](https://img.shields.io/node/v/market-data-sanity-checker)](https://nodejs.org)
-[![Coverage](https://img.shields.io/badge/coverage-check%20status-blue)](https://github.com/pacocartones/market-data-sanity-checker/actions/workflows/ci.yml)
-[![API Docs](https://img.shields.io/badge/docs-API%20reference-success)](https://pacocartones.github.io/market-data-sanity-checker/)
+[![Coverage](https://img.shields.io/badge/coverage-check%20status-blue)](https://github.com/pacocartones/market-data-sanity-checker-2/actions/workflows/ci.yml)
+[![API Docs](https://img.shields.io/badge/docs-API%20reference-success)](https://pacocartones.github.io/market-data-sanity-checker-2/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 > **Trust layer for market data.** Validate, score and explain anomalies in OHLCV, dividends,
