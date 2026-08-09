@@ -25,6 +25,11 @@ jobs:
       - name: Run zizmor
         uses: zizmorcore/zizmor-action@6fc4b006235f201fdab3722e17240ab420d580e5 # v0.6.1
         with:
+          # Pin the audit version: the action's default is "latest", which
+          # silently follows the action's own releases — a new zizmor can
+          # break CI without notice. 1.28.0 is the version verified against
+          # this repo; bump it deliberately when upgrading.
+          version: 1.28.0
           # SARIF upload needs GitHub Advanced Security, unavailable on private
           # repos on the free plan — findings surface as workflow annotations
           # instead. Flip to true when the repo goes public.
