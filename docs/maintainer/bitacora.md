@@ -247,3 +247,93 @@ desactualizados). Verificado hoy en esta máquina:
 **Decisión de Paco (2026-08-02, noche): seguir en pausa, para más adelante.** Sin fecha; al
 retomar, la secuencia sigue siendo: release v1.2.0 → repo público → npm publish → promoción a
 su señal.
+
+## 2026-08-09 (sesión 5) — Release v1.2.0 preparada + CI endurecido; publicación bloqueada solo por el token npm
+
+### Qué se hizo
+
+Commits en `main` (todos empujados y validados, head `c29d2fe`):
+
+- `2af84bd` **release v1.2.0**: changeset `dashboard-v2.md` consumido, CHANGELOG (entrada
+  byte-idéntica al changeset), bump 1.1.0 → 1.2.0. Tarball validado a fondo: 11 archivos,
+  sin secretos ni rutas absolutas, `--version` → 1.2.0, instalación E2E como consumidor
+  (CLI + SDK + `--html`) OK.
+- `8be809b` **typedoc reproducible**: devDependency `^0.28.20` + lockfile; eliminado el
+  `pnpm add -D typedoc` de `docs.yml`; `docs/api/` a `.gitignore`. Sin cambios de versiones
+  en el lockfile (solo aditivo).
+- `d518bd5` **fix provenance**: `NPM_CONFIG_PROVENANCE` → `PNPM_CONFIG_PROVENANCE` (ver
+  Aprendido).
+- `145203e` **BOMs UTF-8** fuera de `docs.yml`, `typedoc.json`, `README.md` (byte-exacto,
+  sin tocar line-endings). `GOVERNANCE.md` sigue con BOM (pendiente menor).
+- `0c12afd` **permisos Pages acotados**: `pages: write` + `id-token: write` movidos del
+  workflow al job `deploy` (único que los necesita; least privilege). Deploy verificado.
+- `cddfd68` **zizmor pineado** `version: 1.28.0` (ver Aprendido).
+- `5b06d14` **gate humano**: job de release vinculado al environment `release` (required
+  reviewer = pacocartones, `prevent_self_review: false`, branch policy protegida,
+  `can_admins_bypass: true` — configurado vía API y verificado).
+- `e1073af` **concurrency** con `cancel-in-progress` en ci/codeql/scoreboard/zizmor
+  (grupo `workflow-ref-event_name`; release sin cancel a propósito).
+- `f4c1a95` + `c80e024` **anotaciones artipacked**: el primer intento (comentarios encima
+  de `- uses:`) era **inerte** (fuera del span del finding); fix moviéndolos dentro del
+  step. Verificado con la persona `auditor`: artipacked 2 → 0.
+- `1a0da89` indentación de `typedoc` en package.json (24 → 28, alineada).
+- `c29d2fe` `docs/agents/issue-tracker.md` (spec source para el skill code-review).
+- Checklist actualizado: sección 1.1 con la configuración reproducible del environment
+  `release` + advertencia de plan.
+
+Además: ramas `fix/dependabot-alerts` (local y remota) borradas tras verificar que su
+contenido está íntegro en main (squash de la PR #7); auditoría de los **26 findings
+suprimidos** de zizmor (persona `auditor`): ninguno crítico, dos merecen decisión
+(environment de release — resuelto en `5b06d14` — y concurrency — resuelto en `e1073af`).
+
+### Decisiones relevantes (y por qué)
+
+- **Publicación vía GitHub Actions con provenance** (Opción A del checklist), no local:
+  requiere el token npm del propietario; todo lo demás está listo.
+- **`prevent_self_review: false`** en el environment: en un repo de un solo propietario,
+  quien empuja debe poder aprobar su propio run; activarlo bloquearía la publicación.
+- **`NPM_TOKEN` como environment secret** acotado a `release` — un secret de repo
+  sortearía el gate (documentado en el checklist).
+- **`release.yml` sin `cancel-in-progress`** a propósito: cancelar un publish a medias es
+  más peligroso que dejarlo encolado.
+- **Comentarios de zizmor dentro del span del finding** (ver Aprendido) — la posición
+  correcta es dentro del nodo del step, no encima del `- uses:`.
+
+### Estado final verificado
+
+Head `c29d2fe` en `origin/main`: **CI (331 tests, lint, typecheck, build, ubuntu/windows ×
+node 22/24) ✅ · CodeQL ✅ · Deploy API Docs ✅ · zizmor ✅ · Release ⏭️ skipped** (esperado:
+publicación desactivada). Árbol local limpio. Sin PRs abiertos (los 2 relevantes, #6 y #7,
+merged; los 5 de dependabot de actions, cerrados por decisión previa).
+
+### Aprendido (candidatos a 04-CONOCIMIENTO)
+
+- **pnpm 11 ignora `NPM_CONFIG_*` y lee `PNPM_CONFIG_*`** (verificado localmente:
+  `PNPM_CONFIG_PROVENANCE=true` → `provenance = true`; `NPM_CONFIG_PROVENANCE` → sin
+  efecto). En workflows con pnpm, las env de config van con el prefijo `PNPM_CONFIG_`.
+- **zizmor**: los comentarios `# zizmor: ignore[...]` solo se honran **dentro del span del
+  finding** (el nodo completo del step: `- uses:` + `with:`); encima del `- uses:` son
+  inertes. Los suprimidos de la persona `regular` no se emiten en ningún formato — usar
+  `--persona=auditor --format=json` para enumerarlos (campo `ignored`).
+- **zizmor-action**: su `latest` no es libre — usa imágenes digest-pinned vía
+  `support/versions`; al pinear, usar una versión existente en ese archivo y subir la
+  action antes de saltar de versión.
+- **Un BOM UTF-8 puede enmascarar el parseo de zizmor**: con BOM no reconocía el bloque
+  `permissions` de docs.yml (por eso el head anterior "pasaba"); al quitarlo salió un
+  finding legítimo de permisos.
+- **Concurrency en GH Actions**: incluir `github.event_name` en el grupo para que un push
+  no cancele runs programados (cron) ni dispatches manuales.
+- **GitHub: required reviewers en repos privados es exclusivo de Enterprise**; en
+  Free/Pro/Team la regla se configura vía API pero GitHub no pausa el job. Verificar en
+  el primer publish real que el run aparezca como *Waiting for approval*.
+- **API de environments**: `PUT /repos/{o}/{r}/environments/{env}` usa body con
+  `reviewers`/`prevent_self_review`/`deployment_branch_policy`/`can_admins_bypass`
+  (`protection_rules` es solo de respuesta).
+
+### Siguiente paso
+
+Único bloqueante: **el token npm** (granular, scope publish). Al tenerlo:
+`gh secret set NPM_TOKEN --env release` + `gh variable set NPM_PUBLISH_ENABLED --body true`
+→ push → aprobar el job en Actions → verificar `npm view market-data-sanity-checker
+version` (1.2.0) y la attestation (`dist.attestations`). Luego: repo público (paso 0) y
+promoción a señal de Paco. Checklist: `docs/maintainer/lanzamiento-checklist.md`.
