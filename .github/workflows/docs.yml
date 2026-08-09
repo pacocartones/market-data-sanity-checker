@@ -7,8 +7,8 @@ on:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
+  # pages: write and id-token: write are only needed by the deploy job
+  # (deploy-pages), so they are scoped there — least privilege.
 
 concurrency:
   group: "pages"
@@ -47,6 +47,9 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
+    permissions:
+      pages: write
+      id-token: write
     runs-on: ubuntu-latest
     needs: build
     steps:
