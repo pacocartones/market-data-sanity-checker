@@ -42,11 +42,14 @@ jobs:
           version: pnpm changeset version
           # `changeset publish` has no --provenance flag (verified against
           # @changesets/cli 2.31.1); it shells out to `pnpm publish`, which
-          # enables provenance via the NPM_CONFIG_PROVENANCE env var below.
+          # enables provenance via the PNPM_CONFIG_PROVENANCE env var below.
+          # pnpm 11 reads PNPM_CONFIG_* env vars and IGNORES NPM_CONFIG_* —
+          # verified locally: PNPM_CONFIG_PROVENANCE=true surfaces in
+          # `pnpm config get provenance`, NPM_CONFIG_PROVENANCE does not.
           publish: pnpm changeset publish
         env:
           # npm access token (automation or granular, publish scope, no 2FA on
           # publish). Create one at https://www.npmjs.com/settings/<you>/tokens
           # and store it as the NPM_TOKEN repository secret before releasing.
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-          NPM_CONFIG_PROVENANCE: "true"
+          PNPM_CONFIG_PROVENANCE: "true"
