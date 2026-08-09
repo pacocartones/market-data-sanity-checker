@@ -27,3 +27,6 @@ temp_*.txt
 
 # Session continuation (local only)
 SESSION-CONTINUATION.md
+
+# Generated API docs (typedoc)
+docs/api/

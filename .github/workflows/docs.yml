@@ -31,10 +31,7 @@ jobs:
       
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-      
-      - name: Install TypeDoc
-        run: pnpm add -D typedoc
-      
+
       - name: Generate API docs
         run: pnpm typedoc
       
