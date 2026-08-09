@@ -9,6 +9,12 @@ on:
     # Mondays at 06:41 UTC (off the hour mark, on purpose)
     - cron: '41 6 * * 1'
 
+# Cancel redundant runs on rapid pushes; event_name keeps the scheduled
+# Monday run from being cancelled by a concurrent push (and vice versa).
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name }}
+  cancel-in-progress: true
+
 jobs:
   analyze:
     name: Analyze

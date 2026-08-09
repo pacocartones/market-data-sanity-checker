@@ -5,6 +5,12 @@ on:
     branches: [main]
   pull_request:
 
+# Cancel redundant runs on rapid pushes to the same branch/PR. event_name
+# keeps scheduled runs (none here today) from being cancelled by pushes.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 

@@ -6,6 +6,12 @@ on:
     - cron: '23 5 * * 1'
   workflow_dispatch:
 
+# event_name keeps the scheduled Monday run separate from manual dispatches,
+# so a manual run never cancels the weekly audit (or vice versa).
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name }}
+  cancel-in-progress: true
+
 permissions:
   contents: write
 
