@@ -18,6 +18,11 @@ jobs:
     # Secrets and variables → Actions → Variables). Until then the workflow
     # skips cleanly instead of failing on every push.
     if: ${{ vars.NPM_PUBLISH_ENABLED == 'true' }}
+    # Human gate before publishing: the job pauses until a required reviewer
+    # approves it in the Actions UI (Environment "release", reviewer
+    # pacocartones). Create NPM_TOKEN as an ENVIRONMENT secret scoped to
+    # "release" — a repo-level secret would bypass the environment scoping.
+    environment: release
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
@@ -50,6 +55,8 @@ jobs:
         env:
           # npm access token (automation or granular, publish scope, no 2FA on
           # publish). Create one at https://www.npmjs.com/settings/<you>/tokens
-          # and store it as the NPM_TOKEN repository secret before releasing.
+          # and store it as the NPM_TOKEN ENVIRONMENT secret scoped to the
+          # "release" environment (Settings → Environments → release), so the
+          # token is only reachable through the human-approval gate.
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           PNPM_CONFIG_PROVENANCE: "true"
