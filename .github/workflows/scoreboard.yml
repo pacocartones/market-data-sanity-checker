@@ -19,8 +19,8 @@ jobs:
   scoreboard:
     runs-on: ubuntu-latest
     steps:
-      # zizmor: ignore[artipacked] — git-auto-commit-action pushes through these persisted credentials (no token input of its own)
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        # zizmor: ignore[artipacked] — git-auto-commit-action pushes through these persisted credentials (no token input of its own)
         with:
           # Credentials must stay persisted: git-auto-commit-action has no token
           # input of its own — it pushes through the git credentials that

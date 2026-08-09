@@ -25,8 +25,8 @@ jobs:
     environment: release
     runs-on: ubuntu-latest
     steps:
-      # zizmor: ignore[artipacked] — changesets/action pushes the Version Packages commit through these persisted credentials
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        # zizmor: ignore[artipacked] — changesets/action pushes the Version Packages commit through these persisted credentials
         with:
           # Explicitly persisted: changesets/action pushes the Version Packages
           # commit through these credentials. (artipacked flags only implicit
