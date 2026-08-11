@@ -6,7 +6,8 @@
 > endurecido: zizmor pineado 1.28.0 y verde, gate humano (environment `release`, ver 1.1),
 > concurrency, permisos acotados. **Lo único que falta para publicar**: `NPM_TOKEN` como
 > environment secret de `release` + variable `NPM_PUBLISH_ENABLED=true` (paso 1). Repo
-> sigue PRIVADO — hacer público (paso 0) cuando Paco decida. La promoción (awesome-quant,
+> **PÚBLICO desde 2026-08-11** (verificado en la auditoría del workspace; paso 0 completado —
+> la PR a awesome-quant y los posts siguen pendientes). La promoción (awesome-quant,
 > posts r/algotrading y Show HN) va mucho después del lanzamiento, a señal de Paco. No
 > retomar la PR #529 hasta entonces.
 > Plan y OKR: [plan-de-accion](plan-de-accion.md) · Sesiones: [bitácora](bitacora.md).
@@ -22,12 +23,15 @@
 
 ## Pendiente (en este orden) ⏳
 
-### 0. Re-abrir (tras la prueba de Paco)
+### 0. Repo público (completado 2026-08-11)
+
+- ✅ Repo **público** (verificado con `gh api … .visibility == "public"` el 2026-08-11).
+- ⏳ Reenviar PR a awesome-quant: la rama `pacocartones:add-market-data-sanity-checker`
+  sigue viva en el fork; basta reabrir/recrear la PR con el mismo cuerpo (bitácora sesión 3).
 
 ```bash
+# referencia del comando usado al abrirlo (si algún día hay que replicarlo):
 gh repo edit --visibility public --accept-visibility-change-consequences
-# Reenviar PR a awesome-quant: la rama pacocartones:add-market-data-sanity-checker
-# sigue viva en el fork; basta reabrir/recrear la PR con el mismo cuerpo (bitácora sesión 3).
 ```
 
 ### 1. Publicar en npm (bloquea a los posts)
