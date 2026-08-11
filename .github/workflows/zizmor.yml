@@ -29,7 +29,7 @@ jobs:
           # the repo is private. Flip to false when the repo goes public.
           persist-credentials: true
       - name: Run zizmor
-        uses: zizmorcore/zizmor-action@6fc4b006235f201fdab3722e17240ab420d580e5 # v0.6.1
+        uses: zizmorcore/zizmor-action@3dc1ecc9bcb9e94e9b2c709687979e1298497054 # v0.6.2
         with:
           # Pin the audit version: the action's default is "latest", which
           # silently follows the action's own releases — a new zizmor can
