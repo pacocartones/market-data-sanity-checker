@@ -354,6 +354,29 @@ promoción a señal de Paco. Checklist: `docs/maintainer/lanzamiento-checklist.m
 
 ---
 
+## 2026-08-11 — Scoreboard vía PR + release v1.2.0
+
+- **Scoreboard a entrega vía PR** (`scoreboard.yml`, commit `435c7a9`): el push directo con
+  `git-auto-commit` + `[skip ci]` fallaba con GH006 ("2 of 2 required status checks are
+  expected") desde el primer run programado (08-10) — la auditoría semanal se perdía. Ahora el
+  drift se empuja a `bot/scoreboard` y se entrega como PR (`gh pr view` con filtro de estado;
+  warning accionable si Actions no puede crear PRs). zizmor audita el workflow nuevo (pasó vía
+  los runs de los PRs de Dependabot, que auditan los workflows de main).
+- **Verificación con run real** (dispatch 31498123296): auditoría semanal generada → rama
+  `bot/scoreboard` (`3a6f36c`, 4 ficheros) empujada con el contenido real y solo falló en crear
+  el PR por el permiso de Actions — acción del owner.
+- **Release v1.2.0** (tag anotado + release GitHub, 2026-08-11): **primer tag/release real del
+  repo** (antes la memoria afirmaba releases que no existían). El checklist de lanzamiento
+  corrige el estado: el repo es **PÚBLICO** (verificado por API).
+- **Fallo transitorio de GitHub** (13:41–13:42Z): algunos push/PR events no generaban runs
+  (los de Dependabot/PR/dispatch sí); se resolvió solo — los runs de push de `435c7a9`/`af3d6b6`
+  no existen; cobertura vía PRs de Dependabot y próximos push/PR.
+- **Pendiente del owner:** activar "Allow GitHub Actions to create and approve pull requests" o
+  crear `GH_PAT` en ESTE repo también — la rama `bot/scoreboard` queda lista para mergear
+  manualmente hasta entonces (ver handoff, sección 0).
+
+---
+
 ## Registro de contribuidores externos
 
 > Este repo aún **no tiene contribuidores externos** — es la métrica del OKR
