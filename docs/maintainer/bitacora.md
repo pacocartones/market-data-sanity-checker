@@ -3,6 +3,9 @@
 > Maintainer's working log — public by design (Spanish).
 > Registro cronológico de sesiones de trabajo. Plan y OKR: [plan de acción](plan-de-accion.md).
 > Convención: fechas absolutas, evidencia citada (rutas, números, comandos).
+> Memoria consolidada de aprendizajes de todos los repos: **LEARNINGS.md** y el checklist de
+> fin de sesión en **`0. README.md`** viven en la **raíz del workspace local** (no en este
+> repo), así que desde GitHub no son enlazables — se abren localmente junto al checkout.
 
 ## 2026-07-31 — Día 1: del backlog a v1.0.0 (fases 0–4 completas)
 
@@ -337,3 +340,30 @@ merged; los 5 de dependabot de actions, cerrados por decisión previa).
 → push → aprobar el job en Actions → verificar `npm view market-data-sanity-checker
 version` (1.2.0) y la attestation (`dist.attestations`). Luego: repo público (paso 0) y
 promoción a señal de Paco. Checklist: `docs/maintainer/lanzamiento-checklist.md`.
+
+## 2026-08-11 — Estrategia/OKR creada en `_docs/` (estándar del workspace)
+
+- El sistema `01. ESTRATEGIA / OKR + OKF` que citaba el plan de acción **no existía**; la
+  auditoría del workspace (2026-08-11) lo resolvió creando
+  `_docs/market-data-sanity-checker/01-estrategia.md` (norte/método + OKR O1–O3 con estado) y
+  `00-dossier.md`. Las referencias del plan se actualizaron para apuntar ahí (workspace
+  local, no enlazable desde GitHub).
+- El repo pasa a formar parte del estándar `_docs/` del workspace (ver `_docs/README.md` —
+  workspace local): su plan y esta bitácora siguen viviendo aquí (public by design) y quedan
+  declarados como excepción in-repo en el validador.
+
+---
+
+## Registro de contribuidores externos
+
+> Este repo aún **no tiene contribuidores externos** — es la métrica del OKR
+> **KR2.2** del [plan de acción](plan-de-accion.md) (*PRs externas recibidas — 0 → ≥1*)
+> y la validación de la rama B del proyecto. La tabla resumen de todos los repos (con el
+> checklist de bienvenida y la plantilla de entrada) vive en `0. README.md` — sección
+> *Registro de contribuidores externos* (workspace local). Este registro es el detalle por
+> repo; ambos deben mantenerse en sync.
+>
+> _Sin entradas todavía. Cuando llegue la primera (issue o PR externa), registrar aquí_:
+> handle, PR/issue, cambio, verificación de cuenta real, bienvenida enviada y siguiente paso.
+> Nota: el repo está en **pausa de lanzamiento** (privado, sin npm) desde 2026-08-02 — un
+> contribuidor externo solo puede aparecer tras el lanzamiento público, a señal de Paco.

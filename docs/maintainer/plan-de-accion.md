@@ -1,7 +1,8 @@
 # market-data-sanity-checker — Plan de acción
 
 > Maintainer's working log — public by design (Spanish).
-> Documento de seguimiento del propietario (sistema `01. ESTRATEGIA` / OKR + OKF).
+> Estrategia / OKR + OKF del propietario: `_docs/market-data-sanity-checker/01-estrategia.md`
+> (workspace local, no enlazable desde GitHub).
 > La documentación pública del proyecto está en `README.md` y `docs/` (inglés).
 > Bitácora de sesiones: [bitácora](bitacora.md).
 
@@ -32,7 +33,8 @@ verdadero positivo estrella: el "split" 1907:2000 de HON (spin-off mal codificad
 
 ## OKR del repo (ciclo 2026-07-31 → 2026-10-31)
 
-> Alineado con `01. ESTRATEGIA/okr.md` (O5). Convención: 0.7 = bien. Anti-vanidad:
+> Alineado con la estrategia del workspace (`_docs/market-data-sanity-checker/01-estrategia.md`).
+> Convención: 0.7 = bien. Anti-vanidad:
 > miden causa (uso, contribución, auditoría operativa), no estrellas.
 
 ### O1 · Publicar la v1.0.0 con lanzamiento que demuestre la tesis
@@ -77,4 +79,4 @@ verdadero positivo estrella: el "split" 1907:2000 de HON (spin-off mal codificad
 - **Rate limits de Yahoo** en el scoreboard semanal: mitigado con delay 300 ms y cesta de
   30; si Yahoo endurece, el Action falla visible (mejor que datos mudos).
 - **Poco glamuroso = poca tracción inicial**: aceptado; el activo es reputación de largo
-  plazo (ver `01. ESTRATEGIA/norte-y-metodo.md`, Objetivo #1).
+  plazo (ver `01-estrategia.md` del workspace, sección norte/método).
