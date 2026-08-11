@@ -14,18 +14,20 @@ concurrency:
 
 permissions:
   contents: write
+  pull-requests: write # gh pr create/view on bot/scoreboard
 
 jobs:
   scoreboard:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-        # zizmor: ignore[artipacked] — git-auto-commit-action pushes through these persisted credentials (no token input of its own)
+        # zizmor: ignore[artipacked] — the manual git push step below pushes through the
+        # credentials persisted here (branch delivery, never direct-to-main)
         with:
-          # Credentials must stay persisted: git-auto-commit-action has no token
-          # input of its own — it pushes through the git credentials that
+          # Credentials must stay persisted: the manual git push step below has no
+          # token input of its own — it pushes through the git credentials that
           # actions/checkout stores in the local git config (documented in its
-          # README). persist-credentials: false would break the weekly commit.
+          # README). persist-credentials: false would break the weekly push.
           persist-credentials: true
       - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
@@ -37,8 +39,40 @@ jobs:
         run: pnpm scoreboard
         env:
           ALPHA_VANTAGE_API_KEY: ${{ secrets.ALPHA_VANTAGE_API_KEY }}
-      - name: Commit updated scoreboard
-        uses: stefanzweifel/git-auto-commit-action@b863ae1933cb653a53c021fe36dbb774e1fb9403 # v5
-        with:
-          commit_message: "chore(scoreboard): weekly provider audit [skip ci]"
-          file_pattern: "scoreboard/*"
+      # Delivery via pull request (bot/scoreboard → main), never a direct push:
+      # main requires the "verify (ubuntu-latest, 22)" and zizmor status checks,
+      # and a direct push with [skip ci] cannot report them — the weekly run
+      # failed with GH006 ("2 of 2 required status checks are expected") on
+      # 2026-08-10. The PR runs the checks normally; merge when green.
+      - name: Open or update the scoreboard pull request
+        env:
+          # A PAT bypasses GitHub's "Allow GitHub Actions to create and approve
+          # pull requests" restriction (off by default; Settings → Actions →
+          # General). Without one, GITHUB_TOKEN works only once that setting is
+          # enabled; otherwise the branch is pushed and an actionable warning
+          # explains what to do instead of failing cryptically.
+          GH_TOKEN: ${{ secrets.GH_PAT || github.token }}
+        run: |
+          if git diff --quiet -- scoreboard; then
+            echo "Scoreboard unchanged — nothing to do."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -b bot/scoreboard
+          git add scoreboard
+          git commit -m "chore(scoreboard): weekly provider audit"
+          git push --force origin bot/scoreboard
+          # gh pr view does not filter by state: a previously merged bot/scoreboard
+          # PR would make it look "already open". Ask for the state explicitly and
+          # only treat an OPEN PR as the branch's existing PR.
+          if gh pr view bot/scoreboard --repo "$GITHUB_REPOSITORY" --json state --jq '.state' 2>/dev/null | grep -qx OPEN; then
+            echo "Scoreboard PR already open — branch updated."
+          elif gh pr create --repo "$GITHUB_REPOSITORY" --base main --head bot/scoreboard \
+            --title "chore(scoreboard): weekly provider audit" \
+            --body "Weekly scoreboard run (audit of ~30 liquid symbols). The required checks (verify + zizmor) run on this PR; merge when green."; then
+            echo "Scoreboard PR created."
+          else
+            echo "::warning::bot/scoreboard was pushed but the PR could not be created. Enable \"Allow GitHub Actions to create and approve pull requests\" (Settings → Actions → General) or add a GH_PAT secret (repo scope); either way the branch is ready to open manually."
+            exit 1
+          fi
