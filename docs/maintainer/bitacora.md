@@ -251,6 +251,13 @@ desactualizados). Verificado hoy en esta máquina:
 retomar, la secuencia sigue siendo: release v1.2.0 → repo público → npm publish → promoción a
 su señal.
 
+> ℹ️ **Nota de coherencia (2026-08-11):** los SHAs citados en esta entrada (`cef9500`,
+> `0216498`, `808cc90`, `5b687e5`) pertenecen al historial ORIGINAL del repo, descartado al
+> re-crearlo el **2026-08-04** (nuevo root `c5b14bb` "Initial commit - Complete codebase"). No
+> existen ni localmente ni en GitHub — no intentar resolverlos. El trabajo que representaban
+> (dashboard v2, infografía SVG, fix UX PowerShell) está preservado en el árbol actual
+> (`c5b14bb`) y el release se completó el 08-09 (`2af84bd`) + v1.2.0 publicado el 08-11.
+
 ## 2026-08-09 (sesión 5) — Release v1.2.0 preparada + CI endurecido; publicación bloqueada solo por el token npm
 
 ### Qué se hizo
