@@ -68,7 +68,7 @@
                     "coverage:check":  "pnpm test:coverage \u0026\u0026 pnpm coverage:summary"
                 },
     "dependencies":  {
-                         "commander":  "^12.1.0",
+                         "commander":  "^15.0.0",
                          "papaparse":  "^5.4.1",
                          "zod":  "^4.4.3"
                      },
