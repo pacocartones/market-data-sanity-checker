@@ -375,6 +375,25 @@ promoción a señal de Paco. Checklist: `docs/maintainer/lanzamiento-checklist.m
   crear `GH_PAT` en ESTE repo también — la rama `bot/scoreboard` queda lista para mergear
   manualmente hasta entonces (ver handoff, sección 0).
 
+### Checklist de fin de sesión (aplicado el 2026-08-11)
+
+| Casilla | Resultado | Evidencia |
+|---|---|---|
+| ¿Algo me sorprendió/rompió? | ✅ Sí | el scoreboard caía con GH006 desde el 08-10 sin que la memoria lo registrara; el fallo transitorio de GitHub (push events sin runs, 13:41–13:42Z) — se resolvió solo |
+| ¿Ejecuté acciones públicas? | ✅ Sí | un solo hilo con control: pushes a main (`435c7a9`, `af3d6b6`, `9b55b39`), tag + release v1.2.0, dispatch de prueba; nada desde agentes paralelos |
+| ¿Trabajé en un repo? | ✅ Sí | mdsc (scoreboard, release, checklist de lanzamiento) — en la misma sesión que free-llm-api-hub y marketing-agency |
+| ¿Escribí una nota de sesión del maintainer? | ⏭️ No aplica | sin sesión nueva; la regla del estándar `_docs/` (06-sesiones) se aplicó en marketing-agency |
+| ¿Hubo actividad externa? | ⏭️ Sin cambios | 0 PRs/issues externos (repo recién público; lanzamiento completo a señal de Paco) |
+| ¿Usé enjambres? | ⏭️ No aplica | todo en el hilo principal |
+| ¿Probé bot/workflow con datos? | ✅ Sí, drift deliberado | dispatch `31498123296` del scoreboard refactorizado: auditoría semanal real → `bot/scoreboard` (`3a6f36c`); nunca datos reales |
+| ¿Workflows con push directo + `[skip ci]`? | ✅ Detectado y corregido | `scoreboard.yml` a entrega vía PR (`435c7a9`); zizmor audita el workflow nuevo (pasó); LEARNINGS Transversal + casilla |
+| ¿Concluí "no hay API para X"? | ⏭️ No aplica | sin conclusión negativa hoy |
+| ¿Queda pendiente operativo? | ✅ Sí | `npm publish` (KR1.2), clave Alpha Vantage (KR3.3), PR a awesome-quant (KR2.1), activar el ajuste de PRs de Actions en este repo |
+| ¿Audité la coherencia docs-memoria? | ✅ Sí | la auditoría del workspace destapó releases inexistentes → release v1.2.0 real creada; checklist de lanzamiento corregido (repo PÚBLICO) |
+| ¿Ejecuté `node check-learnings.mjs`? | ✅ Sí | exit 0 al cierre (este repo declarado como excepción in-repo en el validador) |
+| ¿Dejé el handoff de retoma? | ✅ Sí | `_docs/SESION-CIERRE-2026-08-11.md` — sección 0 incluye ESTE repo en el pendiente del owner |
+| ¿Apliqué este checklist? | ✅ Sí | esta tabla |
+
 ---
 
 ## Registro de contribuidores externos
@@ -388,5 +407,6 @@ promoción a señal de Paco. Checklist: `docs/maintainer/lanzamiento-checklist.m
 >
 > _Sin entradas todavía. Cuando llegue la primera (issue o PR externa), registrar aquí_:
 > handle, PR/issue, cambio, verificación de cuenta real, bienvenida enviada y siguiente paso.
-> Nota: el repo está en **pausa de lanzamiento** (privado, sin npm) desde 2026-08-02 — un
-> contribuidor externo solo puede aparecer tras el lanzamiento público, a señal de Paco.
+> Nota: el repo es **público desde 2026-08-11** (verificado por API) pero el lanzamiento
+> completo (npm + promoción) sigue a señal de Paco — un contribuidor externo puede aparecer ya
+> (KR2.2); el lanzamiento lo propiciará.
