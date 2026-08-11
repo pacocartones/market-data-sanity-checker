@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-31T22:55:20.933Z",
+  "generated_at": "2026-08-11T13:49:08.294Z",
   "basket": [
     "AAPL",
     "MSFT",
@@ -38,9 +38,17 @@
       "provider": "yahoo",
       "symbols_ok": 30,
       "symbols_failed": 0,
-      "mean_score": 91.5,
-      "min_score": 80,
+      "mean_score": 90.7,
+      "min_score": 45,
       "worst_symbols": [
+        {
+          "symbol": "CAT",
+          "score": 45,
+          "rules": [
+            "PRICE_SPIKE_INTRADAY",
+            "RETURN_SPIKE"
+          ]
+        },
         {
           "symbol": "HON",
           "score": 80,
@@ -69,18 +77,11 @@
           "rules": [
             "RETURN_SPIKE"
           ]
-        },
-        {
-          "symbol": "GOOGL",
-          "score": 85,
-          "rules": [
-            "RETURN_SPIKE"
-          ]
         }
       ],
       "total_findings": {
-        "critical": 0,
-        "warning": 14,
+        "critical": 1,
+        "warning": 13,
         "info": 9
       }
     }
