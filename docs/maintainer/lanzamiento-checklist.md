@@ -136,4 +136,4 @@ existe → 3 ejemplos con tickers → enlace npm + repo.
 - [ ] Vigilar PR awesome-quant #529 (responder el mismo día si piden cambios)
 - [ ] Tras 1 semana: registrar métricas en bitácora (estrellas, npm downloads, tráfico del scoreboard)
 - [ ] Alpha Vantage free key como secreto → scoreboard comparativo multi-proveedor
-- [ ] Dependabot PRs: revisar/mergear las razonables
+- [x] Dependabot PRs: revisar/mergear las razonables — ✅ triage completo el 2026-08-11 (10 PRs: 6 mergeados, eslint 10 + codeql 4.37.6 aplicados en main, TS 6 cerrado por romper el build) — ver bitácora

@@ -401,6 +401,27 @@ promoción a señal de Paco. Checklist: `docs/maintainer/lanzamiento-checklist.m
 | ¿Dejé el handoff de retoma? | ✅ Sí | `_docs/SESION-CIERRE-2026-08-11.md` — sección 0 incluye ESTE repo en el pendiente del owner |
 | ¿Apliqué este checklist? | ✅ Sí | esta tabla |
 
+## 2026-08-11 — Triage de Dependabot (10 PRs, todo resuelto)
+
+- **Mergeados (6):** #8 zizmor-action 0.6.2 · #9 actions/deploy-pages 5.0.0 · #10 actions/setup-node
+  7.0.0 (pins SHA en ci/docs/release/scoreboard) · #11 typescript-eslint 8.66.0 · #14 zod 4.4.3 ·
+  #16 commander 15.0.0 — todos con CI verde (331 tests en las 4 matrices).
+- **Resueltos directo en main (3 PRs):**
+  - **#12 eslint 10.8.0** — chocaba con #11 (package.json/lockfile); bump aplicado sobre main
+    actual y validado con pnpm (typescript-eslint 8.66 + eslint 10 resuelven sin conflictos de
+    peer) → commit `c4b11a9`.
+  - **#15 + #17 codeql-action 4.37.6** — CodeQL exige que `init` y `analyze` usen la MISMA
+    versión ("Loaded a configuration file for version '4.37.4', but running version '4.37.6'");
+    los PRs separados de Dependabot siempre fallarían → bump combinado de ambos → commit
+    `7a851b0`.
+- **Cerrado sin merge (1):** #13 typescript 6.0.3 — rompe el build (error TS5101: `baseUrl`
+  deprecado en TS 6), falla el dts build y `tests/cli-gating.test.ts`; requiere migración
+  (quitar `baseUrl` o `ignoreDeprecations` + arreglar el test), no un bump limpio.
+- **Validación final en `c4b11a9`:** CI (4 matrices) ✅ · zizmor ✅ · CodeQL ✅ (fix combinado
+  verificado) · Deploy API docs ✅ — el estado combinado (eslint 10 + ts-eslint 8.66 + zod 4 +
+  commander 15 + setup-node 7) pasa los 331 tests.
+- Checklist de lanzamiento: item "Dependabot PRs" marcado ✅.
+
 ---
 
 ## Registro de contribuidores externos
