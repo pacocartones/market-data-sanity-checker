@@ -386,7 +386,7 @@ pnpm build        # tsup → dist/
 pnpm dev check --file tests/fixtures/ohlcv-valid.csv
 ```
 
-Maintainer log and OKRs: [docs/maintainer/](docs/maintainer/)
+
 
 ## Contributing
 
