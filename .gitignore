@@ -30,3 +30,6 @@ SESSION-CONTINUATION.md
 
 # Generated API docs (typedoc)
 docs/api/
+
+# Freebuff desktop data (local DB) — never publish
+.freebuff/
