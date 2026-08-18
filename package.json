@@ -75,7 +75,7 @@
     "devDependencies":  {
                             "@changesets/cli":  "^2.27.9",
                             "@eslint/js":  "^9.17.0",
-                            "@types/node":  "^22.10.2",
+                            "@types/node":  "^26.2.0",
                             "@types/papaparse":  "^5.3.15",
                             "@vitest/coverage-v8":  "^3.2.7",
                             "eslint":  "^10.8.0",
