@@ -22,12 +22,9 @@ jobs:
       security-events: write
     steps:
       - name: Checkout repository
-        # zizmor: ignore[artipacked] — checkout needs the token to fetch at all while the repo is private
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          # Explicitly persisted: checkout needs the token to fetch at all while
-          # the repo is private. Flip to false when the repo goes public.
-          persist-credentials: true
+          persist-credentials: false
       - name: Run zizmor
         uses: zizmorcore/zizmor-action@3dc1ecc9bcb9e94e9b2c709687979e1298497054 # v0.6.2
         with:
@@ -36,7 +33,4 @@ jobs:
           # break CI without notice. 1.28.0 is the version verified against
           # this repo; bump it deliberately when upgrading.
           version: 1.28.0
-          # SARIF upload needs GitHub Advanced Security, unavailable on private
-          # repos on the free plan — findings surface as workflow annotations
-          # instead. Flip to true when the repo goes public.
-          advanced-security: false
+          advanced-security: true
