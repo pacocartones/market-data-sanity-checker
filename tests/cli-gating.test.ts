@@ -211,3 +211,13 @@ describe('check — config override downgrades a critical to warning', () => {
     CLI_TIMEOUT_MS,
   )
 })
+
+describe('rules — catalog listing', () => {
+  it('prints the references of compare rules too', async () => {
+    const { code, stdout } = await runCli(['rules'])
+    expect(code).toBe(0)
+    const compareSection = stdout.slice(stdout.indexOf('compare rules'))
+    expect(compareSection).toMatch(/SPLIT_MISMATCH[\s\S]*?ref: https?:\/\//)
+    expect((stdout.match(/^ {4}ref: /gm) ?? []).length).toBeGreaterThanOrEqual(36)
+  })
+})

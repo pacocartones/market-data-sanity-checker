@@ -424,13 +424,14 @@ program
     }
     console.log(`\n${compareRegistry.length} compare rules\n`)
     for (const rule of compareRegistry) {
-      const { id, severity, dimension, description, defaultParams } = rule.meta
+      const { id, severity, dimension, description, defaultParams, references } = rule.meta
       console.log(`  ${id}  [${severity} · ${dimension}]`)
       console.log(`    ${description}`)
       const params = Object.entries(defaultParams)
         .map(([key, value]) => `${key}=${value}`)
         .join(', ')
       if (params) console.log(`    defaults: ${params}`)
+      for (const reference of references) console.log(`    ref: ${reference}`)
     }
     console.log()
   })

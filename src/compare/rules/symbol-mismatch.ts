@@ -16,7 +16,10 @@ export const symbolMismatch: CompareRule = {
     dimension: 'consistency',
     description: 'The two datasets are for different symbols — comparison is meaningless',
     defaultParams: {},
-    references: [],
+    references: [
+      'https://dev.to/c1-anderson/a-ticker-is-not-an-identity-2b3f',
+      'https://www.sec.gov/files/litigation/suspensions/2020/34-88477-o.pdf',
+    ],
   },
 
   check(a, b, context) {

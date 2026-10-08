@@ -26,7 +26,7 @@ export const volumeDivergence: CompareRule = {
       /** Minimum shared dates with usable volumes required for the median to be meaningful. */
       minSharedDates: 10,
     },
-    references: ['https://quant.stackexchange.com/questions/51072/yahoo-finance-volume-vs-sum-of-hourly-bars'],
+    references: ['https://quant.stackexchange.com/questions/51072/discrepancy-in-stock-volume-values-for-different-intervals-for-the-same-day-on-y'],
   },
 
   check(a, b, context) {
