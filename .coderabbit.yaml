@@ -10,6 +10,10 @@ reviews:
   high_level_summary: true       # the part the maintainer actually reads
   poem: false
   review_status: true
+  # This repository has fewer than 10 stars, so CodeRabbit only reviews when asked
+  # (https://docs.coderabbit.ai/management/plans). Without this, a skipped review still
+  # shows a green "CodeRabbit" status. Maintainers request reviews with `@coderabbitai review`.
+  commit_status: false
   auto_review:
     enabled: true
     drafts: false
