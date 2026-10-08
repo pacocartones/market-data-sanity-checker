@@ -26,3 +26,9 @@ updates:
       dev-minor-patch:
         dependency-type: development
         update-types: [minor, patch]
+    ignore:
+      # @types/node tracks the oldest Node major we test (22, see ci.yml), so
+      # the compiler rejects APIs that the oldest runtime lacks. Raise it by
+      # hand together with the CI matrix and "engines".
+      - dependency-name: '@types/node'
+        update-types: ['version-update:semver-major']
