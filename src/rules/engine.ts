@@ -78,6 +78,7 @@ export function runRules(data: MarketDataSet, config: CheckerConfig = {}): Findi
     } catch (error) {
       throw new Error(
         `Rule ${rule.meta.id} threw — rules must be total functions: ${error instanceof Error ? error.message : String(error)}`,
+        { cause: error },
       )
     }
     if (occurrences.length > 0) {
