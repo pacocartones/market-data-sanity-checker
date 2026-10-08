@@ -122,8 +122,11 @@ Exit codes: `0` gate passed · `1` gate failed (critical findings, or `--fail-on
 · `2` operational error (file unreadable, invalid flags, provider unavailable, invalid config).
 
 Providers are plugins: `yahoo` works keyless; `alpha-vantage` needs the
-`ALPHA_VANTAGE_API_KEY` env var (free key at alphavantage.co). New providers plug in via
-the `Connector` contract (`src/connectors/types.ts`).
+`ALPHA_VANTAGE_API_KEY` env var. A free key (alphavantage.co) returns the latest 100 daily
+bars, unadjusted and without dividends or splits; Alpha Vantage serves the adjusted series
+with corporate actions and full history only to premium keys, so with one set
+`ALPHA_VANTAGE_PREMIUM=true` as well. New providers plug in via the `Connector` contract
+(`src/connectors/types.ts`).
 
 ### Configuration (`mdsc.config.json`)
 
@@ -339,7 +342,8 @@ action (`block`/`flag`/`review`); the decision and any repair stay with you.
 
 **Which data sources are supported?**
 Any CSV/JSON you can map to the canonical schema (`mdsc check --file`), Yahoo Finance
-keyless (`--provider yahoo`), and Alpha Vantage with a free API key. New providers plug in
+keyless (`--provider yahoo`), and Alpha Vantage (a free key gives recent daily bars; dividends,
+splits and full history need a premium key). New providers plug in
 via the `Connector` contract.
 
 **Can I gate CI on data quality?**

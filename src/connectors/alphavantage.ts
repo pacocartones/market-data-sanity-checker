@@ -14,19 +14,30 @@ import { ConnectorError, DEFAULT_TIMEOUT_MS, isTimeoutError } from './types'
  * from rule findings.
  *
  * Notes on the provider:
- * - TIME_SERIES_DAILY_ADJUSTED returns all numeric fields as STRINGS, so
+ * - Two endpoints, chosen by key tier. A free key gets TIME_SERIES_DAILY with
+ *   outputsize=compact: the latest 100 daily bars, unadjusted, with no
+ *   dividends or splits. TIME_SERIES_DAILY_ADJUSTED (adjusted close, dividends,
+ *   splits) and outputsize=full are premium-only on Alpha Vantage, so they are
+ *   used only when ALPHA_VANTAGE_PREMIUM=true. A free key asking for them gets
+ *   an "Information" payload instead of data.
+ * - Both endpoints return all numeric fields as STRINGS, so
  *   everything goes through explicit Number() parsing with finiteness guards.
  * - The free tier is limited to 25 requests/day; hitting it returns HTTP 200
  *   with a `{ "Note": "..." }` body instead of data — hence the error-key
  *   checks before touching the time series.
- * - The endpoint reports dividend amount and split coefficient per day, which
- *   lets us populate dividends/splits without a second request. It does NOT
+ * - The adjusted endpoint reports dividend amount and split coefficient per
+ *   day, which lets us populate dividends/splits without a second request. It does NOT
  *   report currency or exchange, so those stay undefined (CURRENCY_SUSPECT
  *   will note it as info — correct behaviour, not a gap).
  */
 
 const API_URL = 'https://www.alphavantage.co/query'
 const SOURCE = 'alpha-vantage'
+
+/** True when the user has opted into the premium-only adjusted endpoint. */
+function isPremium(): boolean {
+  return process.env.ALPHA_VANTAGE_PREMIUM === 'true'
+}
 
 /** Provider keys that signal an error payload instead of data. */
 const ERROR_KEYS = ['Error Message', 'Note', 'Information'] as const
@@ -43,7 +54,8 @@ function toNumber(value: unknown): number {
 }
 
 /**
- * Parses a TIME_SERIES_DAILY_ADJUSTED payload into the canonical dataset.
+ * Parses a TIME_SERIES_DAILY or TIME_SERIES_DAILY_ADJUSTED payload into the
+ * canonical dataset (the two differ only in field numbering after `4. close`).
  * Pure and total: throws ConnectorError only on provider error payloads or a
  * missing time series; bars with a non-finite or non-positive close are
  * skipped, never fatal. Bars come back descending from the API and are
@@ -57,7 +69,10 @@ export function parseAlphaVantageDaily(payload: unknown, symbol: string): Market
   for (const key of ERROR_KEYS) {
     const message = root[key]
     if (typeof message === 'string' && message.length > 0) {
-      throw new ConnectorError(`Alpha Vantage returned "${key}" for ${symbol}: ${message}`)
+      const hint = /premium/i.test(message)
+        ? ' (this endpoint needs a premium key; unset ALPHA_VANTAGE_PREMIUM to use the free endpoint)'
+        : ''
+      throw new ConnectorError(`Alpha Vantage returned "${key}" for ${symbol}: ${message}${hint}`)
     }
   }
 
@@ -84,7 +99,9 @@ export function parseAlphaVantageDaily(payload: unknown, symbol: string): Market
       low: toNumber(entry['3. low']),
       close,
     }
-    const volume = toNumber(entry['6. volume'])
+    // The adjusted payload numbers volume 6 (5 is adjusted close); the plain one numbers it 5.
+    const adjusted = '5. adjusted close' in entry
+    const volume = toNumber(entry[adjusted ? '6. volume' : '5. volume'])
     if (Number.isFinite(volume)) bar.volume = volume
     const adjustedClose = toNumber(entry['5. adjusted close'])
     if (Number.isFinite(adjustedClose) && adjustedClose > 0) {
@@ -112,7 +129,9 @@ export function parseAlphaVantageDaily(payload: unknown, symbol: string): Market
 
 export const alphaVantage: Connector = {
   name: SOURCE,
-  requires: 'ALPHA_VANTAGE_API_KEY environment variable (free key at alphavantage.co)',
+  requires:
+    'ALPHA_VANTAGE_API_KEY environment variable (a free key returns the latest 100 daily bars without dividends or splits; ' +
+    'with a premium key, also set ALPHA_VANTAGE_PREMIUM=true for full adjusted history)',
 
   available(): boolean {
     return Boolean(process.env.ALPHA_VANTAGE_API_KEY)
@@ -126,9 +145,10 @@ export const alphaVantage: Connector = {
       )
     }
     const timeoutMs = options.timeoutMs ?? DEFAULT_TIMEOUT_MS
+    const [fn, outputsize] = isPremium() ? ['TIME_SERIES_DAILY_ADJUSTED', 'full'] : ['TIME_SERIES_DAILY', 'compact']
     const url =
-      `${API_URL}?function=TIME_SERIES_DAILY_ADJUSTED&symbol=${encodeURIComponent(symbol)}` +
-      `&outputsize=full&apikey=${encodeURIComponent(apiKey)}`
+      `${API_URL}?function=${fn}&symbol=${encodeURIComponent(symbol)}` +
+      `&outputsize=${outputsize}&apikey=${encodeURIComponent(apiKey)}`
 
     let payload: unknown
     try {
