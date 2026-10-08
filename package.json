@@ -70,7 +70,7 @@
     "dependencies": {
         "commander": "^15.0.0",
         "papaparse": "^5.5.4",
-        "zod": "^4.4.3"
+        "zod": "^4.6.5"
     },
     "devDependencies": {
         "@changesets/cli": "^3.0.3",
