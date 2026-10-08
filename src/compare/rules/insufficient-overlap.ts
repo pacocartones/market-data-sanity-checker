@@ -20,7 +20,9 @@ export const insufficientOverlap: CompareRule = {
       /** Below this many shared dates, "the sources agree" is not a meaningful claim. */
       minSharedDates: 5,
     },
-    references: [],
+    references: [
+      'https://github.com/ranaroussi/yfinance/issues/1344',
+    ],
   },
 
   check(a, b, context) {

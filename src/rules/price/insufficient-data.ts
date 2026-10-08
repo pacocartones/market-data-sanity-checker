@@ -21,7 +21,10 @@ export const insufficientData: Rule = {
       /** Below this many bars the statistical rules have nothing meaningful to work with. */
       minBars: 10,
     },
-    references: [],
+    references: [
+      'https://github.com/ranaroussi/yfinance/issues/37',
+      'https://github.com/ranaroussi/yfinance/issues/2740',
+    ],
   },
 
   check(data, context) {

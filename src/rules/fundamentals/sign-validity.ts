@@ -17,7 +17,9 @@ export const signValidity: Rule = {
     dimension: 'validity',
     description: 'marketCap or sharesOutstanding non-positive (or non-finite)',
     defaultParams: {},
-    references: [],
+    references: [
+      'https://github.com/QuantConnect/Lean/issues/7892',
+    ],
   },
 
   check(data, context) {
