@@ -4,3 +4,4 @@
 - [ ] New rules include the full contract: stable ID + severity + reference URL + fixture + hand-reviewed golden in `tests/golden/` (never updated blindly)
 - [ ] Docs updated where affected (`README.md` rule catalog, `docs/fixtures.md`)
 - [ ] Changeset added (`pnpm changeset`)
+- [ ] (Optional) I used AI tools for part of this change, and I have read and tested it myself.
