@@ -32,6 +32,8 @@ Please report vulnerabilities **privately** through GitHub Security Advisories:
 
 [Report a vulnerability](https://github.com/pacocartones/market-data-sanity-checker/security/advisories/new)
 
+If you can't use GitHub advisories, email **admin@tweakeo.com** instead.
+
 Do **not** open a public issue for a security problem. A corrupted datum must never
 become executable markup — if you found a way to break that promise (XSS in the HTML
 report, path traversal in file ingestion, credential leaks through connectors,

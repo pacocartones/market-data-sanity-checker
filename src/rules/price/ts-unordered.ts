@@ -8,7 +8,9 @@ import type { Rule } from '../types'
  * windows) assumes chronological order; an out-of-order row silently degrades
  * all of them. Deliberately a WARNING: the fix is mechanical (sort by
  * timestamp), but the consumer must know the vendor delivered rows out of
- * order (documented in yfinance issue #902).
+ * order. Data libraries sort defensively for this reason: yfinance re-sorts its
+ * own merged output before repairing it (`df.sort_index()  # important!`).
+ * A documented vendor incident is still wanted as a better reference.
  *
  * Adjacent pairs are compared only when BOTH timestamps parse. Equal
  * timestamps are NOT flagged here — that ambiguity is TS_DUPLICATED's job.
@@ -21,7 +23,9 @@ export const tsUnordered: Rule = {
     dimension: 'consistency',
     description: 'Bars are not in chronological order',
     defaultParams: {},
-    references: ['https://github.com/ranaroussi/yfinance/issues/902'],
+    references: [
+      'https://github.com/ranaroussi/yfinance/blob/5cae563642b59f49adf6a04a5ad6744f8b0e084d/yfinance/scrapers/history.py#L1509',
+    ],
   },
 
   check(data, context) {
@@ -44,7 +48,7 @@ export const tsUnordered: Rule = {
         explanation:
           `Bar at ${next.timestamp} comes after ${current.timestamp} in the series, so bars are not in ` +
           `chronological order and every order-dependent calculation (returns, gaps) silently degrades. ` +
-          `Hypothesis: the vendor appended rows out of order (documented in yfinance issue #902); ` +
+          `Hypothesis: the vendor appended or merged rows out of order; ` +
           `sort by timestamp before consuming.`,
         evidence: { previous: current.timestamp },
       })

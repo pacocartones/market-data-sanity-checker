@@ -1,0 +1,40 @@
+# Base .coderabbit.yaml for the public 302 repositories (agent:reviewer, 2026-10-08).
+# Copy as-is; each repo only adds its own path_filters and path_instructions (marked below).
+# Why each choice: revision-302/ANALISIS.md §4. In short: the review is advisory, a human
+# maintainer resolves every thread before merging (branch rule "Require conversation
+# resolution"), and nothing here may block a merge or count as a first response.
+language: en-US
+reviews:
+  profile: chill                 # findings, not style lectures
+  request_changes_workflow: false # never blocks: a person makes the call
+  high_level_summary: true       # the part the maintainer actually reads
+  poem: false
+  review_status: true
+  auto_review:
+    enabled: true
+    drafts: false
+  path_filters:                  # common exclusions; add the repo's generated or data paths below
+    - "!dist/**"
+    - "!**/*.min.js"
+    - "!**/package-lock.json"
+    - "!**/pnpm-lock.yaml"
+  path_instructions:
+    - path: ".github/workflows/**"
+      instructions: >
+        Flag unpinned third-party actions (use a full commit SHA), write permissions wider
+        than the job needs, and untrusted input interpolated into run: steps.
+    - path: "src/rules/**"
+      instructions: >
+        Every rule must meet the contract in CONTRIBUTING.md: a stable SCREAMING_SNAKE_CASE id,
+        a severity, an http(s) reference to a documented real-world case or the literature
+        behind any threshold, every number in defaultParams, a pure check() that never throws
+        or mutates its input, a human explanation with a causal hypothesis, and a test.
+        Flag any rule change that lacks one of these.
+chat:
+  auto_reply: true
+
+# No auto comments on new issues: our trackers carry generated good-first-issues
+# with their own instructions, and enrichment comments are noise there.
+issue_enrichment:
+  auto_enrich:
+    enabled: false

@@ -397,6 +397,10 @@ pnpm dev check --file tests/fixtures/ohlcv-valid.csv
 See [CONTRIBUTING.md](CONTRIBUTING.md). The short version: every rule needs a stable ID, a
 severity, a documented real-world case or literature reference, and a fixture.
 
+New to the project? Start with [your first rule](docs/tutorial-first-rule.md).
+
+AI-assisted contributions are welcome. Use AI tools if they help you — we do too. We ask for good judgement: understand and test what you send, and check every fact at its source. See [AI_POLICY.md](AI_POLICY.md).
+
 ## License
 
 [MIT](LICENSE)

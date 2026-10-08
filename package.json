@@ -25,7 +25,7 @@
         "cli"
     ],
     "license": "MIT",
-    "author": "Manuel Sánchez",
+    "author": "pacocartones",
     "repository": {
         "type": "git",
         "url": "git+https://github.com/pacocartones/market-data-sanity-checker.git"

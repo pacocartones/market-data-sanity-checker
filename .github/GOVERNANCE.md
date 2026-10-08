@@ -13,7 +13,7 @@
 ## Project Structure
 
 ### Maintainer
-- **Manuel Sánchez** (@pacocartones) - Creator, lead maintainer, final decision authority
+- **@pacocartones** - Creator, lead maintainer, final decision authority
 
 ### Core Contributors
 Contributors who have made significant, sustained contributions may be invited to become core contributors with expanded permissions:

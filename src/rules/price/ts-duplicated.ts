@@ -6,7 +6,8 @@ import type { Rule } from '../types'
  *
  * Duplicated rows make the datum ambiguous by construction: a consumer cannot
  * know which bar to use for that instant, and any choice silently discards
- * information. This is a documented vendor failure mode (yfinance issue #902),
+ * information. This is a documented vendor failure mode (yfinance issue #765: DRREDDY.NS and
+ * HINDPETRO.NS returned 2021-07-09 twice, once as an all-NaN row),
  * so it is a CRITICAL — the series must be blocked and deduplicated against
  * the source, not patched locally.
  *
@@ -21,7 +22,7 @@ export const tsDuplicated: Rule = {
     dimension: 'uniqueness',
     description: 'Two or more bars share the same timestamp',
     defaultParams: {},
-    references: ['https://github.com/ranaroussi/yfinance/issues/902'],
+    references: ['https://github.com/ranaroussi/yfinance/issues/765'],
   },
 
   check(data, context) {
@@ -50,7 +51,7 @@ export const tsDuplicated: Rule = {
         explanation:
           `${count} bars share the timestamp ${timestamp}, so a consumer cannot know which one to use — ` +
           `the datum is ambiguous by construction. Hypothesis: the vendor emitted duplicated rows ` +
-          `(documented in yfinance issue #902). Block the series and deduplicate against the source ` +
+          `(documented in yfinance issue #765). Block the series and deduplicate against the source ` +
           `before consuming it.`,
         evidence: { count },
       })
