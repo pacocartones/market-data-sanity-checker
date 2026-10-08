@@ -7,6 +7,12 @@ updates:
       interval: weekly
     cooldown:
       default-days: 7
+    # One PR for all action bumps. Separate PRs split pairs that must move
+    # together (codeql-action/init and /analyze), and each half fails CodeQL
+    # on its own.
+    groups:
+      actions:
+        patterns: ['*']
   # Keep npm dependencies (package.json / pnpm-lock.yaml) up to date.
   - package-ecosystem: npm
     directory: /
@@ -14,3 +20,9 @@ updates:
       interval: weekly
     cooldown:
       default-days: 7
+    # Minor and patch updates of dev tooling land as one PR; majors stay
+    # separate so each can be reviewed and tested on its own.
+    groups:
+      dev-minor-patch:
+        dependency-type: development
+        update-types: [minor, patch]
