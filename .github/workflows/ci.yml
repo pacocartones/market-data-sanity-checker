@@ -4,6 +4,10 @@ on:
   push:
     branches: [main]
   pull_request:
+  # The weekly scoreboard dispatches this on bot/scoreboard: a PR opened with
+  # GITHUB_TOKEN triggers no pull_request runs, so the required checks would
+  # never report on it.
+  workflow_dispatch:
 
 # Cancel redundant runs on rapid pushes to the same branch/PR. event_name
 # keeps scheduled runs (none here today) from being cancelled by pushes.
