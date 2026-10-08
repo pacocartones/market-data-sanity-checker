@@ -59,6 +59,8 @@ AI-assisted contributions are welcome. Please read [AI_POLICY.md](AI_POLICY.md):
 
 A human maintainer reviews and is responsible for every merge. Automated review comments (CodeRabbit) are advisory: a person makes the call, and you don't need to reply to the bot. We resolve every review conversation, from people or bots, before merging, either by changing the code or by noting why not.
 
+For maintainers: CodeRabbit doesn't review this repository automatically yet, so request it on each pull request that changes code with a `@coderabbitai review` comment. A green CodeRabbit status is not a review.
+
 ## Releases
 
 We use [changesets](https://github.com/changesets/changesets). Run `pnpm changeset` and
