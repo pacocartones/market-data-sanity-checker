@@ -23,7 +23,8 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]
-        # pnpm 11 (our toolchain) requires Node >= 22.13; the package itself runs on 20+
+        # pnpm 11 (our toolchain) requires Node >= 22.13; the package requires >= 22.12
+        # (commander 15, a runtime dependency, declares engines node >=22.12)
         node: [22, 24]
     runs-on: ${{ matrix.os }}
     steps:
