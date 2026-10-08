@@ -247,7 +247,7 @@ program
         try {
           raw = await ingestFile(options.file, { symbol: options.symbol, source: options.source })
         } catch (error) {
-          if (isFileNotFound(error)) throw new Error(`cannot read file '${options.file}': file not found`)
+          if (isFileNotFound(error)) throw new Error(`cannot read file '${options.file}': file not found`, { cause: error })
           throw error
         }
       } else {
