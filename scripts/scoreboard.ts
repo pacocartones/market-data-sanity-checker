@@ -11,10 +11,14 @@
  *
  *   pnpm scoreboard
  *
- * Quorum guard: if a provider fails more than 20% of the basket fetches, the
- * run is unrepresentative (outage, throttling, breaking API change), so the
- * script aborts with exit code 1 BEFORE writing any file — a degraded run is
- * never published over the previous good one.
+ * Quorum guard: a provider that fails more than 20% of the basket fetches is
+ * unrepresentative (outage, throttling, breaking API change), so none of its
+ * numbers are published: it is listed as excluded, with its failure count, and
+ * the healthy providers are published as usual. If every provider is excluded
+ * the script aborts with exit code 1 BEFORE writing any file, so a degraded run
+ * is never published over the previous good one. (Until 2026-10 one degraded
+ * provider aborted the whole run, which kept healthy results unpublished for
+ * weeks.)
  */
 import { mkdir, writeFile } from 'node:fs/promises'
 import { connectors, connectorStatus } from '../src/connectors/index'
@@ -29,6 +33,9 @@ const BASKET = [
 ]
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
+
+/** Pause between fetches. Alpha Vantage's free tier allows one request per second. */
+const pauseMs = (provider: string) => (provider === 'alpha-vantage' ? 1200 : 300)
 
 /** RFC 4180-style quoting: only fields containing a quote, comma or line break need it. */
 const escapeCsvField = (value: string): string => (/[",\r\n]/.test(value) ? `"${value.replace(/"/g, '""')}"` : value)
@@ -68,6 +75,7 @@ if (active.length === 0) {
 const datasetsByProvider = new Map<string, Map<string, MarketDataSet>>()
 const providerResults: ProviderResult[] = []
 const symbolRows: SymbolRow[] = []
+const excluded: Array<{ provider: string; failed: number }> = []
 
 for (const connector of active) {
   const datasets = new Map<string, MarketDataSet>()
@@ -105,16 +113,17 @@ for (const connector of active) {
       failedSymbols.push(symbol)
       console.log(`${connector.name}/${symbol}: FETCH FAILED (${error instanceof Error ? error.message : String(error)})`)
     }
-    await sleep(300)
+    await sleep(pauseMs(connector.name))
   }
 
-  // Quorum guard: abort the whole run without writing anything rather than
-  // publish a scoreboard built from a provider that failed >20% of the basket.
+  // Quorum guard: a provider that failed >20% of the basket publishes nothing.
   if (failed / BASKET.length > 0.2) {
     console.error(
-      `scoreboard aborted: ${failed}/${BASKET.length} fetches failed (>20% quorum) — refusing to publish a degraded run`,
+      `${connector.name}: excluded, ${failed}/${BASKET.length} fetches failed (>20% quorum) — none of its numbers are published`,
     )
-    process.exit(1)
+    excluded.push({ provider: connector.name, failed })
+    datasetsByProvider.delete(connector.name)
+    continue
   }
 
   // CSV rows are collected in basket order, before the in-place sort below.
@@ -148,9 +157,15 @@ for (const connector of active) {
   console.log(`${connector.name}: mean ${mean.toFixed(1)}/100 over ${scores.length} symbols`)
 }
 
+if (providerResults.length === 0) {
+  console.error('scoreboard aborted: every available provider failed the quorum — refusing to publish a degraded run')
+  process.exit(1)
+}
+
+const published = active.filter((connector) => datasetsByProvider.has(connector.name))
 const comparisons: unknown[] = []
-if (active.length >= 2) {
-  const [first, second] = active
+if (published.length >= 2) {
+  const [first, second] = published
   for (const symbol of BASKET) {
     const a = datasetsByProvider.get(first!.name)?.get(symbol)
     const b = datasetsByProvider.get(second!.name)?.get(symbol)
@@ -170,7 +185,7 @@ const generatedAt = new Date().toISOString()
 await mkdir('scoreboard', { recursive: true })
 await writeFile(
   'scoreboard/latest.json',
-  JSON.stringify({ generated_at: generatedAt, basket: BASKET, range: '1y', providers: providerResults, comparisons }, null, 2),
+  JSON.stringify({ generated_at: generatedAt, basket: BASKET, range: '1y', providers: providerResults, excluded, comparisons }, null, 2),
 )
 
 const lines = [
@@ -184,6 +199,14 @@ const lines = [
     (result) =>
       `| ${result.provider} | ${result.symbols_ok} (+${result.symbols_failed} failed) | ${result.mean_score} | ${result.min_score} | ${result.total_findings.critical} | ${result.total_findings.warning} | ${result.total_findings.info} |`,
   ),
+  ...(excluded.length > 0
+    ? [
+        '',
+        `Excluded this run (more than 20% of fetches failed, so none of their numbers are published): ${excluded
+          .map((entry) => `${entry.provider} (${entry.failed}/${BASKET.length} failed)`)
+          .join(', ')}`,
+      ]
+    : []),
   '',
   '## Worst-scoring symbols per provider',
   '',

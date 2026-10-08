@@ -180,3 +180,60 @@ describe('alphaVantage.fetchDaily — HTTP concerns (mocked fetch, no network)',
     await expect(alphaVantage.fetchDaily('IBM')).rejects.toThrow(/Alpha Vantage request failed for IBM: socket hang up/)
   })
 })
+
+describe('alphaVantage — free vs premium endpoint', () => {
+  const ORIGINAL_PREMIUM = process.env.ALPHA_VANTAGE_PREMIUM
+  afterEach(() => {
+    vi.unstubAllGlobals()
+    if (ORIGINAL_PREMIUM === undefined) delete process.env.ALPHA_VANTAGE_PREMIUM
+    else process.env.ALPHA_VANTAGE_PREMIUM = ORIGINAL_PREMIUM
+  })
+
+  /** TIME_SERIES_DAILY numbers volume 5 and has no adjusted close, dividend or split fields. */
+  const FREE_PAYLOAD = {
+    'Time Series (Daily)': {
+      '2024-01-03': { '1. open': '101.0', '2. high': '102.0', '3. low': '100.0', '4. close': '101.5', '5. volume': '1200' },
+      '2024-01-02': { '1. open': '100.0', '2. high': '101.0', '3. low': '99.0', '4. close': '100.5', '5. volume': '1000' },
+    },
+  }
+
+  function stubOk(payload: unknown) {
+    const fetchMock = vi.fn(async (_url: unknown, _init?: RequestInit) => ({ ok: true, status: 200, json: async () => payload }))
+    vi.stubGlobal('fetch', fetchMock)
+    return fetchMock
+  }
+
+  it('parses a TIME_SERIES_DAILY payload: volume from "5. volume", no adjustment, no corporate actions', () => {
+    const dataset = parseAlphaVantageDaily(FREE_PAYLOAD, 'IBM')
+    expect(dataset.bars.map((bar) => bar.volume)).toEqual([1000, 1200])
+    expect(dataset.bars.every((bar) => bar.adjustmentFactor === undefined)).toBe(true)
+    expect(dataset.dividends).toBeUndefined()
+    expect(dataset.splits).toBeUndefined()
+    expect(marketDataSetSchema.safeParse(dataset).success).toBe(true)
+  })
+
+  it('uses the free endpoint (TIME_SERIES_DAILY, compact) by default', async () => {
+    process.env.ALPHA_VANTAGE_API_KEY = 'test-key'
+    delete process.env.ALPHA_VANTAGE_PREMIUM
+    const fetchMock = stubOk(FREE_PAYLOAD)
+    await alphaVantage.fetchDaily('IBM')
+    const url = String(fetchMock.mock.calls[0]?.[0])
+    expect(url).toContain('function=TIME_SERIES_DAILY&')
+    expect(url).toContain('outputsize=compact')
+  })
+
+  it('uses the adjusted endpoint with full history only when ALPHA_VANTAGE_PREMIUM=true', async () => {
+    process.env.ALPHA_VANTAGE_API_KEY = 'test-key'
+    process.env.ALPHA_VANTAGE_PREMIUM = 'true'
+    const fetchMock = stubOk(FREE_PAYLOAD)
+    await alphaVantage.fetchDaily('IBM')
+    const url = String(fetchMock.mock.calls[0]?.[0])
+    expect(url).toContain('function=TIME_SERIES_DAILY_ADJUSTED&')
+    expect(url).toContain('outputsize=full')
+  })
+
+  it('explains a premium-endpoint Information payload', () => {
+    const payload = { Information: 'Thank you for using Alpha Vantage! This is a premium endpoint.' }
+    expect(() => parseAlphaVantageDaily(payload, 'IBM')).toThrow(/needs a premium key/)
+  })
+})
