@@ -9,19 +9,20 @@ concurrency: ${{ github.workflow }}-${{ github.ref }}
 permissions:
   contents: write # push the "Version Packages" commit and create GitHub releases
   pull-requests: write # open/update the "Version Packages" PR
-  id-token: write # OIDC token required for npm provenance attestation
+  id-token: write # OIDC: npm trusted publishing and the provenance attestation
 
 jobs:
   release:
-    # Publishes to npm only when explicitly enabled: create the NPM_TOKEN secret
-    # AND set the repository variable NPM_PUBLISH_ENABLED=true (Settings →
-    # Secrets and variables → Actions → Variables). Until then the workflow
-    # skips cleanly instead of failing on every push.
+    # Publishes to npm only when explicitly enabled: configure this repository
+    # and workflow as a trusted publisher of the package on npmjs.com, THEN set
+    # the repository variable NPM_PUBLISH_ENABLED=true (Settings → Secrets and
+    # variables → Actions → Variables). Until then the workflow skips cleanly
+    # instead of failing on every push. No npm token is stored anywhere.
     if: ${{ vars.NPM_PUBLISH_ENABLED == 'true' }}
     # Human gate before publishing: the job pauses until a required reviewer
     # approves it in the Actions UI (Environment "release", reviewer
-    # pacocartones). Create NPM_TOKEN as an ENVIRONMENT secret scoped to
-    # "release" — a repo-level secret would bypass the environment scoping.
+    # pacocartones). The trusted publisher on npmjs.com names this environment
+    # too, so a run outside it cannot publish.
     environment: release
     runs-on: ubuntu-latest
     steps:
@@ -36,7 +37,11 @@ jobs:
       - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
-          node-version: 22
+          # Node 24 ships npm 11, which npm documents for trusted publishing.
+          # pnpm 11 does the OIDC token exchange itself (pnpm CHANGELOG 11.0.7;
+          # it calls the registry's /-/npm/v1/oidc/token/exchange endpoint),
+          # so this is belt and braces rather than a hard requirement.
+          node-version: 24
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       # Build dist/ upfront: publishing happens inside the changesets step below.
@@ -55,10 +60,8 @@ jobs:
           # `pnpm config get provenance`, NPM_CONFIG_PROVENANCE does not.
           publish-script: pnpm changeset publish
         env:
-          # npm access token (automation or granular, publish scope, no 2FA on
-          # publish). Create one at https://www.npmjs.com/settings/<you>/tokens
-          # and store it as the NPM_TOKEN ENVIRONMENT secret scoped to the
-          # "release" environment (Settings → Environments → release), so the
-          # token is only reachable through the human-approval gate.
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          # No NPM_TOKEN: authentication is npm trusted publishing (OIDC).
+          # changesets/action v2 no longer writes an .npmrc from NPM_TOKEN
+          # anyway (its CHANGELOG, #695), and pnpm 11 prefers OIDC over any
+          # static token when both exist.
           PNPM_CONFIG_PROVENANCE: "true"
