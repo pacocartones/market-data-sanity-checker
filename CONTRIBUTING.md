@@ -55,6 +55,8 @@ Every rule is a pure module with metadata. A new rule is only accepted with **al
 
 AI-assisted contributions are welcome. Please read [AI_POLICY.md](AI_POLICY.md): understand and test your change, check facts at their source, and own what you submit. Saying you used AI is optional and never counts against you. We also maintain this project with AI agents under human oversight; a human maintainer reviews every merge.
 
+Replies in this repository's issues, pull requests and discussions are prepared by an AI agent working under the supervision of the repository owner.
+
 ## Review
 
 A human maintainer reviews and is responsible for every merge. Automated review comments (CodeRabbit) are advisory: a person makes the call, and you don't need to reply to the bot. We resolve every review conversation, from people or bots, before merging, either by changing the code or by noting why not.
