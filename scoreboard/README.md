@@ -1,29 +1,29 @@
 # Provider scoreboard
 
-Generated: 2026-10-08T01:32:43.172Z · basket: 30 liquid symbols · range: 1y · reproducible with `pnpm scoreboard`
+Generated: 2026-10-12T13:18:19.462Z · basket: 30 liquid symbols · range: 1y · reproducible with `pnpm scoreboard`
 
 | Provider | Symbols | Mean sanity score | Min | Critical | Warning | Info |
 |---|---|---|---|---|---|---|
-| yahoo | 30 (+0 failed) | 91.5 | 45 | 1 | 10 | 13 |
-| alpha-vantage | 25 (+5 failed) | 86.4 | 40 | 2 | 7 | 31 |
+| yahoo | 30 (+0 failed) | 91.2 | 45 | 1 | 11 | 12 |
+| alpha-vantage | 25 (+5 failed) | 87.8 | 55 | 1 | 7 | 32 |
 
 ## Worst-scoring symbols per provider
 
 ### yahoo
 
 - **CAT** — 45/100 (PRICE_SPIKE_INTRADAY, RETURN_SPIKE)
+- **HON** — 80/100 (RETURN_SPIKE, SPLIT_RATIO_IMPROBABLE)
 - **MSFT** — 85/100 (RETURN_SPIKE)
 - **NVDA** — 85/100 (RETURN_SPIKE)
 - **AMZN** — 85/100 (RETURN_SPIKE)
-- **META** — 85/100 (RETURN_SPIKE)
 
 ### alpha-vantage
 
-- **WMT** — 40/100 (PRICE_SPIKE_INTRADAY, RETURN_SPIKE, CURRENCY_SUSPECT)
 - **CAT** — 55/100 (PRICE_SPIKE_INTRADAY, CURRENCY_SUSPECT)
 - **MSFT** — 80/100 (RETURN_SPIKE, CURRENCY_SUSPECT)
 - **NVDA** — 80/100 (RETURN_SPIKE, CURRENCY_SUSPECT)
 - **AMZN** — 80/100 (RETURN_SPIKE, CURRENCY_SUSPECT)
+- **META** — 80/100 (RETURN_SPIKE, CURRENCY_SUSPECT)
 
 ## Cross-provider consistency
 
@@ -32,7 +32,7 @@ Generated: 2026-10-08T01:32:43.172Z · basket: 30 liquid symbols · range: 1y ·
   {
     "symbol": "AAPL",
     "consistency_score": 85,
-    "compared_dates": 99,
+    "compared_dates": 100,
     "findings": [
       {
         "rule": "DIVIDEND_MISMATCH",
@@ -46,7 +46,7 @@ Generated: 2026-10-08T01:32:43.172Z · basket: 30 liquid symbols · range: 1y ·
   {
     "symbol": "MSFT",
     "consistency_score": 85,
-    "compared_dates": 99,
+    "compared_dates": 100,
     "findings": [
       {
         "rule": "DIVIDEND_MISMATCH",
@@ -60,7 +60,7 @@ Generated: 2026-10-08T01:32:43.172Z · basket: 30 liquid symbols · range: 1y ·
   {
     "symbol": "NVDA",
     "consistency_score": 85,
-    "compared_dates": 99,
+    "compared_dates": 100,
     "findings": [
       {
         "rule": "DIVIDEND_MISMATCH",
@@ -74,13 +74,13 @@ Generated: 2026-10-08T01:32:43.172Z · basket: 30 liquid symbols · range: 1y ·
   {
     "symbol": "AMZN",
     "consistency_score": 100,
-    "compared_dates": 99,
+    "compared_dates": 100,
     "findings": []
   },
   {
     "symbol": "META",
     "consistency_score": 85,
-    "compared_dates": 99,
+    "compared_dates": 100,
     "findings": [
       {
         "rule": "DIVIDEND_MISMATCH",
@@ -94,7 +94,7 @@ Generated: 2026-10-08T01:32:43.172Z · basket: 30 liquid symbols · range: 1y ·
   {
     "symbol": "GOOGL",
     "consistency_score": 85,
-    "compared_dates": 99,
+    "compared_dates": 100,
     "findings": [
       {
         "rule": "DIVIDEND_MISMATCH",
@@ -108,13 +108,13 @@ Generated: 2026-10-08T01:32:43.172Z · basket: 30 liquid symbols · range: 1y ·
   {
     "symbol": "TSLA",
     "consistency_score": 100,
-    "compared_dates": 99,
+    "compared_dates": 100,
     "findings": []
   },
   {
     "symbol": "AVGO",
     "consistency_score": 85,
-    "compared_dates": 99,
+    "compared_dates": 100,
     "findings": [
       {
         "rule": "DIVIDEND_MISMATCH",
@@ -128,7 +128,7 @@ Generated: 2026-10-08T01:32:43.172Z · basket: 30 liquid symbols · range: 1y ·
   {
     "symbol": "JPM",
     "consistency_score": 85,
-    "compared_dates": 99,
+    "compared_dates": 100,
     "findings": [
       {
         "rule": "DIVIDEND_MISMATCH",
@@ -142,7 +142,7 @@ Generated: 2026-10-08T01:32:43.172Z · basket: 30 liquid symbols · range: 1y ·
   {
     "symbol": "V",
     "consistency_score": 85,
-    "compared_dates": 99,
+    "compared_dates": 100,
     "findings": [
       {
         "rule": "DIVIDEND_MISMATCH",
@@ -156,7 +156,7 @@ Generated: 2026-10-08T01:32:43.172Z · basket: 30 liquid symbols · range: 1y ·
   {
     "symbol": "KO",
     "consistency_score": 85,
-    "compared_dates": 99,
+    "compared_dates": 100,
     "findings": [
       {
         "rule": "DIVIDEND_MISMATCH",
@@ -170,7 +170,7 @@ Generated: 2026-10-08T01:32:43.172Z · basket: 30 liquid symbols · range: 1y ·
   {
     "symbol": "PG",
     "consistency_score": 85,
-    "compared_dates": 99,
+    "compared_dates": 100,
     "findings": [
       {
         "rule": "DIVIDEND_MISMATCH",
@@ -184,7 +184,7 @@ Generated: 2026-10-08T01:32:43.172Z · basket: 30 liquid symbols · range: 1y ·
   {
     "symbol": "JNJ",
     "consistency_score": 85,
-    "compared_dates": 99,
+    "compared_dates": 100,
     "findings": [
       {
         "rule": "DIVIDEND_MISMATCH",
@@ -198,7 +198,7 @@ Generated: 2026-10-08T01:32:43.172Z · basket: 30 liquid symbols · range: 1y ·
   {
     "symbol": "XOM",
     "consistency_score": 85,
-    "compared_dates": 99,
+    "compared_dates": 100,
     "findings": [
       {
         "rule": "DIVIDEND_MISMATCH",
@@ -212,7 +212,7 @@ Generated: 2026-10-08T01:32:43.172Z · basket: 30 liquid symbols · range: 1y ·
   {
     "symbol": "WMT",
     "consistency_score": 85,
-    "compared_dates": 99,
+    "compared_dates": 100,
     "findings": [
       {
         "rule": "DIVIDEND_MISMATCH",
@@ -226,13 +226,13 @@ Generated: 2026-10-08T01:32:43.172Z · basket: 30 liquid symbols · range: 1y ·
   {
     "symbol": "BRK-B",
     "consistency_score": 100,
-    "compared_dates": 99,
+    "compared_dates": 100,
     "findings": []
   },
   {
     "symbol": "GE",
     "consistency_score": 85,
-    "compared_dates": 99,
+    "compared_dates": 100,
     "findings": [
       {
         "rule": "DIVIDEND_MISMATCH",
@@ -246,7 +246,7 @@ Generated: 2026-10-08T01:32:43.172Z · basket: 30 liquid symbols · range: 1y ·
   {
     "symbol": "CAT",
     "consistency_score": 85,
-    "compared_dates": 99,
+    "compared_dates": 100,
     "findings": [
       {
         "rule": "DIVIDEND_MISMATCH",
@@ -260,13 +260,13 @@ Generated: 2026-10-08T01:32:43.172Z · basket: 30 liquid symbols · range: 1y ·
   {
     "symbol": "BA",
     "consistency_score": 100,
-    "compared_dates": 99,
+    "compared_dates": 100,
     "findings": []
   },
   {
     "symbol": "HON",
     "consistency_score": 65,
-    "compared_dates": 99,
+    "compared_dates": 100,
     "findings": [
       {
         "rule": "DIVIDEND_MISMATCH",
@@ -286,7 +286,7 @@ Generated: 2026-10-08T01:32:43.172Z · basket: 30 liquid symbols · range: 1y ·
         "rule": "PRICE_DATE_MISMATCH",
         "severity": "info",
         "where": {
-          "date": "2026-05-15"
+          "date": "2026-05-19"
         }
       }
     ]
@@ -294,7 +294,7 @@ Generated: 2026-10-08T01:32:43.172Z · basket: 30 liquid symbols · range: 1y ·
   {
     "symbol": "SPY",
     "consistency_score": 85,
-    "compared_dates": 99,
+    "compared_dates": 100,
     "findings": [
       {
         "rule": "DIVIDEND_MISMATCH",
@@ -308,7 +308,7 @@ Generated: 2026-10-08T01:32:43.172Z · basket: 30 liquid symbols · range: 1y ·
   {
     "symbol": "QQQ",
     "consistency_score": 85,
-    "compared_dates": 99,
+    "compared_dates": 100,
     "findings": [
       {
         "rule": "DIVIDEND_MISMATCH",
@@ -322,7 +322,7 @@ Generated: 2026-10-08T01:32:43.172Z · basket: 30 liquid symbols · range: 1y ·
   {
     "symbol": "IWM",
     "consistency_score": 85,
-    "compared_dates": 99,
+    "compared_dates": 100,
     "findings": [
       {
         "rule": "DIVIDEND_MISMATCH",
@@ -336,7 +336,7 @@ Generated: 2026-10-08T01:32:43.172Z · basket: 30 liquid symbols · range: 1y ·
   {
     "symbol": "DIA",
     "consistency_score": 85,
-    "compared_dates": 99,
+    "compared_dates": 100,
     "findings": [
       {
         "rule": "DIVIDEND_MISMATCH",
@@ -350,7 +350,7 @@ Generated: 2026-10-08T01:32:43.172Z · basket: 30 liquid symbols · range: 1y ·
   {
     "symbol": "VTI",
     "consistency_score": 85,
-    "compared_dates": 99,
+    "compared_dates": 100,
     "findings": [
       {
         "rule": "DIVIDEND_MISMATCH",

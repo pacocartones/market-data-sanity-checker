@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-08T01:32:43.172Z",
+  "generated_at": "2026-10-12T13:18:19.462Z",
   "basket": [
     "AAPL",
     "MSFT",
@@ -38,7 +38,7 @@
       "provider": "yahoo",
       "symbols_ok": 30,
       "symbols_failed": 0,
-      "mean_score": 91.5,
+      "mean_score": 91.2,
       "min_score": 45,
       "worst_symbols": [
         {
@@ -47,6 +47,14 @@
           "rules": [
             "PRICE_SPIKE_INTRADAY",
             "RETURN_SPIKE"
+          ]
+        },
+        {
+          "symbol": "HON",
+          "score": 80,
+          "rules": [
+            "RETURN_SPIKE",
+            "SPLIT_RATIO_IMPROBABLE"
           ]
         },
         {
@@ -69,37 +77,21 @@
           "rules": [
             "RETURN_SPIKE"
           ]
-        },
-        {
-          "symbol": "META",
-          "score": 85,
-          "rules": [
-            "RETURN_SPIKE"
-          ]
         }
       ],
       "total_findings": {
         "critical": 1,
-        "warning": 10,
-        "info": 13
+        "warning": 11,
+        "info": 12
       }
     },
     {
       "provider": "alpha-vantage",
       "symbols_ok": 25,
       "symbols_failed": 5,
-      "mean_score": 86.4,
-      "min_score": 40,
+      "mean_score": 87.8,
+      "min_score": 55,
       "worst_symbols": [
-        {
-          "symbol": "WMT",
-          "score": 40,
-          "rules": [
-            "PRICE_SPIKE_INTRADAY",
-            "RETURN_SPIKE",
-            "CURRENCY_SUSPECT"
-          ]
-        },
         {
           "symbol": "CAT",
           "score": 55,
@@ -131,12 +123,20 @@
             "RETURN_SPIKE",
             "CURRENCY_SUSPECT"
           ]
+        },
+        {
+          "symbol": "META",
+          "score": 80,
+          "rules": [
+            "RETURN_SPIKE",
+            "CURRENCY_SUSPECT"
+          ]
         }
       ],
       "total_findings": {
-        "critical": 2,
+        "critical": 1,
         "warning": 7,
-        "info": 31
+        "info": 32
       }
     }
   ],
@@ -145,7 +145,7 @@
     {
       "symbol": "AAPL",
       "consistency_score": 85,
-      "compared_dates": 99,
+      "compared_dates": 100,
       "findings": [
         {
           "rule": "DIVIDEND_MISMATCH",
@@ -159,7 +159,7 @@
     {
       "symbol": "MSFT",
       "consistency_score": 85,
-      "compared_dates": 99,
+      "compared_dates": 100,
       "findings": [
         {
           "rule": "DIVIDEND_MISMATCH",
@@ -173,7 +173,7 @@
     {
       "symbol": "NVDA",
       "consistency_score": 85,
-      "compared_dates": 99,
+      "compared_dates": 100,
       "findings": [
         {
           "rule": "DIVIDEND_MISMATCH",
@@ -187,13 +187,13 @@
     {
       "symbol": "AMZN",
       "consistency_score": 100,
-      "compared_dates": 99,
+      "compared_dates": 100,
       "findings": []
     },
     {
       "symbol": "META",
       "consistency_score": 85,
-      "compared_dates": 99,
+      "compared_dates": 100,
       "findings": [
         {
           "rule": "DIVIDEND_MISMATCH",
@@ -207,7 +207,7 @@
     {
       "symbol": "GOOGL",
       "consistency_score": 85,
-      "compared_dates": 99,
+      "compared_dates": 100,
       "findings": [
         {
           "rule": "DIVIDEND_MISMATCH",
@@ -221,13 +221,13 @@
     {
       "symbol": "TSLA",
       "consistency_score": 100,
-      "compared_dates": 99,
+      "compared_dates": 100,
       "findings": []
     },
     {
       "symbol": "AVGO",
       "consistency_score": 85,
-      "compared_dates": 99,
+      "compared_dates": 100,
       "findings": [
         {
           "rule": "DIVIDEND_MISMATCH",
@@ -241,7 +241,7 @@
     {
       "symbol": "JPM",
       "consistency_score": 85,
-      "compared_dates": 99,
+      "compared_dates": 100,
       "findings": [
         {
           "rule": "DIVIDEND_MISMATCH",
@@ -255,7 +255,7 @@
     {
       "symbol": "V",
       "consistency_score": 85,
-      "compared_dates": 99,
+      "compared_dates": 100,
       "findings": [
         {
           "rule": "DIVIDEND_MISMATCH",
@@ -269,7 +269,7 @@
     {
       "symbol": "KO",
       "consistency_score": 85,
-      "compared_dates": 99,
+      "compared_dates": 100,
       "findings": [
         {
           "rule": "DIVIDEND_MISMATCH",
@@ -283,7 +283,7 @@
     {
       "symbol": "PG",
       "consistency_score": 85,
-      "compared_dates": 99,
+      "compared_dates": 100,
       "findings": [
         {
           "rule": "DIVIDEND_MISMATCH",
@@ -297,7 +297,7 @@
     {
       "symbol": "JNJ",
       "consistency_score": 85,
-      "compared_dates": 99,
+      "compared_dates": 100,
       "findings": [
         {
           "rule": "DIVIDEND_MISMATCH",
@@ -311,7 +311,7 @@
     {
       "symbol": "XOM",
       "consistency_score": 85,
-      "compared_dates": 99,
+      "compared_dates": 100,
       "findings": [
         {
           "rule": "DIVIDEND_MISMATCH",
@@ -325,7 +325,7 @@
     {
       "symbol": "WMT",
       "consistency_score": 85,
-      "compared_dates": 99,
+      "compared_dates": 100,
       "findings": [
         {
           "rule": "DIVIDEND_MISMATCH",
@@ -339,13 +339,13 @@
     {
       "symbol": "BRK-B",
       "consistency_score": 100,
-      "compared_dates": 99,
+      "compared_dates": 100,
       "findings": []
     },
     {
       "symbol": "GE",
       "consistency_score": 85,
-      "compared_dates": 99,
+      "compared_dates": 100,
       "findings": [
         {
           "rule": "DIVIDEND_MISMATCH",
@@ -359,7 +359,7 @@
     {
       "symbol": "CAT",
       "consistency_score": 85,
-      "compared_dates": 99,
+      "compared_dates": 100,
       "findings": [
         {
           "rule": "DIVIDEND_MISMATCH",
@@ -373,13 +373,13 @@
     {
       "symbol": "BA",
       "consistency_score": 100,
-      "compared_dates": 99,
+      "compared_dates": 100,
       "findings": []
     },
     {
       "symbol": "HON",
       "consistency_score": 65,
-      "compared_dates": 99,
+      "compared_dates": 100,
       "findings": [
         {
           "rule": "DIVIDEND_MISMATCH",
@@ -399,7 +399,7 @@
           "rule": "PRICE_DATE_MISMATCH",
           "severity": "info",
           "where": {
-            "date": "2026-05-15"
+            "date": "2026-05-19"
           }
         }
       ]
@@ -407,7 +407,7 @@
     {
       "symbol": "SPY",
       "consistency_score": 85,
-      "compared_dates": 99,
+      "compared_dates": 100,
       "findings": [
         {
           "rule": "DIVIDEND_MISMATCH",
@@ -421,7 +421,7 @@
     {
       "symbol": "QQQ",
       "consistency_score": 85,
-      "compared_dates": 99,
+      "compared_dates": 100,
       "findings": [
         {
           "rule": "DIVIDEND_MISMATCH",
@@ -435,7 +435,7 @@
     {
       "symbol": "IWM",
       "consistency_score": 85,
-      "compared_dates": 99,
+      "compared_dates": 100,
       "findings": [
         {
           "rule": "DIVIDEND_MISMATCH",
@@ -449,7 +449,7 @@
     {
       "symbol": "DIA",
       "consistency_score": 85,
-      "compared_dates": 99,
+      "compared_dates": 100,
       "findings": [
         {
           "rule": "DIVIDEND_MISMATCH",
@@ -463,7 +463,7 @@
     {
       "symbol": "VTI",
       "consistency_score": 85,
-      "compared_dates": 99,
+      "compared_dates": 100,
       "findings": [
         {
           "rule": "DIVIDEND_MISMATCH",
