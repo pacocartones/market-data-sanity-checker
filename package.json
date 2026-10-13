@@ -65,7 +65,8 @@
         "calibrate": "tsx scripts/calibrate.ts",
         "scoreboard": "tsx scripts/scoreboard.ts",
         "coverage:summary": "tsx scripts/generate-coverage-summary.ts",
-        "coverage:check": "pnpm test:coverage && pnpm coverage:summary"
+        "coverage:check": "pnpm test:coverage && pnpm coverage:summary",
+        "smoke:readme": "tsx scripts/readme-smoke.ts"
     },
     "dependencies": {
         "commander": "^15.0.0",
