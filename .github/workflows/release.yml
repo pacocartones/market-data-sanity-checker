@@ -12,13 +12,43 @@ permissions:
   id-token: write # OIDC: npm trusted publishing and the provenance attestation
 
 jobs:
+  # Decides, without any environment or credentials, whether there is anything to
+  # release: a pending changeset (→ Version Packages PR) or a package.json version
+  # that npm does not have yet (→ publish). When there is nothing, the release job
+  # below is skipped before its environment, so no approval is requested for a
+  # merge that cannot release anything. When there is something, the release job
+  # runs exactly as before and still waits for the required reviewer.
+  check:
+    if: ${{ vars.NPM_PUBLISH_ENABLED == 'true' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      needed: ${{ steps.decide.outputs.needed }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - id: decide
+        name: Anything to release?
+        run: |
+          changesets=$(find .changeset -maxdepth 1 -name '*.md' ! -name 'README.md' | wc -l)
+          name=$(node -p "require('./package.json').name")
+          version=$(node -p "require('./package.json').version")
+          if npm view "$name@$version" version >/dev/null 2>&1; then published=yes; else published=no; fi
+          echo "pending changesets: $changesets; $name@$version on npm: $published"
+          if [ "$changesets" -gt 0 ] || [ "$published" = no ]; then needed=true; else needed=false; fi
+          echo "needed=$needed" >> "$GITHUB_OUTPUT"
+          echo "release needed: $needed"
+
   release:
+    needs: check
     # Publishes to npm only when explicitly enabled: configure this repository
     # and workflow as a trusted publisher of the package on npmjs.com, THEN set
     # the repository variable NPM_PUBLISH_ENABLED=true (Settings → Secrets and
     # variables → Actions → Variables). Until then the workflow skips cleanly
     # instead of failing on every push. No npm token is stored anywhere.
-    if: ${{ vars.NPM_PUBLISH_ENABLED == 'true' }}
+    if: ${{ vars.NPM_PUBLISH_ENABLED == 'true' && needs.check.outputs.needed == 'true' }}
     # Human gate before publishing: the job pauses until a required reviewer
     # approves it in the Actions UI (Environment "release", reviewer
     # pacocartones). The trusted publisher on npmjs.com names this environment
