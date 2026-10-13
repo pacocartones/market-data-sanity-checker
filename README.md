@@ -357,6 +357,13 @@ yourself. `mdsc` is domain-first: it ships 37 rules that understand market-data 
 splits, dividends, pence/pounds, ticker reuse — each with a causal explanation, evidence,
 a literature or incident reference, and a tunable severity, plus multi-source comparison.
 
+**Why not just write a few pandas checks?**
+You can, and for one dataset you already know well that may be enough. The hard part is
+knowing *which* checks: a 2:1 split looks like a −50% return, a pence/pounds switch like a
+×100 jump, a frozen feed like a calm market. Each of the 37 rules encodes one of those
+documented failures with its threshold and its reference, and `mdsc` runs them all on any
+CSV/JSON with one command (or one call from TypeScript), with the same score in CI.
+
 ## Roadmap
 
 - [x] **Phase 0** — canonical schema, CSV/JSON ingestion, scoring model, CLI, CI
@@ -399,6 +406,12 @@ See [CONTRIBUTING.md](CONTRIBUTING.md). The short version: every rule needs a st
 severity, a documented real-world case or literature reference, and a fixture.
 
 New to the project? Start with [your first rule](docs/tutorial-first-rule.md).
+
+Thanks to the people who have improved it: [@KeuqS](https://github.com/KeuqS) (skipped
+symbols in the scoreboard, #72) and [@nova-loop](https://github.com/nova-loop) (`history
+--limit` validation, #84). Looking for a place to start? The
+[good first issues](https://github.com/pacocartones/market-data-sanity-checker/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22)
+come with the files to touch and the check to run.
 
 AI-assisted contributions are welcome. Use AI tools if they help you — we do too. We ask for good judgement: understand and test what you send, and check every fact at its source. See [AI_POLICY.md](AI_POLICY.md).
 
