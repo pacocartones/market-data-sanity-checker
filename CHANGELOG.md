@@ -1,5 +1,11 @@
 # market-data-sanity-checker
 
+## 1.5.2
+
+### Patch Changes
+
+- 57f4bbb: `SERIES_TAIL_TRUNCATED` also cites the wrong-window regression shared in #35 (nobulex-registry `examples/wrong_window.py`), now pinned as three test cases: a matching window, a subject two sessions short, and a window with no shared session, which is `INSUFFICIENT_OVERLAP`, never a truncation. Thanks @arian-gogani.
+
 ## 1.5.1
 
 ### Patch Changes
