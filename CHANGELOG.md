@@ -1,5 +1,11 @@
 # market-data-sanity-checker
 
+## 1.5.1
+
+### Patch Changes
+
+- 2ea64d5: `mdsc history --limit` now rejects anything other than a whole number of at least 1 (for example `abc`, `0`, `-3` or `2.5`) with a clear message and exit code 2, instead of silently asking for `NaN` or a negative number of entries.
+
 ## 1.5.0
 
 ### Minor Changes
