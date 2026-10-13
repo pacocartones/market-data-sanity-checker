@@ -1,5 +1,11 @@
 # market-data-sanity-checker
 
+## 1.5.3
+
+### Patch Changes
+
+- 1a8912e: GitHub Action: by default a ref of the action now runs the exact npm version released with it, instead of the newest `1.x`. Set `version: 1` to keep following updates.
+
 ## 1.5.2
 
 ### Patch Changes
