@@ -85,6 +85,33 @@ describe('TS_UNORDERED', () => {
     expect(findings[0]!.evidence).toEqual({ previous: '2024-01-05' })
   })
 
+  it('reports a series delivered entirely newest-first ONCE, not once per pair (alpha_vantage #186)', () => {
+    // RomelTorres/alpha_vantage#186: from 2020-02-03 FX daily data reached users newest-first,
+    // and positional slices silently returned the wrong values.
+    const findings = tsUnordered.check(
+      dataset([bar('2020-02-03'), bar('2020-01-31'), bar('2020-01-30'), bar('2020-01-29'), bar('2020-01-28')]),
+      ctx,
+    )
+    expect(findings).toHaveLength(1)
+    expect(findings[0]!.where).toEqual({ date: '2020-02-03' })
+    expect(findings[0]!.evidence).toEqual({ order: 'descending', first: '2020-02-03', last: '2020-01-28', bars: 5 })
+  })
+
+  it('keeps one finding per inversion when only part of the series is out of order', () => {
+    const findings = tsUnordered.check(
+      dataset([bar('2024-01-05'), bar('2024-01-04'), bar('2024-01-08'), bar('2024-01-06')]),
+      ctx,
+    )
+    expect(findings).toHaveLength(2)
+    expect(findings.map((f) => f.where?.date)).toEqual(['2024-01-04', '2024-01-06'])
+  })
+
+  it('treats two bars in reverse as an ordinary inversion', () => {
+    const findings = tsUnordered.check(dataset([bar('2024-01-03'), bar('2024-01-02')]), ctx)
+    expect(findings).toHaveLength(1)
+    expect(findings[0]!.evidence).toEqual({ previous: '2024-01-03' })
+  })
+
   it('does NOT fire on equal timestamps — that is TS_DUPLICATED', () => {
     expect(tsUnordered.check(dataset([bar('2024-01-02'), bar('2024-01-02')]), ctx)).toEqual([])
   })
