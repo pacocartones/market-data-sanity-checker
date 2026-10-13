@@ -258,7 +258,7 @@ compare rules. Full details with defaults and references: `mdsc rules` (or
 | `TS_DUPLICATED` | critical | Two bars for the same timestamp |
 | `RETURN_SPIKE` | warning | Robust statistical outlier returns (modified z-score), deduplicated against splits |
 | `CURRENCY_SCALE_SUSPECT` | warning | Persistent ~100× level shifts — pence/pounds (GBX/GBP) block confusion |
-| `STALE_PRICE` | warning | Identical close for 3+ sessions with volume — frozen feed |
+| `STALE_PRICE` | warning | Identical close for 3+ sessions with volume — frozen feed (`info` when the price is frozen with volume 0 for more than 10 sessions) |
 | `BAR_MISSING` | warning | Gaps of a full trading week or more |
 | `TS_UNORDERED` | warning | Bars out of chronological order |
 | `ZERO_VOLUME_MOVED` | warning | Zero volume but price moved intraday |

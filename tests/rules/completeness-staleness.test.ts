@@ -138,6 +138,34 @@ describe('STALE_PRICE', () => {
     expect(findings).toEqual([])
   })
 
+  /** n consecutive weekday-ish dates from 2026-07-20; the rule does not read calendars. */
+  const zeroVolumeRun = (n: number) =>
+    Array.from({ length: n }, (_, i) => ({
+      timestamp: new Date(Date.UTC(2026, 6, 20 + i)).toISOString().slice(0, 10),
+      close: 1520.5,
+      volume: 0,
+    }))
+
+  it('reports a zero-volume run longer than maxHaltSessions at info (yfinance #2966)', () => {
+    const findings = stalePrice.check(makeDataSet(zeroVolumeRun(11)), ctx)
+    expect(findings).toHaveLength(1)
+    expect(findings[0]).toMatchObject({ rule: 'STALE_PRICE', severity: 'info', action: 'review' })
+    expect(findings[0]!.evidence).toMatchObject({ sessions: 11, close: 1520.5, zero_volume: true })
+  })
+
+  it('still excuses a zero-volume run of exactly maxHaltSessions (a halt within the SEC 10-day limit)', () => {
+    expect(stalePrice.check(makeDataSet(zeroVolumeRun(10)), ctx)).toEqual([])
+  })
+
+  it('honours a configured maxHaltSessions', () => {
+    const custom = {
+      ...ctx,
+      config: { ...ctx.config, params: { ...ctx.config.params, maxHaltSessions: 4 } },
+    }
+    expect(stalePrice.check(makeDataSet(zeroVolumeRun(5)), custom)).toHaveLength(1)
+    expect(stalePrice.check(makeDataSet(zeroVolumeRun(4)), custom)).toEqual([])
+  })
+
   it('fires when the run has no volume data (absent volume cannot prove a halt)', () => {
     const findings = stalePrice.check(
       makeDataSet([
