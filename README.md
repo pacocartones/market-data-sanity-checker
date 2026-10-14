@@ -169,7 +169,7 @@ mdsc check --file aapl.csv --html report.html
 Fail a workflow when a data file is bad, with the score and finding counts in the job summary. It is listed on the [GitHub Marketplace](https://github.com/marketplace/actions/market-data-sanity-checker).
 
 ```yaml
-- uses: pacocartones/market-data-sanity-checker@09917752cf236fe280e5d10c3c7ead07361c557c # v1.5.4
+- uses: pacocartones/market-data-sanity-checker@a8f95bcc0aec8d8e558ebb3de421b8b62531970f # v1.6.0
   with:
     file: data/prices.csv
     fail-on: warning # critical (default) | warning | info
