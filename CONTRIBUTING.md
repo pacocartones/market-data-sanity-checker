@@ -63,6 +63,8 @@ AI-assisted contributions are welcome. Please read [AI_POLICY.md](AI_POLICY.md):
 
 Replies in this repository's issues, pull requests and discussions are prepared by an AI agent working under the supervision of the repository owner.
 
+Commit messages: this repository does not take AI attribution trailers or footers (such as `Co-Authored-By: <an AI tool>`) in commits; the *Commit policy* check on pull requests rejects them. If you want to say that AI helped, say it in the pull request description. You can commit under any email address; maintainers use GitHub noreply addresses.
+
 ## Review
 
 A human maintainer reviews and is responsible for every merge. Automated review comments (CodeRabbit) are advisory: a person makes the call, and you don't need to reply to the bot. We resolve every review conversation, from people or bots, before merging, either by changing the code or by noting why not.

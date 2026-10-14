@@ -48,7 +48,7 @@ Include, when you can:
 
 ## What to Expect
 
-- **Acknowledgement within 7 days.** This is a spare-time open source project; the
+- **Acknowledgement within 48 hours (best effort).** This is a spare-time open source project; the
   report is read by a human, just not on an SLA.
 - If the report is accepted, we work on a fix, credit you in the advisory (unless
   you prefer otherwise) and coordinate a disclosure date with you.
