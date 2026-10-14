@@ -184,7 +184,7 @@ mdsc compare --files yahoo-aapl.json,stooq-aapl.csv --html compare.html   # writ
 Fail a workflow when a data file is bad, with the score and finding counts in the job summary. It is listed on the [GitHub Marketplace](https://github.com/marketplace/actions/market-data-sanity-checker).
 
 ```yaml
-- uses: pacocartones/market-data-sanity-checker@a8f95bcc0aec8d8e558ebb3de421b8b62531970f # v1.6.0
+- uses: pacocartones/market-data-sanity-checker@80f2bb54bc03bc3ce6c7445402c88b2b644e1a0f # v1.7.0
   with:
     file: data/prices.csv
     fail-on: warning # critical (default) | warning | info
