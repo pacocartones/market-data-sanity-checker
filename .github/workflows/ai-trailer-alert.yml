@@ -1,0 +1,31 @@
+name: AI trailer alert
+
+# Notice only, nothing is rewritten. When a squash merge leaves an AI
+# "Co-authored-by" (or similar) line in the commit that landed on the default
+# branch, this run fails so the maintainers see it right away and can decide
+# what to do (GitHub adds those lines by default in a squash).
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  alert:
+    name: AI trailer alert
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Look for AI attribution in the commit message
+        run: |
+          pattern='co-authored-by:[[:space:]]*(claude|gpt|chatgpt|copilot|codebuff|gemini|cursor|aider|devin|anthropic|openai|agent:)|generated (with|by) (claude|chatgpt|copilot|codex|gemini|an? ai)|🤖'
+          if git log -1 --format=%B HEAD | grep -Eiq "$pattern"; then
+            echo "::error title=AI attribution on the default branch::$(git log -1 --format=%h HEAD) landed with an AI trailer or footer in its message. Nothing was changed; decide whether it needs follow-up."
+            exit 1
+          fi
+          echo "no AI attribution in $(git log -1 --format=%h HEAD)"
