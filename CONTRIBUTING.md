@@ -63,7 +63,7 @@ AI-assisted contributions are welcome. Please read [AI_POLICY.md](AI_POLICY.md):
 
 Replies in this repository's issues, pull requests and discussions are prepared by an AI agent working under the supervision of the repository owner.
 
-Commit messages: this repository does not take AI attribution trailers or footers (such as `Co-Authored-By: <an AI tool>`) in commits; the *Commit policy* check on pull requests rejects them. If you want to say that AI helped, say it in the pull request description. You can commit under any email address; maintainers use GitHub noreply addresses.
+Commit messages: AI-assisted contributions are welcome when you have verified the change (see above). You do not need to remove a trailer your tool adds, and you can commit under any email address. Commits written by the maintainers carry no AI attribution trailers and use GitHub noreply addresses; the *Commit policy* check on pull requests enforces that for maintainer identities only. When we squash-merge, we drop AI `Co-authored-by` lines from the final message so `main` stays clean; your authorship stays.
 
 ## Review
 

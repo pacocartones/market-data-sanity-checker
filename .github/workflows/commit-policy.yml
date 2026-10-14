@@ -1,8 +1,8 @@
 name: Commit policy
 
 # New commits of a pull request only (base..head), never the history before.
-# Fails on AI attribution trailers or footers, and on maintainer-identity commits
-# that do not use a GitHub noreply address. Contributors may use any address.
+# Fails on maintainer-identity commits with an AI attribution trailer or footer,
+# or without a GitHub noreply address. Contributors are not checked.
 on:
   pull_request:
 
