@@ -4,14 +4,14 @@
 [![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/pacocartones/market-data-sanity-checker/badge)](https://scorecard.dev/viewer/?uri=github.com/pacocartones/market-data-sanity-checker)
 [![GitHub Marketplace](https://img.shields.io/badge/Marketplace-Market%20Data%20Sanity%20Checker-blue?logo=github)](https://github.com/marketplace/actions/market-data-sanity-checker)
 [![npm version](https://img.shields.io/npm/v/market-data-sanity-checker)](https://www.npmjs.com/package/market-data-sanity-checker)
-[![npm downloads](https://img.shields.io/npm/dm/market-data-sanity-checker)](https://www.npmjs.com/package/market-data-sanity-checker)
 [![node version](https://img.shields.io/node/v/market-data-sanity-checker)](https://nodejs.org)
-[![Coverage](https://img.shields.io/badge/coverage-check%20status-blue)](https://github.com/pacocartones/market-data-sanity-checker/actions/workflows/ci.yml)
 [![API Docs](https://img.shields.io/badge/docs-API%20reference-success)](https://pacocartones.github.io/market-data-sanity-checker/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 > **Trust layer for market data.** Validate, score and explain anomalies in OHLCV, dividends,
 > splits and fundamentals — before they break your screener, dashboard or tracker.
+
+[Quickstart](#quickstart-30-seconds) · [Rule catalog](#rule-catalog) · [Contribute: good first issues](https://github.com/pacocartones/market-data-sanity-checker/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22)
 
 <img src="docs/assets/trust-layer-flow.svg" alt="Architecture: market data sources (Yahoo Finance, Alpha Vantage, your CSV/JSON) flow into mdsc — the trust layer that validates with 37 rules, scores 0-100, explains with evidence and recommends block/flag/review — and only then into your backtests, screeners, dashboards and ML pipelines, with CI gating via exit codes" width="860">
 
@@ -38,7 +38,7 @@ works offline, interactive chart, no server.*
 
 ## Quickstart (30 seconds)
 
-No install, no API key — audit a live symbol straight from Yahoo Finance:
+No install, no API key — audit a live symbol straight from Yahoo Finance. Requires Node.js 22.12 or newer:
 
 ```bash
 npx market-data-sanity-checker check --provider yahoo --symbol AAPL
