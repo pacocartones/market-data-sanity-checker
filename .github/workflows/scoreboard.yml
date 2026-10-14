@@ -12,14 +12,16 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name }}
   cancel-in-progress: true
 
-permissions:
-  contents: write
-  pull-requests: write # gh pr create/view on bot/scoreboard
-  actions: write # dispatch CI and zizmor on bot/scoreboard (see the last step)
+# No permissions at workflow level; the one job below asks for what it needs.
+permissions: {}
 
 jobs:
   scoreboard:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write # gh pr create/view on bot/scoreboard
+      actions: write # dispatch CI and zizmor on bot/scoreboard (see the last step)
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         # zizmor: ignore[artipacked] — the manual git push step below pushes through the
