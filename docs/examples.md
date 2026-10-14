@@ -99,7 +99,39 @@ findings: 0 critical · 1 warning · 0 info
            move. Hypothesis: the feed mixes price scales in blocks — pence vs pounds ...
 ```
 
-## 4. Comparing two sources — and refusing to lie
+## 4. Phantom trades: zero volume but price moved
+
+A price can only move when trades happen, so an intraday range (`high != low`) with zero
+reported volume is contradictory — documented real cases (such as 1COV.DE on Yahoo, noted in
+yfinance's price-repair documentation) turned out to be corrupt vendor rows. It is flagged as a
+warning rather than critical because corrupt vendor rows require verification against the source
+before consuming. Bars with `volume = 0` and `high == low` represent halted or zero-trade sessions
+and are intentionally not flagged:
+
+```bash
+mdsc check --file tests/fixtures/ohlcv-zero-volume-moved.csv
+```
+
+```
+UNKNOWN (csv) — sanity_score: 65/100
+findings: 0 critical · 2 warning · 1 info
+  WARNING  INSUFFICIENT_DATA → flag
+           Only 5 bar(s) provided (minimum for meaningful checks: 10). The statistical rules
+           (spikes, staleness, splits) have nothing to work with, so this score reflects
+           absence of evidence, not evidence of quality. Fetch more history before trusting
+           the result.
+  WARNING  ZERO_VOLUME_MOVED [2024-01-04] → flag
+           Zero volume but the price moved intraday (high 104 != low 101), which is
+           contradictory unless the instrument was halted — and halted sessions usually report
+           high == low. Documented real cases (e.g. 1COV.DE on Yahoo) turned out to be corrupt vendor
+           rows; verify against the source before consuming.
+  INFO     CURRENCY_SUSPECT → review
+           Dataset for UNKNOWN has no currency. Without it, prices cannot be interpreted (the
+           LSE quotes in pence (GBX), not pounds — a GBP/GBX mix-up is a silent ×100 error).
+           Record the trading currency explicitly, and use GBX for pence-quoted series.
+```
+
+## 5. Comparing two sources — and refusing to lie
 
 `mdsc compare` checks whether two feeds agree on the same symbol:
 
@@ -132,7 +164,7 @@ findings: 2 critical · 0 warning · 0 info
            instruments, so every divergence below would be meaningless. ...
 ```
 
-## 5. Live data and the HTML dashboard
+## 6. Live data and the HTML dashboard
 
 No fixtures needed — Yahoo works keyless:
 
@@ -143,6 +175,70 @@ mdsc check --provider yahoo --symbol TSLA --html report.html
 `report.html` is a single self-contained file (works offline, no server): interactive price
 chart with anomaly markers, score breakdown, and every finding with its evidence and
 references. See the screenshot in the [README](../README.md).
+
+## Run it in GitHub Actions
+
+The same data gate can run on every push and pull request. This example keeps the JSON report as a downloadable artifact even when the gate fails:
+
+```yaml
+name: Market data gate
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  sanity-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 22
+      - name: Check market data
+        run: |
+          npx --yes market-data-sanity-checker check \
+            --file data/prices.csv \
+            --fail-on critical \
+            --min-score 80 \
+            --format json > report.json
+      - name: Upload the report
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: market-data-report
+          path: report.json
+```
+
+`--fail-on critical` makes critical findings fail the data gate, while `--min-score 80` also fails it when the overall score is below 80. Exit code `1` means the data gate rejected the input; exit code `2` means the command could not perform the check. The `always()` condition lets the artifact upload run after exit code `1`, so the report is available for inspection.
+
+If you prefer a self-contained visual report, replace the JSON redirection and artifact path with:
+
+```bash
+npx --yes market-data-sanity-checker check \
+  --file data/prices.csv \
+  --fail-on critical \
+  --min-score 80 \
+  --html report.html
+```
+
+For the HTML variant, change the artifact step's `path:` to `report.html`.
+
+For a local smoke test, use the shipped anomalous fixture; it intentionally exits `1` while still producing a report:
+
+```bash
+pnpm exec mdsc check --file tests/fixtures/mob-st-unadjusted-split.json --fail-on critical --min-score 80 --format json > report.json
+```
+
+The command should report the `SPLIT_NOT_ADJUSTED` finding and create parseable `report.json` before returning the failing gate status.
+
+This smoke test prints `SPLIT_NOT_ADJUSTED`, scores 60/100, exits `1`, and leaves a parseable
+`report.json` for inspection.
 
 ## Exit codes for CI
 
