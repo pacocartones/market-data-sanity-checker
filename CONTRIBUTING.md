@@ -52,7 +52,7 @@ Every rule is a pure module with metadata. A new rule is only accepted with **al
 
 ## Adding an incident case
 
-A case is **one new file** in [`incidents/`](incidents/) (see its README and the checklist in [`incidents.md`](incidents.md)); do not touch `incidents.md` in your pull request: its table is generated from the case files, and a hand-edited row is what makes two incident pull requests conflict. A maintainer runs `pnpm incidents:index` after merging, so a pull request that only adds `incidents/<slug>.md` never conflicts. Run `pnpm incidents:check` before you push.
+A case is **one new file** in [`incidents/`](incidents/) (see its README and the checklist in [`incidents.md`](incidents.md)). Do not edit the table in `incidents.md`: it is generated from the case files, and a hand-edited row is what makes two incident pull requests conflict. A maintainer runs `pnpm incidents:index` after merging, so a pull request that only adds `incidents/<slug>.md` does not conflict over the table. Run `pnpm incidents:check` before you push; it checks that your case file is well formed.
 
 ## Principles to respect
 
