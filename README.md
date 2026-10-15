@@ -123,6 +123,7 @@ mdsc check --file aapl.json --format json > report.json
 
 # provider status and rule catalog
 mdsc providers
+mdsc providers --format json         # includes each provider's daily_request_limit (null = no cap)
 mdsc rules
 mdsc rules SERIES_TAIL_TRUNCATED     # one rule by id (case-insensitive)
 mdsc rules --format json | jq '.single_source[].id'

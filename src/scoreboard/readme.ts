@@ -19,13 +19,33 @@ interface ExcludedProvider {
   failed: number
 }
 
+export interface ScoreboardFinding {
+  rule: string
+  severity: string
+  where?: Record<string, string | number>
+}
+
+export interface ScoreboardComparison {
+  symbol: string
+  consistency_score: number
+  compared_dates: number
+  findings: ScoreboardFinding[]
+}
+
 interface ScoreboardReadmeInput {
   generatedAt: string
   basketSize: number
   providers: ScoreboardProviderResult[]
   excluded: ExcludedProvider[]
   skipped: SkippedProvider[]
-  comparisons: unknown[]
+  comparisons: ScoreboardComparison[]
+}
+
+function formatFindings(findings: ScoreboardFinding[]): string {
+  if (findings.length === 0) return 'none'
+  return findings
+    .map((f) => (f.where?.date !== undefined ? `${f.rule} (${f.severity}, ${f.where.date})` : `${f.rule} (${f.severity})`))
+    .join('; ')
 }
 
 /** Render the checked-in weekly scoreboard README without touching provider data. */
@@ -70,7 +90,19 @@ export function renderScoreboardReadme({
       ),
       '',
     ]),
-    comparisons.length > 0 ? `## Cross-provider consistency\n\n\`\`\`json\n${JSON.stringify(comparisons, null, 2)}\n\`\`\`\n` : '',
+    ...(comparisons.length > 0
+      ? [
+          '## Cross-provider consistency',
+          '',
+          '| Symbol | Consistency score | Compared dates | Findings |',
+          '|---|---|---|---|',
+          ...comparisons.map(
+            (c) =>
+              `| ${c.symbol} | ${c.consistency_score} | ${c.compared_dates} | ${formatFindings(c.findings)} |`,
+          ),
+          '',
+        ]
+      : []),
   ]
   return lines.join('\n')
 }

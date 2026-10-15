@@ -37,10 +37,11 @@ interface CliResult {
 }
 
 /** Runs the compiled CLI; non-zero exits resolve (not reject) with their code. */
-async function runCli(args: string[], options: { cwd?: string } = {}): Promise<CliResult> {
+async function runCli(args: string[], options: { cwd?: string; env?: NodeJS.ProcessEnv } = {}): Promise<CliResult> {
   try {
     const { stdout, stderr } = await execFileAsync(process.execPath, [CLI, ...args], {
       cwd: options.cwd ?? REPO_ROOT,
+      env: options.env ?? process.env,
       maxBuffer: 16 * 1024 * 1024,
     })
     return { code: 0, stdout, stderr }
@@ -543,4 +544,70 @@ describe('compare — error paths and exit codes', () => {
     const report = JSON.parse(result.stdout) as { consistency_score?: number }
     expect(report.consistency_score).toBe(100)
   })
+})
+
+describe('providers — --format', () => {
+  // A dummy key makes alpha-vantage "ready" without any network call; yahoo needs nothing and has no cap.
+  const envWith = (extra: Record<string, string>): NodeJS.ProcessEnv => {
+    const env: NodeJS.ProcessEnv = { ...process.env, ...extra }
+    if (!('ALPHA_VANTAGE_PREMIUM' in extra)) delete env.ALPHA_VANTAGE_PREMIUM
+    return env
+  }
+
+  it(
+    'prints each provider with daily_request_limit (a number for a capped one, null otherwise)',
+    async () => {
+      const result = await runCli(['providers', '--format', 'json'], {
+        env: envWith({ ALPHA_VANTAGE_API_KEY: 'dummy' }),
+      })
+      expect(result.code).toBe(0)
+      expect(result.stderr).toBe('')
+      const providers = JSON.parse(result.stdout) as Array<Record<string, unknown>>
+      const byName = Object.fromEntries(providers.map((p) => [p.name, p]))
+      expect(Object.keys(byName).sort()).toEqual(['alpha-vantage', 'yahoo'])
+      for (const provider of providers) {
+        expect(Object.keys(provider).sort()).toEqual(['available', 'daily_request_limit', 'name', 'requires'])
+        expect(typeof provider.requires).toBe('string')
+      }
+      expect(byName['alpha-vantage']).toMatchObject({ available: true, daily_request_limit: 25 })
+      expect(byName.yahoo).toMatchObject({ available: true, daily_request_limit: null })
+    },
+    CLI_TIMEOUT_MS,
+  )
+
+  it(
+    'reports null for alpha-vantage with a premium key (no daily cap)',
+    async () => {
+      const result = await runCli(['providers', '--format', 'JSON'], {
+        env: envWith({ ALPHA_VANTAGE_API_KEY: 'dummy', ALPHA_VANTAGE_PREMIUM: 'true' }),
+      })
+      expect(result.code).toBe(0)
+      const providers = JSON.parse(result.stdout) as Array<{ name: string; daily_request_limit: number | null }>
+      expect(providers.find((p) => p.name === 'alpha-vantage')?.daily_request_limit).toBeNull()
+    },
+    CLI_TIMEOUT_MS,
+  )
+
+  it(
+    'shows the cap after "ready" in the table, and nothing extra for a provider without one',
+    async () => {
+      const result = await runCli(['providers'], { env: envWith({ ALPHA_VANTAGE_API_KEY: 'dummy' }) })
+      expect(result.code).toBe(0)
+      const lines = result.stdout.split('\n')
+      expect(lines.find((line) => line.trim().startsWith('alpha-vantage'))).toMatch(/ready · 25 requests\/day$/)
+      expect(lines.find((line) => line.trim().startsWith('yahoo'))?.trimEnd()).toMatch(/ready$/)
+    },
+    CLI_TIMEOUT_MS,
+  )
+
+  it(
+    'rejects an unknown --format with exit 2 and empty stdout',
+    async () => {
+      const result = await runCli(['providers', '--format', 'xml'])
+      expect(result.code).toBe(2)
+      expect(result.stdout).toBe('')
+      expect(result.stderr).toContain('--format must be one of: table, json')
+    },
+    CLI_TIMEOUT_MS,
+  )
 })

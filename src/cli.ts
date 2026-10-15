@@ -538,11 +538,37 @@ program
 
 program
   .command('providers')
-  .description('List available data providers and their status')
-  .action(() => {
+  .description('List available data providers, their status and daily request cap')
+  .option('--format <format>', 'output format: table | json', 'table')
+  .action((options: { format: string }) => {
+    // Same validation as the other commands: case-insensitive, unknown values exit 2.
+    const format = options.format.toLowerCase()
+    if (format !== 'table' && format !== 'json') {
+      console.error('mdsc: --format must be one of: table, json')
+      process.exitCode = 2
+      return
+    }
+    const statuses = connectorStatus()
+    if (format === 'json') {
+      console.log(
+        JSON.stringify(
+          statuses.map((status) => ({
+            name: status.name,
+            available: status.available,
+            requires: status.requires,
+            daily_request_limit: status.dailyRequestLimit,
+          })),
+          null,
+          2,
+        ),
+      )
+      return
+    }
     console.log()
-    for (const status of connectorStatus()) {
-      console.log(`  ${status.name.padEnd(16)} ${status.available ? 'ready' : `unavailable — requires ${status.requires}`}`)
+    for (const status of statuses) {
+      const cap = status.dailyRequestLimit === null ? '' : ` · ${status.dailyRequestLimit} requests/day`
+      const state = status.available ? `ready${cap}` : `unavailable — requires ${status.requires}`
+      console.log(`  ${status.name.padEnd(16)} ${state}`)
     }
     console.log()
   })

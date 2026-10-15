@@ -25,7 +25,12 @@ import { connectors, connectorStatus } from '../src/connectors/index'
 import { splitByDailyLimit } from '../src/connectors/types'
 import { checkMarketData } from '../src/checker'
 import { compareDatasets } from '../src/compare/comparator'
-import { renderScoreboardReadme, type ScoreboardProviderResult, type SkippedProvider } from '../src/scoreboard/readme'
+import {
+  renderScoreboardReadme,
+  type ScoreboardComparison,
+  type ScoreboardProviderResult,
+  type SkippedProvider,
+} from '../src/scoreboard/readme'
 import type { MarketDataSet } from '../src/schema/market-data'
 
 const BASKET = [
@@ -171,7 +176,7 @@ if (providerResults.length === 0) {
 }
 
 const published = active.filter((connector) => datasetsByProvider.has(connector.name))
-const comparisons: unknown[] = []
+const comparisons: ScoreboardComparison[] = []
 if (published.length >= 2) {
   const [first, second] = published
   for (const symbol of BASKET) {

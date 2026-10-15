@@ -13,12 +13,22 @@ export const connectors: Record<string, Connector> = {
   'alpha-vantage': alphaVantage,
 }
 
-/** Lists provider names with whether they are usable right now. */
-export function connectorStatus(): Array<{ name: string; available: boolean; requires: string }> {
+/** One provider's status, as listed by `mdsc providers`. */
+export interface ConnectorStatus {
+  name: string
+  available: boolean
+  requires: string
+  /** Requests per day allowed with the current credentials, or null when the connector declares no cap. */
+  dailyRequestLimit: number | null
+}
+
+/** Lists provider names with whether they are usable right now and their daily request cap, if any. */
+export function connectorStatus(): ConnectorStatus[] {
   return Object.values(connectors).map((connector) => ({
     name: connector.name,
     available: connector.available(),
     requires: connector.requires,
+    dailyRequestLimit: connector.dailyRequestLimit?.() ?? null,
   }))
 }
 
