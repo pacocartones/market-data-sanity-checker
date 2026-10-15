@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* global process, console */
 // Builds CONTRIBUTORS.md from the merged pull requests of this repository.
 // No services, no dependencies: it reads the JSON that `gh` prints.
 //
