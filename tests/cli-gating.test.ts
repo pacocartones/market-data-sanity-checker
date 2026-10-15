@@ -172,6 +172,17 @@ describe('check — gating exit codes', () => {
 })
 
 describe('check — early flag validation (exit 2, no report)', () => {
+  it.each(['constructor', 'toString', '__proto__', 'hasOwnProperty'])(
+    'rejects --fail-on %s (an inherited Object.prototype name) instead of passing the gate',
+    async (name) => {
+      const result = await runCli(['check', '--file', fixture('aet-l-currency-scale.json'), '--fail-on', name])
+      expect(result.code).toBe(2)
+      expect(result.stdout).toBe('')
+      expect(result.stderr).toContain('--fail-on must be one of')
+    },
+    CLI_TIMEOUT_MS,
+  )
+
   it(
     'rejects --fail-on bogus with exit 2 and empty stdout (nothing ran yet)',
     async () => {

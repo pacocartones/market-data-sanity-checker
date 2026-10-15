@@ -121,6 +121,15 @@ interface GatingOptions {
 }
 
 /**
+ * True only for the three severity names. `value in SEVERITY_ORDER` also accepts inherited
+ * Object.prototype keys ("constructor", "toString", "__proto__"), which made `--fail-on constructor`
+ * pass validation, count 0 findings and exit 0 on data with critical findings.
+ */
+function isSeverity(value: string): value is Severity {
+  return Object.hasOwn(SEVERITY_ORDER, value)
+}
+
+/**
  * CI gating ("alerts"). Exit 1 when: any critical finding (default), or any
  * finding at or above --fail-on severity, or score below --min-score.
  * Returns the exit code and prints the reason to stderr.
@@ -134,7 +143,7 @@ function evaluateGating(
 
   if (options.failOn !== undefined) {
     const threshold = options.failOn as Severity
-    if (!(threshold in SEVERITY_ORDER)) {
+    if (!isSeverity(threshold)) {
       console.error(`mdsc: --fail-on must be one of: ${Object.keys(SEVERITY_ORDER).join(', ')}`)
       return 2
     }
@@ -166,7 +175,7 @@ function evaluateGating(
  * flag; returns null when every flag is OK.
  */
 function validateCommonFlags(options: GatingOptions & { format: string }): number | null {
-  if (options.failOn !== undefined && !(options.failOn in SEVERITY_ORDER)) {
+  if (options.failOn !== undefined && !isSeverity(options.failOn)) {
     console.error(`mdsc: --fail-on must be one of: ${Object.keys(SEVERITY_ORDER).join(', ')}`)
     return 2
   }
