@@ -69,7 +69,9 @@
         "coverage:badge": "tsx scripts/coverage-badge.ts",
         "coverage:check": "pnpm test:coverage && pnpm coverage:summary",
         "smoke:readme": "tsx scripts/readme-smoke.ts",
-        "release-notes": "tsx scripts/release-notes.ts"
+        "release-notes": "tsx scripts/release-notes.ts",
+        "incidents:index": "tsx scripts/incidents-index.ts",
+        "incidents:check": "tsx scripts/incidents-index.ts --check"
     },
     "dependencies": {
         "commander": "^15.0.0",

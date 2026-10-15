@@ -50,6 +50,10 @@ Every rule is a pure module with metadata. A new rule is only accepted with **al
 5. **Explanation** — human-readable, with the causal hypothesis and the evidence. Not
    "check failed" but "possible unadjusted 2:1 split: price fell −49.7% while volume doubled".
 
+## Adding an incident case
+
+A case is **one new file** in [`incidents/`](incidents/) (see its README and the checklist in [`incidents.md`](incidents.md)); never edit the generated table in `incidents.md`. Run `pnpm incidents:check` before you push. Because every case is its own file, two incident pull requests never conflict.
+
 ## Principles to respect
 
 - **Flag, don't delete.** This tool never rewrites data. It detects, explains, scores.
