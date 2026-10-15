@@ -25,9 +25,6 @@ const HEADINGS: Record<string, string> = {
 /** AI-attribution phrases that must never reach a release (title, body or changelog). */
 const AI_ATTRIBUTION = /generated (with|by) (claude|chatgpt|copilot|an? ai)|co-authored-by:\s*(claude|gpt|copilot)|🤖/i
 
-/** Maintainers are not listed as contributors in the notes. */
-const MAINTAINERS = new Set(['pacocartones', 'leonmag'])
-
 export interface ReleaseNotes {
   title: string
   body: string
