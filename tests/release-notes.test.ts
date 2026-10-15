@@ -122,6 +122,7 @@ describe('entries written by @changesets/changelog-github', () => {
     expect(notes.body).not.toContain('@pacocartones')
     expect(checkReleaseNotes(notes.body, notes.title)).toEqual([])
   })
+})
 
 describe('GitHub generate-notes sections', () => {
   const GENERATED = `## What's Changed
