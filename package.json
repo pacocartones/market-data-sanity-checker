@@ -58,6 +58,7 @@
         "prepack": "pnpm build",
         "dev": "tsx src/cli.ts",
         "test": "vitest run",
+        "test:property": "vitest run tests/property",
         "test:coverage": "vitest run --coverage",
         "test:watch": "vitest",
         "typecheck": "tsc --noEmit",
