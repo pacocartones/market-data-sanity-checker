@@ -255,6 +255,20 @@ describe('alphaVantage — free vs premium endpoint', () => {
     process.env.ALPHA_VANTAGE_PREMIUM = 'true'
     expect(alphaVantage.dailyRequestLimit?.()).toBeUndefined()
   })
+
+  it('uses a positive integer daily cap override only for free keys', () => {
+    process.env.ALPHA_VANTAGE_PREMIUM = 'true'
+    process.env.ALPHA_VANTAGE_DAILY_LIMIT = '10'
+    expect(alphaVantage.dailyRequestLimit?.()).toBeUndefined()
+
+    delete process.env.ALPHA_VANTAGE_PREMIUM
+    expect(alphaVantage.dailyRequestLimit?.()).toBe(10)
+    for (const value of ['', '0', 'abc']) {
+      process.env.ALPHA_VANTAGE_DAILY_LIMIT = value
+      expect(alphaVantage.dailyRequestLimit?.()).toBe(FREE_DAILY_REQUEST_LIMIT)
+    }
+    delete process.env.ALPHA_VANTAGE_DAILY_LIMIT
+  })
 })
 
 describe('splitByDailyLimit', () => {

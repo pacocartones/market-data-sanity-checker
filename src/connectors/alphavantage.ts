@@ -45,6 +45,11 @@ function isPremium(): boolean {
  */
 export const FREE_DAILY_REQUEST_LIMIT = 25
 
+function configuredDailyRequestLimit(): number {
+  const value = Number(process.env.ALPHA_VANTAGE_DAILY_LIMIT)
+  return Number.isInteger(value) && value > 0 ? value : FREE_DAILY_REQUEST_LIMIT
+}
+
 /** Provider keys that signal an error payload instead of data. */
 const ERROR_KEYS = ['Error Message', 'Note', 'Information'] as const
 
@@ -146,7 +151,7 @@ export const alphaVantage: Connector = {
   },
 
   dailyRequestLimit(): number | undefined {
-    return isPremium() ? undefined : FREE_DAILY_REQUEST_LIMIT
+    return isPremium() ? undefined : configuredDailyRequestLimit()
   },
 
   async fetchDaily(symbol: string, options: FetchOptions = {}): Promise<MarketDataSet> {
