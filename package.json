@@ -82,6 +82,7 @@
         "@types/papaparse": "^5.5.2",
         "@vitest/coverage-v8": "^4.1.11",
         "eslint": "^10.11.0",
+        "fast-check": "4.10.2",
         "tsup": "^8.5.1",
         "tsx": "^4.23.15",
         "typedoc": "^0.28.20",
