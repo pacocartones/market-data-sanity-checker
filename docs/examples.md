@@ -58,9 +58,13 @@ unadjusted split, not a real crash).
 
 ## 2. The $185 Berkshire (bad tick)
 
-On 3-Jun-2024 an NYSE/SIP glitch printed Berkshire Hathaway (BRK.A) at $185.15 instead of
-~$621,000. Trades executed on the bad price cost Interactive Brokers ~$48M. The fixture
-reproduces that day:
+On 3-Jun-2024 a technical issue with price bands published by the CTA SIP triggered trading halts
+([The Stack](https://www.thestack.technology/nyse-glitch-cause/)); Berkshire Hathaway (BRK.A) fell
+within seconds from about $622,000 to about $185, and Interactive Brokers reported a loss of about
+$48M on trades around the halt
+([IBKR notice, June 2024](https://www.interactivebrokers.com/en/general/about/mediaRelations/6-27-24.php)).
+The fixture reproduces the shape of that day (a one-bar drop of about 99.97% that reverts the next
+session):
 
 ```bash
 mdsc check --file tests/fixtures/berkshire-bad-tick.json

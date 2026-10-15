@@ -66,18 +66,25 @@ pence/pounds ×100 — each reproducible from the shipped fixtures.
 
 Market data is wrong more often than you think:
 
-- **June 3, 2024** — a SIP software bug showed Berkshire Hathaway (BRK.A) at **$185** instead
-  of ~$621,000 (−99.9%). Trades executed on the bad price cost Interactive Brokers **$48M**.
-- **July 3, 2017** — Nasdaq test data propagated to Google Finance, Bloomberg and Yahoo,
-  showing AAPL, GOOG and MSFT all at **$123.47**.
-- Yahoo Finance regularly ships **unadjusted splits** that look like −50% crashes, dividends
-  scaled **100×** (the classic LSE pence/pounds confusion), and duplicated dividends.
-- Tickers get **reused** (`AB` has named 6 different companies), silently splicing two firms
-  into one price series.
+- **June 3, 2024** — a technical issue with price bands published by the CTA SIP triggered trading
+  halts ([The Stack](https://www.thestack.technology/nyse-glitch-cause/)); Berkshire Hathaway (BRK.A)
+  fell within seconds from about $622,000 to about **$185**, and Interactive Brokers reported a loss
+  of about $48M on trades around the halt
+  ([IBKR notice, June 2024](https://www.interactivebrokers.com/en/general/about/mediaRelations/6-27-24.php)).
+- **July 3, 2017** — Nasdaq said third parties had improperly used test data; several large stocks,
+  including Apple, Alphabet, Amazon, Microsoft and eBay, appeared at implausible prices on some
+  financial news websites, Alphabet and eBay at **$123.47**, while actual prices were unaffected
+  ([Fortune, 2017-07-04](https://fortune.com/2017/07/04/nasdaq-glitch-stocks-crash-tech-companies)).
+- Real cases documented by the yfinance project include a split recorded without adjusting earlier
+  prices (MOB.ST, 2023), London series switching between pounds and pence (AET.L) and a duplicated
+  dividend (ALC.SW); every fixture lists its source in [docs/fixtures.md](docs/fixtures.md).
+- Tickers get **reused** (`AB` has named at least 6 different companies,
+  [Crucible Research](https://www.crucible-research.com/nasdaq-100-historical-constituents)),
+  silently splicing two firms into one price series.
 
 Generic data quality tools (Great Expectations, Soda, Pandera) check structure — nulls,
-ranges, schemas. Data vendors (yfinance, ccxt) fetch data but don't audit it. Nothing open
-source sits in between. `mdsc` is that missing layer.
+ranges, schemas. Data vendors (yfinance, ccxt) mainly fetch data. `mdsc` is built for the layer
+in between: checks that know about splits, dividends, currencies and exchange calendars.
 
 ## Principles
 
