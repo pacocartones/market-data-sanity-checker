@@ -111,6 +111,9 @@ jobs:
         run: |
           version=$(jq -r '.[0].version // empty' <<<"$PUBLISHED")
           [ -n "$version" ] || { echo "::error::no published version in the changesets output"; exit 1; }
-          pnpm -s release-notes build "$version" > notes.json
+          # GitHub's own list of merged pull requests and first-time contributors; it
+          # credits the pull requests that have no changeset (docs, tests, fixtures).
+          gh api "repos/$GITHUB_REPOSITORY/releases/generate-notes" -f tag_name="v$version" -q .body > github-notes.md || : > github-notes.md
+          pnpm -s release-notes build "$version" --github-notes github-notes.md > notes.json
           jq -r .body notes.json > notes.md
           gh release edit "v$version" --title "$(jq -r .title notes.json)" --notes-file notes.md

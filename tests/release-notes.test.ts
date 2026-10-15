@@ -6,6 +6,7 @@ import {
   contributors,
   firstSentence,
   normalizeEntry,
+  parseGithubNotes,
 } from '../scripts/release-notes'
 
 const CHANGELOG = `# market-data-sanity-checker
@@ -120,5 +121,38 @@ describe('entries written by @changesets/changelog-github', () => {
     expect(notes.body).toContain('### Contributors\n\nThank you @alice.')
     expect(notes.body).not.toContain('@pacocartones')
     expect(checkReleaseNotes(notes.body, notes.title)).toEqual([])
+  })
+
+describe('GitHub generate-notes sections', () => {
+  const GENERATED = `## What's Changed
+* docs(readme): pin the Action example to the v1.6.0 commit by @pacocartones in https://github.com/o/r/pull/121
+* docs(readme): document gating and HTML flags on mdsc compare (#128) by @Enard52 in https://github.com/o/r/pull/134
+* feat(cli): rules <ID> prints a single rule by @eddyflores100-lang in https://github.com/o/r/pull/112
+* chore(deps): bump x from 1 to 2 by @dependabot[bot] in https://github.com/o/r/pull/117
+* Version Packages by @github-actions[bot] in https://github.com/o/r/pull/147
+
+## New Contributors
+* @eddyflores100-lang made their first contribution in https://github.com/o/r/pull/112
+
+**Full Changelog**: https://github.com/o/r/compare/v1.6.0...v1.7.0
+`
+
+  it('keeps the pull requests of people, not bots, maintainers or the version PR', () => {
+    const g = parseGithubNotes(GENERATED)
+    expect(g.merged.map((p) => p.number)).toEqual([134, 112])
+    expect(g.firstTimers).toEqual([{ author: 'eddyflores100-lang', number: 112 }])
+  })
+
+  it('credits PRs without a changeset and names first-time contributors', () => {
+    const notes = buildReleaseNotes(CHANGELOG, '2.0.0', parseGithubNotes(GENERATED))
+    expect(notes.body).toContain('### Also merged')
+    expect(notes.body).toContain('- docs(readme): document gating and HTML flags on mdsc compare (#128) (#134) by @Enard52')
+    expect(notes.body).toMatch(/### Contributors\n\nThank you [^\n]*@Enard52[^\n]*@eddyflores100-lang/)
+    expect(notes.body).toContain('### New Contributors\n\n- @eddyflores100-lang made their first contribution in #112')
+    expect(checkReleaseNotes(notes.body, notes.title)).toEqual([])
+  })
+
+  it('does not change the notes when there is no GitHub body', () => {
+    expect(buildReleaseNotes(CHANGELOG, '2.0.0').body).not.toContain('Also merged')
   })
 })
