@@ -92,6 +92,13 @@ describe('parseOhlcvCsv', () => {
     const raw = parseOhlcvCsv(csvRows(rows)) as IngestedDataset
     expect(raw.bars).toHaveLength(10)
   })
+
+  it('keeps ISO datetimes with a zone verbatim (no Date#toString, no lost milliseconds)', () => {
+    const stamps = ['2024-01-02T14:30:00.123Z', '2024-01-02T14:30:00.456Z', '2024-01-02T14:31:00+02:00']
+    const csv = ['timestamp,open,high,low,close', ...stamps.map((stamp) => `${stamp},1,2,1,1.5`)].join('\n')
+    const parsed = marketDataSetSchema.parse(parseOhlcvCsv(csv))
+    expect(parsed.bars.map((bar) => bar.timestamp)).toEqual(stamps)
+  })
 })
 
 describe('parseMarketDataJson', () => {

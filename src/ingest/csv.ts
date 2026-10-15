@@ -63,7 +63,11 @@ const MAX_FIELD_ERROR_RATIO = 0.1
 export function parseOhlcvCsv(csvText: string, options: IngestOptions = {}): unknown {
   const result = Papa.parse<Record<string, unknown>>(csvText.trim(), {
     header: true,
-    dynamicTyping: true,
+    // Numbers are typed, timestamps are NOT: papaparse would turn an ISO datetime with a
+    // zone ("2024-01-02T14:30:00.123Z") into a Date, which `normalizeTimestamp` then
+    // stringified as a locale-dependent `Date#toString` (milliseconds lost, bars that
+    // differ only by milliseconds becoming duplicates). Timestamps stay raw strings.
+    dynamicTyping: (field) => COLUMN_ALIASES[String(field)] !== 'timestamp',
     skipEmptyLines: true,
     transformHeader: (header) => header.trim().toLowerCase(),
   })
