@@ -34,7 +34,19 @@ jobs:
 
       - name: Generate API docs
         run: pnpm typedoc
-      
+
+      # The coverage badge is measured on the default branch only, so a manual run
+      # from another branch cannot publish that branch's number. Fixed paths, no
+      # untrusted input. The file is published next to the API docs and read by
+      # the README's shields.io endpoint badge.
+      - name: Measure coverage
+        if: github.ref == 'refs/heads/main'
+        run: pnpm test:coverage
+
+      - name: Write coverage badge
+        if: github.ref == 'refs/heads/main'
+        run: pnpm coverage:badge coverage/coverage-summary.json docs/api/coverage-badge.json
+
       - name: Setup Pages
         uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
       

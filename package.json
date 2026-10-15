@@ -66,6 +66,7 @@
         "calibrate": "tsx scripts/calibrate.ts",
         "scoreboard": "tsx scripts/scoreboard.ts",
         "coverage:summary": "tsx scripts/generate-coverage-summary.ts",
+        "coverage:badge": "tsx scripts/coverage-badge.ts",
         "coverage:check": "pnpm test:coverage && pnpm coverage:summary",
         "smoke:readme": "tsx scripts/readme-smoke.ts",
         "release-notes": "tsx scripts/release-notes.ts"

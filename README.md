@@ -5,6 +5,7 @@
 [![GitHub Marketplace](https://img.shields.io/badge/Marketplace-Market%20Data%20Sanity%20Checker-blue?logo=github)](https://github.com/marketplace/actions/market-data-sanity-checker)
 [![npm version](https://img.shields.io/npm/v/market-data-sanity-checker)](https://www.npmjs.com/package/market-data-sanity-checker)
 [![node version](https://img.shields.io/node/v/market-data-sanity-checker)](https://nodejs.org)
+[![coverage (lines)](https://img.shields.io/endpoint?url=https%3A%2F%2Fpacocartones.github.io%2Fmarket-data-sanity-checker%2Fcoverage-badge.json)](RELEASING.md#coverage-badge)
 [![API Docs](https://img.shields.io/badge/docs-API%20reference-success)](https://pacocartones.github.io/market-data-sanity-checker/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 

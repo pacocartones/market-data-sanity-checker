@@ -44,3 +44,21 @@ the release workflow applies them to the GitHub release after publishing, and th
 `Release notes` workflow checks every published or edited release
 (`pnpm release-notes check <file> --title "<title>"`). The skeleton is in
 [`.github/release-template.md`](.github/release-template.md).
+
+## Coverage badge
+
+The README's coverage badge is a [shields.io endpoint badge](https://shields.io/badges/endpoint-badge)
+fed by `coverage-badge.json`, which the `Deploy API Docs` workflow publishes next to the API docs
+on GitHub Pages. On every push to `main` it runs `pnpm test:coverage` (vitest with the v8 provider)
+and `pnpm coverage:badge`, which turns `coverage/coverage-summary.json` into the endpoint file.
+No coverage service and no secret are involved.
+
+It shows **line coverage of `src/`** as a whole percent, rounded down, so it never overstates:
+red below 60, yellow below 80, green from 80. Excluded from the measurement (see
+`vitest.config.ts`): tests, scripts, config files, the `index.ts` barrel, type-only files.
+Statement, function and branch coverage are in the `pnpm test:coverage` output but not on the
+badge. Coverage says which lines the tests executed, not that they assert the right thing: a
+high number is not evidence that the rules are correct. The golden and calibration suites are
+what speak to correctness. If the summary is missing or unusable the script exits 1 and the
+workflow fails, rather than publishing a stale or invented badge. The badge only appears after
+the first successful deploy of that workflow.
