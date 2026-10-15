@@ -84,13 +84,16 @@ export function readIncidents(dir = 'incidents'): { incidents: Incident[]; probl
   return { incidents, problems }
 }
 
-const cell = (s: string): string => s.replace(/\r?\n+/g, ' ').replace(/\|/g, '\\|').trim()
+/** A literal pipe is written `\|` in a table cell; a backslash right before it is doubled so it is not read as the escape. */
+export const escapePipes = (s: string): string => s.replace(/(\\*)\|/g, (_, backslashes: string) => `${backslashes}${backslashes}\\|`)
+
+const cell = (s: string): string => escapePipes(s.replace(/\r?\n+/g, ' ').trim())
 
 /** The table, one row per case, in file-name order. */
 export function renderTable(incidents: Incident[]): string {
   const head = '| Case | Source | What happened | Evidence | A checker should report | The check does NOT establish | Reported by |\n| --- | --- | --- | --- | --- | --- | --- |'
   const rows = incidents.map((i) =>
-    `| ${[`[${i.case}](incidents/${i.file})`, i.source, ...SECTIONS.map((s) => i.sections[s]), i.reportedBy].map((c, n) => (n === 0 ? c.replace(/\|/g, '\\|') : cell(c))).join(' | ')} |`,
+    `| ${[`[${i.case}](incidents/${i.file})`, i.source, ...SECTIONS.map((s) => i.sections[s]), i.reportedBy].map((c, n) => (n === 0 ? escapePipes(c) : cell(c))).join(' | ')} |`,
   )
   return [head, ...rows].join('\n')
 }

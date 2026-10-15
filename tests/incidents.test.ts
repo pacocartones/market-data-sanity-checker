@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
-import { BEGIN, END, parseIncident, readIncidents, renderTable, withTable } from '../scripts/incidents-index'
+import { BEGIN, END, escapePipes, parseIncident, readIncidents, renderTable, withTable } from '../scripts/incidents-index'
 
 const GOOD = `---
 case: "A short name"
@@ -61,6 +61,12 @@ describe('incident case files', () => {
     expect(rows).toHaveLength(3)
     expect(rows[2]).toContain('a \\| b')
     expect(rows[2]).toContain('[A \\| B](incidents/a.md)')
+  })
+
+  it('a pipe is escaped, and a backslash right before it is doubled so it is not read as the escape', () => {
+    expect(escapePipes('a | b')).toBe('a \\| b')
+    expect(escapePipes('a \\| b')).toBe('a \\\\\\| b')
+    expect(escapePipes('no pipe \\ here')).toBe('no pipe \\ here')
   })
 
   it('incidents.md carries the markers, and the table in it can be regenerated without changing anything else', () => {
