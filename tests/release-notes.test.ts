@@ -5,6 +5,7 @@ import {
   checkReleaseNotes,
   contributors,
   firstSentence,
+  normalizeEntry,
 } from '../scripts/release-notes'
 
 const CHANGELOG = `# market-data-sanity-checker
@@ -86,5 +87,38 @@ describe('release notes', () => {
   it('flags a title without the version and summary', () => {
     expect(checkReleaseNotes('Summary.\n\n### Verify\n', 'v1.5.1')).toEqual(['title is not "vX.Y.Z — <summary>"'])
     expect(checkReleaseNotes('Summary.\n\n### Verify\n', 'v1.6.0-rc.1 — Release candidate')).toEqual([])
+  })
+})
+
+describe('entries written by @changesets/changelog-github', () => {
+  const GH = `# market-data-sanity-checker
+
+## 3.0.0
+
+### Minor Changes
+
+- [#112](https://github.com/o/r/pull/112) [\`abc1234\`](https://github.com/o/r/commit/abc1234) Thanks [@alice](https://github.com/alice)! - New rule \`FOO\` reports bars that foo.
+
+### Patch Changes
+
+- [\`def5678\`](https://github.com/o/r/commit/def5678) Thanks [@pacocartones](https://github.com/pacocartones)! - Fix the bar.
+`
+
+  it('moves the links to the end and keeps a plain "Thanks @user."', () => {
+    const entry = '[#112](https://github.com/o/r/pull/112) [`abc1234`](https://github.com/o/r/commit/abc1234) Thanks [@alice](https://github.com/alice)! - New rule `FOO` reports bars that foo.'
+    expect(normalizeEntry(entry)).toBe('New rule `FOO` reports bars that foo. ([#112](https://github.com/o/r/pull/112)) Thanks @alice.')
+  })
+
+  it('leaves other entries untouched', () => {
+    expect(normalizeEntry('Plain entry. Thanks @bob.')).toBe('Plain entry. Thanks @bob.')
+    expect(normalizeEntry('- starts with a dash? no, it is the body')).toBe('- starts with a dash? no, it is the body')
+  })
+
+  it('builds notes with the right lead and contributors, and does not thank maintainers', () => {
+    const notes = buildReleaseNotes(GH, '3.0.0')
+    expect(notes.title).toBe('v3.0.0 — New rule `FOO` reports bars that foo')
+    expect(notes.body).toContain('### Contributors\n\nThank you @alice.')
+    expect(notes.body).not.toContain('@pacocartones')
+    expect(checkReleaseNotes(notes.body, notes.title)).toEqual([])
   })
 })

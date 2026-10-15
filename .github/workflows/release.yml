@@ -98,6 +98,8 @@ jobs:
           # anyway (its CHANGELOG, #695), and pnpm 11 prefers OIDC over any
           # static token when both exist.
           PNPM_CONFIG_PROVENANCE: "true"
+          # @changesets/changelog-github reads pull request and author data from the API.
+          GITHUB_TOKEN: ${{ github.token }}
       # Rewrite the GitHub release changesets just created in the house format
       # (RELEASING.md): title "vX.Y.Z — summary" and the fixed sections.
       - name: Release notes in the house format

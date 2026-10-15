@@ -39,6 +39,29 @@ export function changelogSection(changelog: string, version: string): string {
   return (end === -1 ? rest : rest.slice(0, end)).join('\n').trim()
 }
 
+/** Maintainers are not thanked in the notes (the plugin thanks the author of every changeset PR). */
+const MAINTAINERS = new Set(['pacocartones', 'leonmag'])
+
+/**
+ * Entries written by @changesets/changelog-github look like
+ *   [#112](url) [`abc1234`](url) Thanks [@user](url)! - Summary.
+ * Turn them into "Summary. ([#112](url)) Thanks @user." so the first sentence,
+ * the title and the contributors list keep working. Entries in any other shape
+ * pass through unchanged.
+ */
+export function normalizeEntry(entry: string): string {
+  const m = /^((?:\[[^\]]+\]\([^)]*\) ?)*)(?:Thanks ((?:\[@[^\]]+\]\([^)]*\)(?:, )?)+)! )?- ([\s\S]*)$/.exec(entry)
+  if (!m || (!m[1] && !m[2])) return entry
+  const pr = /\[#\d+\]\([^)]*\)/.exec(m[1] ?? '')?.[0]
+  const handles = [...(m[2] ?? '').matchAll(/\[@([A-Za-z0-9-]+)\]/g)]
+    .map((h) => h[1]!)
+    .filter((h) => !MAINTAINERS.has(h.toLowerCase()))
+  let out = m[3]!.trimEnd()
+  if (pr) out += ` (${pr})`
+  if (handles.length > 0) out += ` Thanks ${handles.map((h) => `@${h}`).join(', ')}.`
+  return out
+}
+
 /** Changeset entries grouped by their `### ... Changes` heading, commit prefixes removed. */
 function entriesByHeading(section: string): Map<string, string[]> {
   const groups = new Map<string, string[]>()
@@ -55,7 +78,7 @@ function entriesByHeading(section: string): Map<string, string[]> {
     if (line.startsWith('- ')) entries.push(line.slice(2).replace(/^[0-9a-f]{7,40}: /, ''))
     else if (entries.length > 0) entries[entries.length - 1] += `\n${line}`
   }
-  for (const [key, entries] of groups) groups.set(key, entries.map((entry) => entry.trimEnd()))
+  for (const [key, entries] of groups) groups.set(key, entries.map((entry) => normalizeEntry(entry.trimEnd())))
   return groups
 }
 

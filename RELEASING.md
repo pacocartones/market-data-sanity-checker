@@ -14,8 +14,9 @@ standard applies to the maintainer's other public repositories.
 4. **Approval:** publishing to npm runs in the `release` environment, which needs a
    maintainer's approval. When nothing is pending, the release job is skipped and no approval
    is asked.
-5. **Changelog:** generated from changesets, one entry per pull request, never edited by hand
-   on a branch. An entry for an outside contributor ends with `Thanks @user`.
+5. **Changelog:** generated from changesets with `@changesets/changelog-github`, one entry per pull request, never edited by hand
+   on a branch. The plugin adds the pull request link and `Thanks @user` for the author (maintainers are
+   left out of the release notes); an entry may also say `Thanks @user` itself.
 6. **Attribution:** no AI attribution or AI co-author trailers in the title, the notes, the
    changelog or the tags.
 7. **Pre-releases:** `vX.Y.Z-rc.N` for a major version, marked as pre-release on GitHub.
