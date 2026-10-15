@@ -70,6 +70,62 @@ describe('CURRENCY_SUSPECT', () => {
     expect(currencySuspect.check(data, currencyCtx)).toEqual([])
   })
 
+  it('tests the penceMagnitudeThreshold edge (500 silent, 501 flagged)', () => {
+    const atEdge = {
+      symbol: 'VOD.L',
+      source: 'test',
+      currency: 'GBP' as const,
+      bars: barsWithCloses([500, 500, 500]),
+    }
+    expect(currencySuspect.check(atEdge, currencyCtx)).toEqual([])
+
+    const aboveEdge = {
+      symbol: 'VOD.L',
+      source: 'test',
+      currency: 'GBP' as const,
+      bars: barsWithCloses([501, 501, 501]),
+    }
+    const findings = currencySuspect.check(aboveEdge, currencyCtx)
+    expect(findings).toHaveLength(1)
+    expect(findings[0]!.evidence).toMatchObject({ reason: 'pence_magnitude' })
+  })
+
+  it('does NOT fire when symbol lacks the .L suffix (guard)', () => {
+    const data = {
+      symbol: 'VOD',
+      source: 'test',
+      currency: 'GBP' as const,
+      bars: barsWithCloses([4500, 4500, 4500]),
+    }
+    expect(currencySuspect.check(data, currencyCtx)).toEqual([])
+  })
+
+  it('does NOT fire when currency is already GBX (guard)', () => {
+    const data = {
+      symbol: 'VOD.L',
+      source: 'test',
+      currency: 'GBX' as const,
+      bars: barsWithCloses([4500, 4500, 4500]),
+    }
+    expect(currencySuspect.check(data, currencyCtx)).toEqual([])
+  })
+
+  it('honours custom penceMagnitudeThreshold parameter', () => {
+    const custom = {
+      ...currencyCtx,
+      config: { ...currencyCtx.config, params: { ...currencyCtx.config.params, penceMagnitudeThreshold: 200 } },
+    }
+    const data = {
+      symbol: 'VOD.L',
+      source: 'test',
+      currency: 'GBP' as const,
+      bars: barsWithCloses([300, 300, 300]),
+    }
+    const findings = currencySuspect.check(data, custom)
+    expect(findings).toHaveLength(1)
+    expect(findings[0]!.evidence).toMatchObject({ threshold: 200 })
+  })
+
   it('handles degenerate datasets (no bars, NaN closes)', () => {
     expect(currencySuspect.check({ symbol: 'X', source: 'test', bars: [] }, currencyCtx)).toEqual([
       expect.objectContaining({ severity: 'info' }),

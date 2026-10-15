@@ -17,6 +17,19 @@ welcome: add a row, link the evidence, and keep the last two columns honest.
 - **The check does NOT establish**: what a pass of that check still leaves open.
 - **Reported by**: who brought the case.
 
+## Before you open a pull request: a checklist for a row
+
+Rows are reviewed against their sources, so the same few problems cost the most review time. Check these first:
+
+1. **Every fact is in the cited source.** Numbers, dates, tickers, versions and the reporter come from the issue or post itself, not from memory. If the source does not give a ratio, a date or a cause, say so; do not fill it in. Quote the sentence you rely on in the pull request.
+2. **Reported by** is the handle of the person who opened the issue (check it), not the maintainer who answered.
+3. **What a rule does** is read from the rule's code, not inferred from its name: open the rule, check which fields it reads, its default parameters, and whether the data would reach it through the connector or through file ingest (for example, the Yahoo connector keeps adjusted close as a ratio and leaves OHLC raw).
+4. **Scope.** mdsc works on daily bars. If the case is weekly, monthly or intraday, say at the start of the row that it is outside that unit and what, if anything, a comparison against another source can still show.
+5. **Say what you ran and what you only read.** "No rule fires" must say whether you ran it or read the rules.
+6. **Line references** point to the code that decides the behaviour (the `check()` body), not to a doc comment.
+7. **No trailing blank line** after your row: a blank line ends the table, so rows added after it break.
+8. One case per pull request, and wait for open incident pull requests to merge before opening more: they all append to the last line of this file and will conflict.
+
 ## Cases
 
 | Case | Source | What happened | Evidence | A checker should report | The check does NOT establish | Reported by |
