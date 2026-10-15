@@ -1,0 +1,26 @@
+name: Commit policy
+
+# New commits of a pull request only (base..head), never the history before.
+# Fails on maintainer-identity commits with an AI attribution trailer or footer,
+# or without a GitHub noreply address. Contributors are not checked.
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  commits:
+    name: commit policy
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Check the commits of this pull request
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: bash scripts/check-commit-policy.sh "$BASE_SHA" "$HEAD_SHA"
