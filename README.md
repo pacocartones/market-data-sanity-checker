@@ -67,10 +67,8 @@ pence/pounds ×100 — each reproducible from the shipped fixtures.
 Market data is wrong more often than you think:
 
 - **June 3, 2024** — a technical issue with price bands published by the CTA SIP triggered trading
-  halts ([The Stack](https://www.thestack.technology/nyse-glitch-cause/)); Berkshire Hathaway (BRK.A)
-  fell within seconds from about $622,000 to about **$185**, and Interactive Brokers reported a loss
-  of about $48M on trades around the halt
-  ([IBKR notice, June 2024](https://www.interactivebrokers.com/en/general/about/mediaRelations/6-27-24.php)).
+  halts, and Berkshire Hathaway (BRK.A) briefly showed a drop of about 99.9%
+  ([The Stack](https://www.thestack.technology/nyse-glitch-cause/)).
 - **July 3, 2017** — Nasdaq said third parties had improperly used test data; several large stocks,
   including Apple, Alphabet, Amazon, Microsoft and eBay, appeared at implausible prices on some
   financial news websites, Alphabet and eBay at **$123.47**, while actual prices were unaffected
