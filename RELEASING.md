@@ -59,6 +59,7 @@ red below 60, yellow below 80, green from 80. Excluded from the measurement (see
 Statement, function and branch coverage are in the `pnpm test:coverage` output but not on the
 badge. Coverage says which lines the tests executed, not that they assert the right thing: a
 high number is not evidence that the rules are correct. The golden and calibration suites are
-what speak to correctness. If the summary is missing or unusable the script exits 1 and the
-workflow fails, rather than publishing a stale or invented badge. The badge only appears after
-the first successful deploy of that workflow.
+what speak to correctness. If the coverage run fails or the summary is missing or unusable, no badge file is written and
+the docs still deploy; the badge then shows as invalid until the next successful run on `main`,
+which is the visible signal (a stale or invented number is never published). The badge only
+appears after the first successful deploy of that workflow.

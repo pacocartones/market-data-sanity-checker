@@ -40,11 +40,15 @@ jobs:
       # untrusted input. The file is published next to the API docs and read by
       # the README's shields.io endpoint badge.
       - name: Measure coverage
+        id: coverage
         if: github.ref == 'refs/heads/main'
+        # A failing test run must not take the API docs down: the badge is simply not
+        # refreshed (the badge step below only runs when the measurement succeeded).
+        continue-on-error: true
         run: pnpm test:coverage
 
       - name: Write coverage badge
-        if: github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/main' && steps.coverage.outcome == 'success'
         run: pnpm coverage:badge coverage/coverage-summary.json docs/api/coverage-badge.json
 
       - name: Setup Pages
