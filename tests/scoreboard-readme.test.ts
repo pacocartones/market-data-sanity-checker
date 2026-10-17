@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
+  ALPHA_VANTAGE_FREE_PLAN_NOTE,
   renderScoreboardReadme,
   type ScoreboardComparison,
   type ScoreboardProviderResult,
@@ -126,5 +127,29 @@ describe('renderScoreboardReadme', () => {
     })
 
     expect(readme).not.toContain('## Cross-provider consistency')
+  })
+  it('puts a comparison note under the cross-provider heading, before the table, only when given', () => {
+    const comparisons: ScoreboardComparison[] = [
+      { symbol: 'AAPL', consistency_score: 85, compared_dates: 100, findings: [{ rule: 'DIVIDEND_MISMATCH', severity: 'warning', where: { date: '2025-11-10' } }] },
+    ]
+    const base = {
+      generatedAt: '2026-10-17T00:00:00.000Z',
+      basketSize: 1,
+      providers: [provider(), provider({ provider: 'alpha-vantage' })],
+      excluded: [],
+      skipped: [],
+      comparisons,
+    }
+    const withNote = renderScoreboardReadme({ ...base, comparisonNotes: [ALPHA_VANTAGE_FREE_PLAN_NOTE] })
+    const heading = withNote.indexOf('## Cross-provider consistency')
+    const note = withNote.indexOf(ALPHA_VANTAGE_FREE_PLAN_NOTE)
+    const table = withNote.indexOf('| Symbol | Consistency score')
+    expect(heading).toBeGreaterThanOrEqual(0)
+    expect(note).toBeGreaterThan(heading)
+    expect(table).toBeGreaterThan(note)
+    expect(ALPHA_VANTAGE_FREE_PLAN_NOTE).toContain('free plan')
+    expect(ALPHA_VANTAGE_FREE_PLAN_NOTE).toContain('not that either feed has wrong data')
+
+    expect(renderScoreboardReadme(base)).not.toContain(ALPHA_VANTAGE_FREE_PLAN_NOTE)
   })
 })
