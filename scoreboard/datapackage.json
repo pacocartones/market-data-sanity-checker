@@ -4,7 +4,7 @@
   "title": "Market Data Provider Scoreboard",
   "description": "weekly audit of market data providers with mdsc sanity scores",
   "homepage": "https://github.com/pacocartones/market-data-sanity-checker",
-  "created": "2026-10-13T00:11:07.441Z",
+  "created": "2026-10-17T12:20:27.750Z",
   "resources": [
     {
       "name": "scoreboard",

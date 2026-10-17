@@ -1,21 +1,23 @@
 # Provider scoreboard
 
-Generated: 2026-10-13T00:11:07.441Z · basket: 30 liquid symbols · range: 1y · reproducible with `pnpm scoreboard`
+Generated: 2026-10-17T12:20:27.750Z · basket: 30 liquid symbols · range: 1y · reproducible with `pnpm scoreboard`
 
 | Provider | Symbols | Mean sanity score | Min | Critical | Warning | Info |
 |---|---|---|---|---|---|---|
-| yahoo | 30 (+0 failed) | 91.2 | 45 | 1 | 11 | 12 |
-| alpha-vantage | 25 (+0 failed, 5 skipped: daily cap) | 88 | 55 | 1 | 7 | 31 |
+| yahoo | 30 (+0 failed) | 91.3 | 45 | 1 | 10 | 14 |
+| alpha-vantage | 23 (+2 failed, 5 skipped: daily cap) | 87.2 | 55 | 1 | 7 | 30 |
+
+- alpha-vantage skipped (daily request cap): GLD, TLT, EEM, ARKK, NFLX
 
 ## Worst-scoring symbols per provider
 
 ### yahoo
 
 - **CAT** — 45/100 (PRICE_SPIKE_INTRADAY, RETURN_SPIKE)
-- **HON** — 80/100 (RETURN_SPIKE, SPLIT_RATIO_IMPROBABLE)
 - **MSFT** — 85/100 (RETURN_SPIKE)
 - **NVDA** — 85/100 (RETURN_SPIKE)
 - **AMZN** — 85/100 (RETURN_SPIKE)
+- **META** — 85/100 (RETURN_SPIKE)
 
 ### alpha-vantage
 
@@ -27,339 +29,28 @@ Generated: 2026-10-13T00:11:07.441Z · basket: 30 liquid symbols · range: 1y ·
 
 ## Cross-provider consistency
 
-```json
-[
-  {
-    "symbol": "AAPL",
-    "consistency_score": 85,
-    "compared_dates": 99,
-    "findings": [
-      {
-        "rule": "DIVIDEND_MISMATCH",
-        "severity": "warning",
-        "where": {
-          "date": "2025-11-10"
-        }
-      }
-    ]
-  },
-  {
-    "symbol": "MSFT",
-    "consistency_score": 85,
-    "compared_dates": 99,
-    "findings": [
-      {
-        "rule": "DIVIDEND_MISMATCH",
-        "severity": "warning",
-        "where": {
-          "date": "2025-11-20"
-        }
-      }
-    ]
-  },
-  {
-    "symbol": "NVDA",
-    "consistency_score": 85,
-    "compared_dates": 99,
-    "findings": [
-      {
-        "rule": "DIVIDEND_MISMATCH",
-        "severity": "warning",
-        "where": {
-          "date": "2025-12-04"
-        }
-      }
-    ]
-  },
-  {
-    "symbol": "AMZN",
-    "consistency_score": 100,
-    "compared_dates": 99,
-    "findings": []
-  },
-  {
-    "symbol": "META",
-    "consistency_score": 85,
-    "compared_dates": 99,
-    "findings": [
-      {
-        "rule": "DIVIDEND_MISMATCH",
-        "severity": "warning",
-        "where": {
-          "date": "2025-12-15"
-        }
-      }
-    ]
-  },
-  {
-    "symbol": "GOOGL",
-    "consistency_score": 85,
-    "compared_dates": 99,
-    "findings": [
-      {
-        "rule": "DIVIDEND_MISMATCH",
-        "severity": "warning",
-        "where": {
-          "date": "2025-12-08"
-        }
-      }
-    ]
-  },
-  {
-    "symbol": "TSLA",
-    "consistency_score": 100,
-    "compared_dates": 99,
-    "findings": []
-  },
-  {
-    "symbol": "AVGO",
-    "consistency_score": 85,
-    "compared_dates": 99,
-    "findings": [
-      {
-        "rule": "DIVIDEND_MISMATCH",
-        "severity": "warning",
-        "where": {
-          "date": "2025-12-22"
-        }
-      }
-    ]
-  },
-  {
-    "symbol": "JPM",
-    "consistency_score": 85,
-    "compared_dates": 99,
-    "findings": [
-      {
-        "rule": "DIVIDEND_MISMATCH",
-        "severity": "warning",
-        "where": {
-          "date": "2026-01-06"
-        }
-      }
-    ]
-  },
-  {
-    "symbol": "V",
-    "consistency_score": 85,
-    "compared_dates": 99,
-    "findings": [
-      {
-        "rule": "DIVIDEND_MISMATCH",
-        "severity": "warning",
-        "where": {
-          "date": "2025-11-12"
-        }
-      }
-    ]
-  },
-  {
-    "symbol": "KO",
-    "consistency_score": 85,
-    "compared_dates": 99,
-    "findings": [
-      {
-        "rule": "DIVIDEND_MISMATCH",
-        "severity": "warning",
-        "where": {
-          "date": "2025-12-01"
-        }
-      }
-    ]
-  },
-  {
-    "symbol": "PG",
-    "consistency_score": 85,
-    "compared_dates": 99,
-    "findings": [
-      {
-        "rule": "DIVIDEND_MISMATCH",
-        "severity": "warning",
-        "where": {
-          "date": "2025-10-24"
-        }
-      }
-    ]
-  },
-  {
-    "symbol": "JNJ",
-    "consistency_score": 85,
-    "compared_dates": 99,
-    "findings": [
-      {
-        "rule": "DIVIDEND_MISMATCH",
-        "severity": "warning",
-        "where": {
-          "date": "2025-11-25"
-        }
-      }
-    ]
-  },
-  {
-    "symbol": "XOM",
-    "consistency_score": 85,
-    "compared_dates": 99,
-    "findings": [
-      {
-        "rule": "DIVIDEND_MISMATCH",
-        "severity": "warning",
-        "where": {
-          "date": "2025-11-14"
-        }
-      }
-    ]
-  },
-  {
-    "symbol": "WMT",
-    "consistency_score": 85,
-    "compared_dates": 99,
-    "findings": [
-      {
-        "rule": "DIVIDEND_MISMATCH",
-        "severity": "warning",
-        "where": {
-          "date": "2025-12-12"
-        }
-      }
-    ]
-  },
-  {
-    "symbol": "BRK-B",
-    "consistency_score": 100,
-    "compared_dates": 99,
-    "findings": []
-  },
-  {
-    "symbol": "GE",
-    "consistency_score": 85,
-    "compared_dates": 99,
-    "findings": [
-      {
-        "rule": "DIVIDEND_MISMATCH",
-        "severity": "warning",
-        "where": {
-          "date": "2025-12-29"
-        }
-      }
-    ]
-  },
-  {
-    "symbol": "CAT",
-    "consistency_score": 85,
-    "compared_dates": 99,
-    "findings": [
-      {
-        "rule": "DIVIDEND_MISMATCH",
-        "severity": "warning",
-        "where": {
-          "date": "2025-10-20"
-        }
-      }
-    ]
-  },
-  {
-    "symbol": "BA",
-    "consistency_score": 100,
-    "compared_dates": 99,
-    "findings": []
-  },
-  {
-    "symbol": "HON",
-    "consistency_score": 65,
-    "compared_dates": 99,
-    "findings": [
-      {
-        "rule": "DIVIDEND_MISMATCH",
-        "severity": "warning",
-        "where": {
-          "date": "2025-11-14"
-        }
-      },
-      {
-        "rule": "SPLIT_MISMATCH",
-        "severity": "warning",
-        "where": {
-          "date": "2025-10-30"
-        }
-      },
-      {
-        "rule": "PRICE_DATE_MISMATCH",
-        "severity": "info",
-        "where": {
-          "date": "2026-05-20"
-        }
-      }
-    ]
-  },
-  {
-    "symbol": "SPY",
-    "consistency_score": 85,
-    "compared_dates": 99,
-    "findings": [
-      {
-        "rule": "DIVIDEND_MISMATCH",
-        "severity": "warning",
-        "where": {
-          "date": "2025-12-19"
-        }
-      }
-    ]
-  },
-  {
-    "symbol": "QQQ",
-    "consistency_score": 85,
-    "compared_dates": 99,
-    "findings": [
-      {
-        "rule": "DIVIDEND_MISMATCH",
-        "severity": "warning",
-        "where": {
-          "date": "2025-12-22"
-        }
-      }
-    ]
-  },
-  {
-    "symbol": "IWM",
-    "consistency_score": 85,
-    "compared_dates": 99,
-    "findings": [
-      {
-        "rule": "DIVIDEND_MISMATCH",
-        "severity": "warning",
-        "where": {
-          "date": "2025-12-16"
-        }
-      }
-    ]
-  },
-  {
-    "symbol": "DIA",
-    "consistency_score": 85,
-    "compared_dates": 99,
-    "findings": [
-      {
-        "rule": "DIVIDEND_MISMATCH",
-        "severity": "warning",
-        "where": {
-          "date": "2025-10-17"
-        }
-      }
-    ]
-  },
-  {
-    "symbol": "VTI",
-    "consistency_score": 85,
-    "compared_dates": 99,
-    "findings": [
-      {
-        "rule": "DIVIDEND_MISMATCH",
-        "severity": "warning",
-        "where": {
-          "date": "2025-12-22"
-        }
-      }
-    ]
-  }
-]
-```
+| Symbol | Consistency score | Compared dates | Findings |
+|---|---|---|---|
+| AAPL | 85 | 100 | DIVIDEND_MISMATCH (warning, 2025-11-10) |
+| MSFT | 85 | 100 | DIVIDEND_MISMATCH (warning, 2025-11-20) |
+| NVDA | 85 | 100 | DIVIDEND_MISMATCH (warning, 2025-12-04) |
+| AMZN | 100 | 100 | none |
+| META | 85 | 100 | DIVIDEND_MISMATCH (warning, 2025-12-15) |
+| GOOGL | 85 | 100 | DIVIDEND_MISMATCH (warning, 2025-12-08) |
+| TSLA | 100 | 100 | none |
+| AVGO | 85 | 100 | DIVIDEND_MISMATCH (warning, 2025-12-22) |
+| JPM | 85 | 100 | DIVIDEND_MISMATCH (warning, 2026-01-06) |
+| V | 85 | 100 | DIVIDEND_MISMATCH (warning, 2025-11-12) |
+| KO | 85 | 100 | DIVIDEND_MISMATCH (warning, 2025-12-01) |
+| PG | 85 | 100 | DIVIDEND_MISMATCH (warning, 2025-10-24) |
+| JNJ | 85 | 100 | DIVIDEND_MISMATCH (warning, 2025-11-25) |
+| XOM | 85 | 100 | DIVIDEND_MISMATCH (warning, 2025-11-14) |
+| WMT | 85 | 100 | DIVIDEND_MISMATCH (warning, 2025-12-12) |
+| BRK-B | 100 | 100 | none |
+| GE | 85 | 100 | DIVIDEND_MISMATCH (warning, 2025-12-29) |
+| CAT | 85 | 100 | DIVIDEND_MISMATCH (warning, 2025-10-20) |
+| BA | 100 | 100 | none |
+| HON | 65 | 100 | DIVIDEND_MISMATCH (warning, 2025-11-14); SPLIT_MISMATCH (warning, 2025-10-30); PRICE_DATE_MISMATCH (info, 2026-05-27) |
+| SPY | 85 | 100 | DIVIDEND_MISMATCH (warning, 2025-12-19) |
+| QQQ | 85 | 100 | DIVIDEND_MISMATCH (warning, 2025-12-22) |
+| IWM | 85 | 100 | DIVIDEND_MISMATCH (warning, 2025-12-16) |
