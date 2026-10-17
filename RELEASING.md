@@ -5,7 +5,13 @@ standard applies to the maintainer's other public repositories.
 
 ## Rules
 
-1. **Versioning:** SemVer. Breaking changes only in a major version.
+1. **Versioning:** SemVer. A **patch** fixes something users noticed as wrong (a bug, a false
+   positive, a misleading message) and adds nothing; a **minor** adds something users can use
+   without breaking what they already use; a **major** breaks something they already use (an
+   option removed, a different output format or schema, a changed exit code). Documentation,
+   tests, CI, refactors with no visible effect, Marketplace or README metadata, and crediting a
+   contributor are **not** a reason for a version: they merge without a changeset (or with an
+   empty one), and the thanks ship with the next real release.
 2. **Tags:** `vX.Y.Z`, never moved. The GitHub Action also has a moving major tag (`v1`)
    that follows the latest compatible release; users who want certainty pin a commit SHA. The
    README's Action example pins the commit of the latest release, with its version in the
@@ -22,9 +28,25 @@ standard applies to the maintainer's other public repositories.
 7. **Pre-releases:** `vX.Y.Z-rc.N` for a major version, marked as pre-release on GitHub.
 8. **Verification:** npm packages are published from CI with provenance (trusted publishing);
    the notes say how to check it.
-9. **Cadence:** no fixed calendar. A release ships when it is useful to users.
+9. **Cadence:** changesets accumulate in the `changeset-release/main` pull request; merging a
+   pull request is not releasing. A release is cut only when one of these holds: (a) a fix for a
+   bug users are hitting, or a security fix: release soon, the same day if needed; (b) a milestone
+   of the roadmap is reached; (c) at least 14 days since the last release, with at least one minor
+   change users would notice. At most one minor release a week, and never two releases on the same
+   day except under (a). The approval request for the `release` environment names which of (a),
+   (b) or (c) applies; with none, no approval is asked.
+   **Current state:** the 1.7.x line is frozen until the 1.8.0 milestone (calibration against two
+   sources); until then only (a) patches are released.
 10. **GitHub Marketplace:** the Action is listed from a release; the maintainer ticks
     "Publish this Action to the GitHub Marketplace" on that release in the web interface.
+11. **0.x, 1.0 and 2.0:** **0.x** may change its interface in a minor version, said in the notes
+    (this package left 0.x with 1.0.0 and does not go back: npm never reuses a version number).
+    **1.0** needed the public interface fully documented and tested, a deprecation policy (what
+    will be removed warns for at least one minor release first), a real outside user, and the
+    owner's approval as a milestone. **2.0** needs the breaking change justified in writing, a
+    migration guide in the notes, at least one `-rc.N` first (rule 7), and breaking changes grouped
+    rather than spent one at a time. Candidates in view: a published, versioned JSON schema for
+    `check` and `compare`, and final rule names.
 
 ## What a release looks like
 

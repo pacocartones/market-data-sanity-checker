@@ -104,3 +104,20 @@ For maintainers: CodeRabbit doesn't review this repository automatically yet, so
 
 We use [changesets](https://github.com/changesets/changesets). Run `pnpm changeset` and
 commit the generated file with your PR.
+
+## Branch names and commit identity (maintainers)
+
+- **Branch names:** `<type>/<short-slug>`, lower case with hyphens, the type being the one of the
+  conventional commit: `feat/`, `fix/`, `docs/`, `test/`, `ci/`, `chore/` or `refactor/`. No
+  internal task ids or tool names in the branch. Reserved and never deleted: `main`, `gh-pages`,
+  `changeset-release/main` and `bot/*` (for example `bot/scoreboard`). Contributors' branches in
+  their own forks are theirs and are not checked.
+- **What the branch type means for the version:** `docs/`, `test/`, `ci/` and `chore/` carry no
+  changeset; `fix/` is a patch; `feat/` is a minor (see `RELEASING.md`, rules 1 and 9).
+- **Branch lifecycle:** a branch whose pull request was merged is deleted (GitHub does it on merge);
+  one whose pull request was closed without merging is deleted after 30 days; a branch with no pull
+  request is never deleted by a script.
+- **Commit identity:** every commit written by a maintainer uses
+  `Paco Cartones <253313177+pacocartones@users.noreply.github.com>` as author and committer, never a
+  tool or agent name. `scripts/check-commit-policy.sh` reports any other maintainer identity and,
+  on a maintainer's pull request, a branch name outside the list above.
