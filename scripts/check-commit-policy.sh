@@ -21,7 +21,7 @@ maintainer_names='^(pacocartones|paco cartones|maintainer|agent:.*)$'
 maintainer_emails='(^|\+)pacocartones@users\.noreply\.github\.com$|@hq\.local$'
 maintainer_name='Paco Cartones'
 maintainer_email='253313177+pacocartones@users.noreply.github.com'
-branch_pattern='^((feat|fix|docs|data|test|ci|chore|refactor)/[a-z0-9][a-z0-9-]*|changeset-release/main|bot/[a-z0-9][a-z0-9/-]*)$'
+branch_pattern='^((feat|fix|docs|data|test|ci|chore|refactor)/[a-z0-9][a-z0-9-]*|gh-pages|changeset-release/main|bot/[a-z0-9][a-z0-9/-]*)$'
 
 fail=0
 while IFS= read -r sha; do

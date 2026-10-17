@@ -76,6 +76,7 @@ describe.skipIf(process.platform === 'win32')('check-commit-policy.sh', () => {
   it('checks the name of a branch of this repository, never a fork branch', () => {
     expect(run({ name: 'Paco Cartones', email: NOREPLY, branch: 'web/hero', headRepo: OWN })).toBe(1)
     expect(run({ name: 'Paco Cartones', email: NOREPLY, branch: 'feat/hero', headRepo: OWN })).toBe(0)
+    expect(run({ name: 'Paco Cartones', email: NOREPLY, branch: 'gh-pages', headRepo: OWN })).toBe(0)
     expect(
       run({ name: 'Someone Else', email: 'someone@example.com', branch: 'web/hero', headRepo: 'someone/market-data-sanity-checker' }),
     ).toBe(0)

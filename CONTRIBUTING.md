@@ -110,14 +110,17 @@ commit the generated file with your PR.
 - **If you contribute from a fork, none of the branch rules apply to you:** name your branch as you
   like. They are for the maintainers' branches in this repository.
 - **Maintainers' branch names:** `<type>/<short-slug>`, lower case with hyphens, where the type is
-  the one of the conventional commit: `feat/`, `fix/`, `docs/`, `test/`, `ci/`, `chore/` or `refactor/`. Example: `fix/sitemap-canonical`. Branch names
+  the conventional-commit type: `feat/`, `fix/`, `docs/`, `test/`, `ci/`, `chore/` or `refactor/`. Example: `fix/sitemap-canonical`. Branch names
   describe the change, not who made it or an internal ticket. Reserved: `main`, `gh-pages`, `changeset-release/main` and `bot/*` (for example `bot/scoreboard`).
-- **What a branch type means for the version:** `docs/`, `test/`, `ci/` and `chore/` carry no
-  changeset; `fix/` is a patch; `feat/` is a minor (see `RELEASING.md`, rules 1 and 9).
-- **What happens to branches:** merged and closed pull requests keep their commits; we delete the
-  branch afterwards.
+- **What a branch type means for the version** (maintainers' branches): `docs/`, `test/`, `ci/` and
+  `chore/` carry no changeset; `fix/` is a patch; `feat/` is a minor (see `RELEASING.md`, rules 1
+  and 9). If you contribute from a fork, add a changeset when your change affects users, whatever
+  your branch is called.
+- **What happens to branches:** in this repository, merged and closed pull requests keep their
+  commits and the branch is deleted afterwards; branches in your fork are yours.
 - **Commit identity:** maintainers commit as
-  `Paco Cartones <253313177+pacocartones@users.noreply.github.com>`, and
+  `Paco Cartones <253313177+pacocartones@users.noreply.github.com>` (how the project is maintained,
+  including the part done by AI agents under human oversight, is described under [Using AI](#using-ai)), and
   `scripts/check-commit-policy.sh` checks maintainer commits only. If you do not want your email in
   the public history, use your GitHub noreply address
   ([how](https://docs.github.com/en/account-and-profile/setting-up-and-managing-your-personal-account-on-github/managing-email-preferences/setting-your-commit-email-address)).
