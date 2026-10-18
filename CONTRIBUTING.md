@@ -100,6 +100,8 @@ A human maintainer reviews and is responsible for every merge. Automated review 
 
 For maintainers: CodeRabbit doesn't review this repository automatically yet, so request it on each pull request that changes code with a `@coderabbitai review` comment. A green CodeRabbit status is not a review.
 
+Contributions here are voluntary. We don't pay for comments, reviews or other work that nobody asked for, and a request for payment in an issue or a pull request gets no reply and doesn't change how we review it.
+
 ## Releases
 
 We use [changesets](https://github.com/changesets/changesets). Run `pnpm changeset` and
