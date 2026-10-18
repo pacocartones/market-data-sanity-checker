@@ -29,6 +29,8 @@ Generated: 2026-10-17T12:20:27.750Z · basket: 30 liquid symbols · range: 1y ·
 
 ## Cross-provider consistency
 
+Alpha Vantage runs here on its free plan, which returns the latest 100 daily bars, unadjusted, without dividends or splits. A `DIVIDEND_MISMATCH` or `SPLIT_MISMATCH` against Alpha Vantage in this table therefore means that the event is outside what that plan returns, not that either feed has wrong data. Corporate actions can only be compared between sources whose plans both include them.
+
 | Symbol | Consistency score | Compared dates | Findings |
 |---|---|---|---|
 | AAPL | 85 | 100 | DIVIDEND_MISMATCH (warning, 2025-11-10) |
