@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-17T12:20:27.750Z",
+  "generated_at": "2026-10-19T10:55:19.316Z",
   "basket": [
     "AAPL",
     "MSFT",
@@ -87,10 +87,10 @@
     },
     {
       "provider": "alpha-vantage",
-      "symbols_ok": 23,
-      "symbols_failed": 2,
+      "symbols_ok": 25,
+      "symbols_failed": 0,
       "symbols_skipped": 5,
-      "mean_score": 87.2,
+      "mean_score": 87.8,
       "min_score": 55,
       "worst_symbols": [
         {
@@ -137,7 +137,7 @@
       "total_findings": {
         "critical": 1,
         "warning": 7,
-        "info": 30
+        "info": 32
       }
     }
   ],
@@ -443,6 +443,34 @@
           "severity": "warning",
           "where": {
             "date": "2025-12-16"
+          }
+        }
+      ]
+    },
+    {
+      "symbol": "DIA",
+      "consistency_score": 85,
+      "compared_dates": 100,
+      "findings": [
+        {
+          "rule": "DIVIDEND_MISMATCH",
+          "severity": "warning",
+          "where": {
+            "date": "2025-10-17"
+          }
+        }
+      ]
+    },
+    {
+      "symbol": "VTI",
+      "consistency_score": 85,
+      "compared_dates": 100,
+      "findings": [
+        {
+          "rule": "DIVIDEND_MISMATCH",
+          "severity": "warning",
+          "where": {
+            "date": "2025-12-22"
           }
         }
       ]
