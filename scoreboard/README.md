@@ -1,11 +1,11 @@
 # Provider scoreboard
 
-Generated: 2026-10-17T12:20:27.750Z · basket: 30 liquid symbols · range: 1y · reproducible with `pnpm scoreboard`
+Generated: 2026-10-19T10:55:19.316Z · basket: 30 liquid symbols · range: 1y · reproducible with `pnpm scoreboard`
 
 | Provider | Symbols | Mean sanity score | Min | Critical | Warning | Info |
 |---|---|---|---|---|---|---|
 | yahoo | 30 (+0 failed) | 91.3 | 45 | 1 | 10 | 14 |
-| alpha-vantage | 23 (+2 failed, 5 skipped: daily cap) | 87.2 | 55 | 1 | 7 | 30 |
+| alpha-vantage | 25 (+0 failed, 5 skipped: daily cap) | 87.8 | 55 | 1 | 7 | 32 |
 
 - alpha-vantage skipped (daily request cap): GLD, TLT, EEM, ARKK, NFLX
 
@@ -54,3 +54,5 @@ Generated: 2026-10-17T12:20:27.750Z · basket: 30 liquid symbols · range: 1y ·
 | SPY | 85 | 100 | DIVIDEND_MISMATCH (warning, 2025-12-19) |
 | QQQ | 85 | 100 | DIVIDEND_MISMATCH (warning, 2025-12-22) |
 | IWM | 85 | 100 | DIVIDEND_MISMATCH (warning, 2025-12-16) |
+| DIA | 85 | 100 | DIVIDEND_MISMATCH (warning, 2025-10-17) |
+| VTI | 85 | 100 | DIVIDEND_MISMATCH (warning, 2025-12-22) |
