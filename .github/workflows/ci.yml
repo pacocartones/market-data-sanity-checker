@@ -23,8 +23,9 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]
-        # pnpm 11 (our toolchain) requires Node >= 22.13; the package requires >= 22.12
-        # (commander 15, a runtime dependency, declares engines node >=22.12)
+        # pnpm 11 (our toolchain) requires Node >= 22.13, so this matrix cannot
+        # carry the package's declared floor (>=22.12, from commander 15). That
+        # floor is tested against the built package in `package-floor` below.
         node: [22, 24]
     runs-on: ${{ matrix.os }}
     steps:
@@ -60,3 +61,62 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm build
       - run: pnpm smoke:readme
+      # Packed once here and handed to `package-floor`, which cannot run pnpm.
+      - name: Pack the built package
+        run: |
+          mkdir -p "$RUNNER_TEMP/package"
+          npm pack --silent --pack-destination "$RUNNER_TEMP/package"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: package-tarball
+          path: ${{ runner.temp }}/package/*.tgz
+          if-no-files-found: error
+
+  package-floor:
+    # `engines.node` (>=22.12) is a promise about the published package, not about
+    # the development toolchain: pnpm 11 needs >=22.13, so the verify matrix cannot
+    # express the floor. This job therefore never touches pnpm — it installs the
+    # tarball built by `readme-smoke` in an empty directory on Node 22.12 itself,
+    # with --engine-strict so the declared floor is enforced rather than merely
+    # declared, and runs the shipped CLI on a repository fixture.
+    needs: readme-smoke
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: package-tarball
+          path: package
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22.12
+      - name: Install the tarball on the floor and run the CLI on a fixture
+        shell: bash
+        run: |
+          set -euo pipefail
+          tarball=$(find "$GITHUB_WORKSPACE/package" -name '*.tgz' -print -quit)
+          fixture="$GITHUB_WORKSPACE/tests/fixtures/petr4-sa-dst-sunday-bar.json"
+          work=$(mktemp -d)
+          cd "$work"
+          echo "running on node $(node -v), npm $(npm -v)"
+          npm init --yes > /dev/null
+          npm install --no-audit --no-fund --engine-strict "$tarball"
+          set +e
+          output=$("$work/node_modules/.bin/mdsc" check --file "$fixture" 2>&1)
+          status=$?
+          set -e
+          printf '%s\n' "$output"
+          if [ "$status" -ne 0 ]; then
+            echo "::error::mdsc check exited $status on node $(node -v); this fixture reports 0 critical and 0 warning"
+            exit 1
+          fi
+          if ! printf '%s\n' "$output" | grep -q 'sanity_score: 95/100'; then
+            echo "::error::report header is missing 'sanity_score: 95/100'"
+            exit 1
+          fi
+          if ! printf '%s\n' "$output" | grep -q 'BAR_ON_WEEKEND'; then
+            echo "::error::the published bundle did not produce the BAR_ON_WEEKEND finding"
+            exit 1
+          fi
