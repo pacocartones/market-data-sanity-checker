@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-17T12:20:27.750Z",
+  "generated_at": "2026-10-26T11:16:14.661Z",
   "basket": [
     "AAPL",
     "MSFT",
@@ -39,7 +39,7 @@
       "symbols_ok": 30,
       "symbols_failed": 0,
       "symbols_skipped": 0,
-      "mean_score": 91.3,
+      "mean_score": 90.8,
       "min_score": 45,
       "worst_symbols": [
         {
@@ -81,16 +81,16 @@
       ],
       "total_findings": {
         "critical": 1,
-        "warning": 10,
+        "warning": 11,
         "info": 14
       }
     },
     {
       "provider": "alpha-vantage",
-      "symbols_ok": 23,
-      "symbols_failed": 2,
+      "symbols_ok": 25,
+      "symbols_failed": 0,
       "symbols_skipped": 5,
-      "mean_score": 87.2,
+      "mean_score": 87.6,
       "min_score": 55,
       "worst_symbols": [
         {
@@ -137,7 +137,7 @@
       "total_findings": {
         "critical": 1,
         "warning": 7,
-        "info": 30
+        "info": 33
       }
     }
   ],
@@ -366,7 +366,7 @@
           "rule": "DIVIDEND_MISMATCH",
           "severity": "warning",
           "where": {
-            "date": "2025-10-20"
+            "date": "2026-01-20"
           }
         }
       ]
@@ -400,7 +400,7 @@
           "rule": "PRICE_DATE_MISMATCH",
           "severity": "info",
           "where": {
-            "date": "2026-05-27"
+            "date": "2026-06-03"
           }
         }
       ]
@@ -443,6 +443,34 @@
           "severity": "warning",
           "where": {
             "date": "2025-12-16"
+          }
+        }
+      ]
+    },
+    {
+      "symbol": "DIA",
+      "consistency_score": 85,
+      "compared_dates": 100,
+      "findings": [
+        {
+          "rule": "DIVIDEND_MISMATCH",
+          "severity": "warning",
+          "where": {
+            "date": "2025-11-21"
+          }
+        }
+      ]
+    },
+    {
+      "symbol": "VTI",
+      "consistency_score": 85,
+      "compared_dates": 100,
+      "findings": [
+        {
+          "rule": "DIVIDEND_MISMATCH",
+          "severity": "warning",
+          "where": {
+            "date": "2025-12-22"
           }
         }
       ]
