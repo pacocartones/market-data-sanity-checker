@@ -1,11 +1,11 @@
 # Provider scoreboard
 
-Generated: 2026-10-17T12:20:27.750Z · basket: 30 liquid symbols · range: 1y · reproducible with `pnpm scoreboard`
+Generated: 2026-10-26T11:16:14.661Z · basket: 30 liquid symbols · range: 1y · reproducible with `pnpm scoreboard`
 
 | Provider | Symbols | Mean sanity score | Min | Critical | Warning | Info |
 |---|---|---|---|---|---|---|
-| yahoo | 30 (+0 failed) | 91.3 | 45 | 1 | 10 | 14 |
-| alpha-vantage | 23 (+2 failed, 5 skipped: daily cap) | 87.2 | 55 | 1 | 7 | 30 |
+| yahoo | 30 (+0 failed) | 90.8 | 45 | 1 | 11 | 14 |
+| alpha-vantage | 25 (+0 failed, 5 skipped: daily cap) | 87.6 | 55 | 1 | 7 | 33 |
 
 - alpha-vantage skipped (daily request cap): GLD, TLT, EEM, ARKK, NFLX
 
@@ -48,9 +48,11 @@ Generated: 2026-10-17T12:20:27.750Z · basket: 30 liquid symbols · range: 1y ·
 | WMT | 85 | 100 | DIVIDEND_MISMATCH (warning, 2025-12-12) |
 | BRK-B | 100 | 100 | none |
 | GE | 85 | 100 | DIVIDEND_MISMATCH (warning, 2025-12-29) |
-| CAT | 85 | 100 | DIVIDEND_MISMATCH (warning, 2025-10-20) |
+| CAT | 85 | 100 | DIVIDEND_MISMATCH (warning, 2026-01-20) |
 | BA | 100 | 100 | none |
-| HON | 65 | 100 | DIVIDEND_MISMATCH (warning, 2025-11-14); SPLIT_MISMATCH (warning, 2025-10-30); PRICE_DATE_MISMATCH (info, 2026-05-27) |
+| HON | 65 | 100 | DIVIDEND_MISMATCH (warning, 2025-11-14); SPLIT_MISMATCH (warning, 2025-10-30); PRICE_DATE_MISMATCH (info, 2026-06-03) |
 | SPY | 85 | 100 | DIVIDEND_MISMATCH (warning, 2025-12-19) |
 | QQQ | 85 | 100 | DIVIDEND_MISMATCH (warning, 2025-12-22) |
 | IWM | 85 | 100 | DIVIDEND_MISMATCH (warning, 2025-12-16) |
+| DIA | 85 | 100 | DIVIDEND_MISMATCH (warning, 2025-11-21) |
+| VTI | 85 | 100 | DIVIDEND_MISMATCH (warning, 2025-12-22) |
