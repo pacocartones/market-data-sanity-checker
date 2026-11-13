@@ -1,37 +1,28 @@
 import type { Finding, SanityReport } from './types'
 import type { ComparisonReport } from '../compare/comparator'
 
-export function escapeCell(value: string): string {
-  return value.replaceAll('\\', '\\\\').replaceAll('|', '\\|').replaceAll(/\r?\n/g, ' ')
+// CommonMark permits a backslash before any ASCII punctuation character. Escaping
+// the complete set keeps untrusted values as literal text instead of trying to
+// maintain separate, incomplete lists for links, HTML, entities and extensions.
+const MARKDOWN_PUNCTUATION = /[!"#$%&'()*+,\-./:;<=>?@[\\\]^_`{|}~]/g
+
+function escapeMarkdownText(value: string): string {
+  return value
+    .replaceAll(/[\r\n]+/g, ' ')
+    .replaceAll(MARKDOWN_PUNCTUATION, '\\$&')
 }
 
-// The backslash must be doubled before the other escapes are added, otherwise an
-// escape sequence would escape the backslash that was inserted after it.
-const HEADING_ESCAPES: ReadonlyArray<readonly [string, string]> = [
-  ['\\', '\\\\'],
-  ['[', '\\['],
-  [']', '\\]'],
-  ['<', '\\<'],
-  ['>', '\\>'],
-  ['&', '\\&'],
-  ['`', '\\`'],
-  ['*', '\\*'],
-  ['_', '\\_'],
-  ['|', '\\|'],
-]
+export function escapeCell(value: string): string {
+  return escapeMarkdownText(value)
+}
 
 /**
- * Escapes a value interpolated into the `##` heading line, which has no cell
- * boundaries to contain it: `escapeCell` only neutralises pipes and line breaks,
- * so a symbol or source that carries a break could leave the heading and emit a
- * live link or raw HTML into the PR comment or `GITHUB_STEP_SUMMARY` that renders
- * this output. Brings the value onto one line and escapes the Markdown and HTML
- * punctuation that can start a construct.
+ * Escapes a value interpolated into the `##` heading line. Headings and cells
+ * deliberately share the same plain-text invariant so neither context can emit
+ * attacker-controlled Markdown or HTML.
  */
 export function escapeHeading(value: string): string {
-  let out = value.replaceAll(/[\r\n]+/g, ' ')
-  for (const [from, to] of HEADING_ESCAPES) out = out.replaceAll(from, to)
-  return out
+  return escapeMarkdownText(value)
 }
 
 function formatDate(where: Finding['where']): string {
@@ -39,7 +30,11 @@ function formatDate(where: Finding['where']): string {
   return String(where.date)
 }
 
-/** Renders a single-source SanityReport as Markdown suitable for PR comments or GITHUB_STEP_SUMMARY. */
+/**
+ * Renders a single-source SanityReport as Markdown suitable for PR comments or
+ * GITHUB_STEP_SUMMARY. Untrusted values are encoded as literal text for consumers
+ * that implement CommonMark backslash escapes.
+ */
 export function renderReportMarkdown(report: SanityReport): string {
   const lines: string[] = []
   lines.push(`## ${escapeHeading(report.symbol)} (${escapeHeading(report.source)}) — sanity_score: ${report.sanity_score}/100`)
@@ -60,7 +55,11 @@ export function renderReportMarkdown(report: SanityReport): string {
   return lines.join('\n')
 }
 
-/** Renders a ComparisonReport as Markdown suitable for PR comments or GITHUB_STEP_SUMMARY. */
+/**
+ * Renders a ComparisonReport as Markdown suitable for PR comments or
+ * GITHUB_STEP_SUMMARY. Untrusted values are encoded as literal text for consumers
+ * that implement CommonMark backslash escapes.
+ */
 export function renderCompareMarkdown(report: ComparisonReport): string {
   const [sourceA, sourceB] = report.sources
   const lines: string[] = []
