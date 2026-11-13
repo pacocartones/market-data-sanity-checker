@@ -577,6 +577,29 @@ describe('compare — error paths and exit codes', () => {
       '## AAPL \\[free prize\\](https://evil.example) \\<img src=x onerror=alert(1)\\> (csv) — sanity_score: 80/100',
     )
   })
+
+  it('neutralizes terminal controls in human output while preserving JSON data', async () => {
+    const symbol = 'AAPL\u001b[2J\u001b]8;;https://evil.example\u0007link\u001b]8;;\u0007\r\u202e'
+    const source = 'feed\u001b]52;c;Y2xpcGJvYXJk\u0007\u2066'
+    const forbiddenControl = /[\u0000-\u0009\u000b-\u001f\u007f-\u009f\u061c\u200b-\u200f\u2028-\u202e\u2060-\u206f\ufeff]/u
+    const args = ['check', '--file', fixture('ohlcv-valid.csv'), '--symbol', symbol, '--source', source]
+
+    const tableResult = await runCli(args)
+    expect(tableResult.stdout).not.toMatch(forbiddenControl)
+    expect(tableResult.stdout).toContain('AAPLlink\\r\\u202E')
+    expect(tableResult.stdout).not.toContain('evil.example')
+    expect(tableResult.stdout).not.toContain('Y2xpcGJvYXJk')
+
+    const markdownResult = await runCli([...args, '--format', 'markdown'])
+    expect(markdownResult.stdout).not.toMatch(forbiddenControl)
+    expect(markdownResult.stdout).not.toContain('evil.example')
+    expect(markdownResult.stdout).not.toContain('Y2xpcGJvYXJk')
+
+    const jsonResult = await runCli([...args, '--format', 'json'])
+    const report = JSON.parse(jsonResult.stdout) as { symbol?: unknown; source?: unknown }
+    expect(report.symbol).toBe(symbol)
+    expect(report.source).toBe(source)
+  })
 })
 
 describe('providers — --format', () => {

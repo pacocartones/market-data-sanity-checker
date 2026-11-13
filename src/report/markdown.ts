@@ -1,8 +1,10 @@
 import type { Finding, SanityReport } from './types'
 import type { ComparisonReport } from '../compare/comparator'
+import { escapeTerminalText } from './terminal'
 
 export function escapeCell(value: string): string {
-  return value.replaceAll('\\', '\\\\').replaceAll('|', '\\|').replaceAll(/\r?\n/g, ' ')
+  const oneLine = value.replaceAll(/\r?\n/g, ' ')
+  return escapeTerminalText(oneLine).replaceAll('\\', '\\\\').replaceAll('|', '\\|')
 }
 
 // The backslash must be doubled before the other escapes are added, otherwise an
@@ -22,14 +24,13 @@ const HEADING_ESCAPES: ReadonlyArray<readonly [string, string]> = [
 
 /**
  * Escapes a value interpolated into the `##` heading line, which has no cell
- * boundaries to contain it: `escapeCell` only neutralises pipes and line breaks,
- * so a symbol or source that carries a break could leave the heading and emit a
- * live link or raw HTML into the PR comment or `GITHUB_STEP_SUMMARY` that renders
- * this output. Brings the value onto one line and escapes the Markdown and HTML
- * punctuation that can start a construct.
+ * boundaries to contain it: cell escaping does not neutralise every construct
+ * that can start a live link or raw HTML in a PR comment or
+ * `GITHUB_STEP_SUMMARY`. Brings the value onto one line and escapes the Markdown
+ * and HTML punctuation that can start a construct.
  */
 export function escapeHeading(value: string): string {
-  let out = value.replaceAll(/[\r\n]+/g, ' ')
+  let out = escapeTerminalText(value.replaceAll(/[\r\n]+/g, ' '))
   for (const [from, to] of HEADING_ESCAPES) out = out.replaceAll(from, to)
   return out
 }

@@ -15,6 +15,7 @@ import { connectorStatus, getConnector } from './connectors/index'
 import { loadConfig, type MdscConfig } from './config'
 import { renderCheckHtml, renderCompareHtml } from './report/html'
 import { renderReportMarkdown, renderCompareMarkdown } from './report/markdown'
+import { escapeTerminalText } from './report/terminal'
 import {
   appendHistory,
   readHistory,
@@ -53,9 +54,11 @@ function printFindings(findings: readonly Finding[]): void {
     const where = finding.where ? ` [${Object.values(finding.where).join(', ')}]` : ''
     const occurrences = finding.occurrences && finding.occurrences > 1 ? ` ×${finding.occurrences}` : ''
     console.log(
-      `  ${finding.severity.toUpperCase().padEnd(8)} ${finding.rule}${occurrences}${where} → ${finding.action}`,
+      escapeTerminalText(
+        `  ${finding.severity.toUpperCase().padEnd(8)} ${finding.rule}${occurrences}${where} → ${finding.action}`,
+      ),
     )
-    console.log(`           ${finding.explanation}`)
+    console.log(escapeTerminalText(`           ${finding.explanation}`))
   }
 }
 
@@ -68,7 +71,10 @@ interface DatasetCoverage {
 
 function printTable(report: SanityReport, coverage?: DatasetCoverage): void {
   const { critical, warning, info } = report.summary
-  console.log(`\n${report.symbol} (${report.source}) — sanity_score: ${report.sanity_score}/100`)
+  console.log()
+  console.log(
+    escapeTerminalText(`${report.symbol} (${report.source}) — sanity_score: ${report.sanity_score}/100`),
+  )
   console.log(`findings: ${critical} critical · ${warning} warning · ${info} info`)
   printFindings(report.findings)
   if (report.findings.length === 0) {
@@ -84,11 +90,16 @@ function printTable(report: SanityReport, coverage?: DatasetCoverage): void {
 function printComparison(report: ComparisonReport): void {
   const { critical, warning, info } = report.summary
   const [sourceA, sourceB] = report.sources
+  console.log()
   console.log(
-    `\n${report.symbol} — ${sourceA} vs ${sourceB} — consistency_score: ${report.consistency_score}/100`,
+    escapeTerminalText(
+      `${report.symbol} — ${sourceA} vs ${sourceB} — consistency_score: ${report.consistency_score}/100`,
+    ),
   )
   console.log(
-    `compared dates: ${report.compared_dates} · only in ${sourceA}: ${report.only_in[sourceA] ?? 0} · only in ${sourceB}: ${report.only_in[sourceB] ?? 0}`,
+    escapeTerminalText(
+      `compared dates: ${report.compared_dates} · only in ${sourceA}: ${report.only_in[sourceA] ?? 0} · only in ${sourceB}: ${report.only_in[sourceB] ?? 0}`,
+    ),
   )
   console.log(`findings: ${critical} critical · ${warning} warning · ${info} info`)
   printFindings(report.findings)
