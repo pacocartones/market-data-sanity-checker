@@ -15,7 +15,7 @@ export const currencySchema = z
   .regex(/^[A-Z]{3}$/, 'currency must be a 3-letter uppercase code (e.g. USD, EUR, GBX)')
 
 /** ISO 8601 date or datetime. Timezone must be explicit for datetimes. */
-const ISO_DATE_OR_ZONED_DATETIME = /^(\d{4}-\d{2}-\d{2})(?:T\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?(?:Z|[+-]\d{2}:\d{2}))?$/
+const ISO_DATE_OR_ZONED_DATETIME = /^(\d{4}-\d{2}-\d{2})(?:T\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?(?:Z|[+-]\d{2}:?\d{2}))?$/
 
 function isValidTimestamp(value: string): boolean {
   const match = ISO_DATE_OR_ZONED_DATETIME.exec(value)

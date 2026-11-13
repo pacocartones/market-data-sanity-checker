@@ -135,7 +135,7 @@ mdsc --version
 ```
 
 Input dates must be real `YYYY-MM-DD` calendar dates. Datetimes need an ISO timezone
-(`Z` or an explicit offset). Bar timestamps in compact `YYYYMMDD` or plausible epoch
+(`Z`, `±HH:MM` or `±HHMM`). Bar timestamps in compact `YYYYMMDD` or plausible epoch
 seconds are normalized when CSV or JSON files are ingested. Invalid dates produce a
 `SCHEMA_INVALID` finding and fail the data gate.
 

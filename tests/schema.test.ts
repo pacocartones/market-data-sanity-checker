@@ -11,7 +11,7 @@ const validDataset = {
 }
 
 describe('marketDataSetSchema', () => {
-  it.each(['2024-02-30', '2023-02-29', '2024-04-31', '01/02/2024', '2024-01-02T14:30:00'])(
+  it.each(['2024-02-30', '2023-02-29', '2024-04-31', '01/02/2024', '2024-01-02T14:30:00', '2024-02-30T09:30:00-0500', '2024-01-02T09:30:00+053'])(
     'rejects an invalid or ambiguous timestamp: %s',
     (timestamp) => {
       const dataset = { ...validDataset, bars: [{ ...validDataset.bars[0], timestamp }] }
@@ -19,7 +19,7 @@ describe('marketDataSetSchema', () => {
     },
   )
 
-  it.each(['2024-02-29', '2024-01-02T14:30:00Z', '2024-01-02T14:30:00.123+02:00'])(
+  it.each(['2024-02-29', '2024-01-02T14:30:00Z', '2024-01-02T14:30:00.123+02:00', '2024-01-02T09:30:00-0500', '2024-01-02T09:30:00+0530'])(
     'accepts a real ISO date or zoned datetime: %s',
     (timestamp) => {
       const dataset = { ...validDataset, bars: [{ ...validDataset.bars[0], timestamp }] }

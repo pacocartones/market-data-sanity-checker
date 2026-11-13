@@ -247,7 +247,7 @@ const wildNumber = fc.oneof(
 export const wildTimestamp = fc.oneof(
   fc.date({ min: new Date('1970-01-01T00:00:00Z'), max: new Date('2100-01-01T00:00:00Z'), noInvalidDate: true }).map((d) => d.toISOString().slice(0, 10)),
   fc.date({ min: new Date('1970-01-01T00:00:00Z'), max: new Date('2100-01-01T00:00:00Z'), noInvalidDate: true }).map((d) => d.toISOString()),
-  fc.constantFrom('2024-01-02', '2024-02-29', '2024-01-02T09:30:00-05:00'),
+  fc.constantFrom('2024-01-02', '2024-02-29', '2024-01-02T09:30:00-05:00', '2024-01-02T09:30:00-0500', '2024-01-02T09:30:00+0530'),
 )
 
 const wildBar = fc.record(
