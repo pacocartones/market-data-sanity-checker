@@ -53,8 +53,10 @@ export interface RuleContext {
 export interface Rule {
   meta: RuleMeta
   /**
-   * Returns one finding per occurrence. The engine collapses them into a
-   * single report entry with `occurrences` — rules should NOT self-collapse.
+   * Normally returns one finding per occurrence. The engine collapses them
+   * into a single report entry with `occurrences`. A rule whose occurrence
+   * count can grow combinatorially may instead return one representative with
+   * `occurrences` pre-counted; the engine preserves that bounded form.
    *
    * Findings normally carry `context.config.severity`. A rule MAY deliberately
    * emit a lower severity for a lighter sub-case (e.g. CURRENCY_SUSPECT

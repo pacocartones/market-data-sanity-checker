@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vitest'
 import { readFile } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
-import { marketDataSetSchema } from '../../src/schema/market-data'
+import { MAX_CORPORATE_ACTIONS, marketDataSetSchema } from '../../src/schema/market-data'
 import type { RuleContext } from '../../src/rules/types'
 import { divDuplicated } from '../../src/rules/corporate/div-duplicated'
+import { runRules } from '../../src/rules/engine'
 
 const ctx: RuleContext = {
   config: { severity: divDuplicated.meta.severity, params: { ...divDuplicated.meta.defaultParams } },
@@ -55,5 +56,34 @@ describe('DIV_DUPLICATED', () => {
     expect(
       divDuplicated.check({ symbol: 'X', source: 'test', bars: [] }, ctx),
     ).toEqual([])
+  })
+
+  it('retains one representative while counting every duplicate pair', () => {
+    const data = {
+      symbol: 'X',
+      source: 'test',
+      bars: [],
+      dividends: Array.from({ length: 4 }, () => ({ exDate: '2024-01-02', amount: 0.25 })),
+    }
+
+    const direct = divDuplicated.check(data, ctx)
+    expect(direct).toHaveLength(1)
+    expect(direct[0]!.occurrences).toBe(6)
+    expect(runRules(data).find((finding) => finding.rule === 'DIV_DUPLICATED')?.occurrences).toBe(6)
+  })
+
+  it('rejects oversized typed collections before running rules', () => {
+    const data = {
+      symbol: 'X',
+      source: 'test',
+      bars: [],
+      dividends: Array.from({ length: MAX_CORPORATE_ACTIONS + 1 }, () => ({
+        exDate: '2024-01-02',
+        amount: 0.25,
+      })),
+    }
+
+    expect(() => divDuplicated.check(data, ctx)).toThrow(RangeError)
+    expect(() => runRules(data)).toThrow(RangeError)
   })
 })

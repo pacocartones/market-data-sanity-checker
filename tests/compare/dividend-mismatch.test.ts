@@ -59,4 +59,17 @@ describe('DIVIDEND_MISMATCH', () => {
     const b = dataset('other', [])
     expect(dividendMismatch.check(a, b, ctxFor(a, b))).toEqual([])
   })
+
+  it('preserves first-candidate matching when multiple dates are in range', () => {
+    const a = dataset('yahoo', [{ exDate: '2024-03-15', amount: 0.25 }])
+    const b = dataset('other', [
+      { exDate: '2024-03-20', amount: 0.3 },
+      { exDate: '2024-03-14', amount: 0.25 },
+    ])
+
+    expect(dividendMismatch.check(a, b, ctxFor(a, b))[0]!.evidence).toMatchObject({
+      reason: 'amount_differs',
+      amount_b: 0.3,
+    })
+  })
 })

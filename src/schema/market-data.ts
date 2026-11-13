@@ -70,6 +70,14 @@ export const identifiersSchema = z
   })
   .partial()
 
+/**
+ * Per-symbol work budget for each corporate-action collection. This is far
+ * above ordinary dividend and split histories while bounding every rule that
+ * consumes these arrays, including callers that bypass schema parsing and use
+ * the typed SDK engines directly.
+ */
+export const MAX_CORPORATE_ACTIONS = 512
+
 export const marketDataSetSchema = z.object({
   symbol: z.string().min(1),
   exchange: z.string().optional(),
@@ -78,8 +86,8 @@ export const marketDataSetSchema = z.object({
   source: z.string().min(1),
   identifiers: identifiersSchema.optional(),
   bars: z.array(barSchema),
-  dividends: z.array(dividendSchema).optional(),
-  splits: z.array(splitSchema).optional(),
+  dividends: z.array(dividendSchema).max(MAX_CORPORATE_ACTIONS).optional(),
+  splits: z.array(splitSchema).max(MAX_CORPORATE_ACTIONS).optional(),
   fundamentals: fundamentalsSchema.optional(),
 })
 
@@ -89,3 +97,20 @@ export type Split = z.infer<typeof splitSchema>
 export type Fundamentals = z.infer<typeof fundamentalsSchema>
 export type Identifiers = z.infer<typeof identifiersSchema>
 export type MarketDataSet = z.infer<typeof marketDataSetSchema>
+
+/** Reject unsafe typed SDK inputs instead of truncating or partially checking them. */
+export function assertCorporateActionBudget(
+  data: Pick<MarketDataSet, 'dividends' | 'splits'>,
+  label = 'dataset',
+): void {
+  if ((data.dividends?.length ?? 0) > MAX_CORPORATE_ACTIONS) {
+    throw new RangeError(
+      `${label} contains ${data.dividends!.length} dividends; the maximum is ${MAX_CORPORATE_ACTIONS}`,
+    )
+  }
+  if ((data.splits?.length ?? 0) > MAX_CORPORATE_ACTIONS) {
+    throw new RangeError(
+      `${label} contains ${data.splits!.length} splits; the maximum is ${MAX_CORPORATE_ACTIONS}`,
+    )
+  }
+}

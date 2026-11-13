@@ -224,6 +224,9 @@ for (const finding of report.findings) {
 }
 ```
 
+Each per-symbol dataset may contain at most 512 dividends and 512 splits. The schema and the
+checking/comparison engines reject larger corporate-action collections instead of truncating them.
+
 Fetch and compare sources with the connector plugins:
 
 ```ts

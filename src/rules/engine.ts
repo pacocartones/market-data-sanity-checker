@@ -1,4 +1,4 @@
-import type { MarketDataSet } from '../schema/market-data'
+import { assertCorporateActionBudget, type MarketDataSet } from '../schema/market-data'
 import type { Finding, RecommendedAction, Severity } from '../report/types'
 import { SEVERITY_ORDER } from '../report/types'
 import { simpleReturns, mad, median } from './stats'
@@ -56,7 +56,7 @@ function collapse(rule: Rule, occurrences: Finding[], forcedSeverity?: Severity)
     action: ACTION_FOR_SEVERITY[severity],
     dimension: rule.meta.dimension,
     references: rule.meta.references,
-    occurrences: occurrences.length,
+    occurrences: representative.occurrences ?? occurrences.length,
   }
 }
 
@@ -66,6 +66,7 @@ function collapse(rule: Rule, occurrences: Finding[], forcedSeverity?: Severity)
  * and diffable reports.
  */
 export function runRules(data: MarketDataSet, config: CheckerConfig = {}): Finding[] {
+  assertCorporateActionBudget(data)
   const profile = buildDataProfile(data)
   const findings: Finding[] = []
 

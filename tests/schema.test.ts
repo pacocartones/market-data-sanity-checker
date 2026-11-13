@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { marketDataSetSchema } from '../src/schema/market-data'
+import { MAX_CORPORATE_ACTIONS, marketDataSetSchema } from '../src/schema/market-data'
 
 const validDataset = {
   symbol: 'AAPL',
@@ -40,5 +40,31 @@ describe('marketDataSetSchema', () => {
       bars: [{ timestamp: '2024-01-02', open: -5, high: 1, low: 10, close: 185.14 }],
     }
     expect(marketDataSetSchema.safeParse(implausible).success).toBe(true)
+  })
+
+  it('accepts the corporate-action limit and rejects larger collections', () => {
+    const dividends = Array.from({ length: MAX_CORPORATE_ACTIONS }, (_, index) => ({
+      exDate: '2024-01-02',
+      amount: index + 1,
+    }))
+    const splits = Array.from({ length: MAX_CORPORATE_ACTIONS }, () => ({
+      exDate: '2024-01-02',
+      numerator: 2,
+      denominator: 1,
+    }))
+
+    expect(marketDataSetSchema.safeParse({ ...validDataset, dividends, splits }).success).toBe(true)
+    expect(
+      marketDataSetSchema.safeParse({
+        ...validDataset,
+        dividends: [...dividends, { exDate: '2024-01-03', amount: 1 }],
+      }).success,
+    ).toBe(false)
+    expect(
+      marketDataSetSchema.safeParse({
+        ...validDataset,
+        splits: [...splits, { exDate: '2024-01-03', numerator: 3, denominator: 1 }],
+      }).success,
+    ).toBe(false)
   })
 })

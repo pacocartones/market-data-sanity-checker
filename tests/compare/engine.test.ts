@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import type { Bar, MarketDataSet } from '../../src/schema/market-data'
-import { buildCompareContext, dateKey } from '../../src/compare/engine'
+import { MAX_CORPORATE_ACTIONS, type Bar, type MarketDataSet } from '../../src/schema/market-data'
+import { buildCompareContext, dateKey, runCompareRules } from '../../src/compare/engine'
 
 function bar(timestamp: string): Bar {
   return { timestamp, open: 100, high: 101, low: 99, close: 100 }
@@ -44,5 +44,29 @@ describe('buildCompareContext — alignment with heterogeneous formats', () => {
     expect(alignment.shared.map((entry) => entry.date)).toEqual(['garbage'])
     expect(alignment.onlyInA).toEqual([])
     expect(alignment.onlyInB).toEqual([])
+  })
+})
+
+describe('corporate-action work budget', () => {
+  it('rejects oversized typed collections on either comparison side', () => {
+    const normal = dataset('a', [])
+    const oversizedDividends: MarketDataSet = {
+      ...dataset('b', []),
+      dividends: Array.from({ length: MAX_CORPORATE_ACTIONS + 1 }, () => ({
+        exDate: '2024-01-02',
+        amount: 0.25,
+      })),
+    }
+    const oversizedSplits: MarketDataSet = {
+      ...dataset('b', []),
+      splits: Array.from({ length: MAX_CORPORATE_ACTIONS + 1 }, () => ({
+        exDate: '2024-01-02',
+        numerator: 2,
+        denominator: 1,
+      })),
+    }
+
+    expect(() => runCompareRules(oversizedDividends, normal)).toThrow(RangeError)
+    expect(() => runCompareRules(normal, oversizedSplits)).toThrow(RangeError)
   })
 })
