@@ -1,9 +1,10 @@
 name: Deploy API Docs
 
 on:
+  # Keep publication bound to reviewed default-branch pushes. A manual dispatch
+  # can select another ref and must not reach this privileged workflow.
   push:
     branches: [main]
-  workflow_dispatch:
 
 permissions:
   contents: read
@@ -35,10 +36,9 @@ jobs:
       - name: Generate API docs
         run: pnpm typedoc
 
-      # The coverage badge is measured on the default branch only, so a manual run
-      # from another branch cannot publish that branch's number. Fixed paths, no
-      # untrusted input. The file is published next to the API docs and read by
-      # the README's shields.io endpoint badge.
+      # The coverage badge is measured on the default branch only. Fixed paths,
+      # no untrusted input. The file is published next to the API docs and read
+      # by the README's shields.io endpoint badge.
       - name: Measure coverage
         id: coverage
         if: github.ref == 'refs/heads/main'
