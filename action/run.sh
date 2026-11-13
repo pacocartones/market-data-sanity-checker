@@ -5,7 +5,17 @@
 # MDSC_CLI overrides the command (used by the repository's own tests).
 set -uo pipefail
 
-die() { echo "::error title=market-data-sanity-checker::$1"; exit 2; }
+# Render untrusted diagnostics as one JSON string so line breaks and terminal
+# controls cannot become commands in the GitHub Runner's log stream.
+encode_log_data() { jq -Rs .; }
+
+die() {
+  local message
+  message=$(printf '%s' "$1" | encode_log_data)
+  message=${message//'%'/'%25'}
+  printf '::error title=market-data-sanity-checker::%s\n' "$message"
+  exit 2
+}
 
 file=${MDSC_FILE:-}
 [ -n "$file" ] || die "the 'file' input is required"
@@ -49,8 +59,14 @@ else
 fi
 
 report="$tmp/mdsc-report.json"
-"${cli[@]}" "${args[@]}" >"$report"
+diagnostics="$tmp/mdsc-diagnostics.log"
+"${cli[@]}" "${args[@]}" >"$report" 2>"$diagnostics"
 code=$?
+
+if [ -s "$diagnostics" ]; then
+  printf 'mdsc: CLI diagnostics: %s\n' "$(encode_log_data <"$diagnostics")" >&2
+fi
+rm -f "$diagnostics"
 
 if ! jq -e '.sanity_score' "$report" >/dev/null 2>&1; then
   echo "::error title=market-data-sanity-checker::mdsc produced no report (exit $code)"
