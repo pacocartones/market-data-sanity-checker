@@ -132,6 +132,38 @@ describe.skipIf(process.platform === 'win32')('GitHub Action wrapper', () => {
     TIMEOUT_MS,
   )
 
+  // Runner v2.338.2 ActionCommand.TryParse searches for ##[ anywhere in a line,
+  // including inside JSON strings. A line prefix only protects the V2 :: syntax.
+  it.each([
+    ['inline warning', 'date##[warning]forged'],
+    ['legacy properties', 'date##[error title=forged]message'],
+    ['mask command', 'date##[add-mask]forged'],
+    ['multiline stop command', 'date\n##[stop-commands]forged'],
+    ['ordinary punctuation', 'date#price\\u0023 café%0a'],
+  ])(
+    'preserves the %s diagnostic as data rather than a runner command',
+    async (_name, header) => {
+      const csv = join(dir, 'legacy-command.csv')
+      await writeFile(csv, `"${header}",open,high,low,close\n2024-01-02,100,101,99,100.5\n`, 'utf8')
+
+      const result = await runAction({ MDSC_FILE: csv })
+      const prefix = 'mdsc: CLI diagnostics: '
+
+      expect(result.code).toBe(2)
+      expect(result.outputs).toEqual({})
+      expect(result.stderr.startsWith(prefix)).toBe(true)
+      expect(result.stderr.trimEnd().split('\n')).toHaveLength(1)
+      // Unlike a start-of-line check, this excludes the legacy protocol even
+      // after a benign prefix, and regardless of the command name or properties.
+      expect(result.stderr).not.toMatch(/##\[|(?:^|\r?\n)\s*::/)
+      expect(JSON.parse(result.stderr.slice(prefix.length).trimEnd())).toBe(
+        `mdsc: CSV is missing required column(s): timestamp. Found columns: ${header}, open, high, low, close\n`,
+      )
+      expect(result.stdout).toContain('::error title=market-data-sanity-checker::mdsc produced no report')
+    },
+    TIMEOUT_MS,
+  )
+
   it(
     'gates on warnings with fail-on warning, and on min-score',
     async () => {
@@ -185,6 +217,27 @@ describe.skipIf(process.platform === 'win32')('GitHub Action wrapper', () => {
       expect(result.stdout).toContain(String.raw`\n::warning::forged`)
       expect(result.stdout.trim().split('\n')).toHaveLength(1)
       expect(result.stdout).not.toMatch(/(?:^|\r?\n)::warning::forged/)
+    },
+    TIMEOUT_MS,
+  )
+
+  it(
+    'preserves rejected input inside the one intended error annotation',
+    async () => {
+      const version = 'latest\r\n##[warning]forged%0A::add-mask::value#café'
+      const result = await runAction({ MDSC_FILE: fixture('ohlcv-valid.csv'), MDSC_VERSION: version })
+      const prefix = '::error title=market-data-sanity-checker::'
+
+      expect(result.code).toBe(2)
+      expect(result.outputs).toEqual({})
+      expect(result.stderr).toBe('')
+      expect(result.stdout.startsWith(prefix)).toBe(true)
+      expect(result.stdout.trimEnd().split('\n')).toHaveLength(1)
+      expect(result.stdout).not.toContain('##[')
+      // The runner unescapes %25 after parsing the fixed V2 error command.
+      expect(JSON.parse(result.stdout.slice(prefix.length).trimEnd().replaceAll('%25', '%'))).toBe(
+        `'version' must be a major, major.minor or exact version, got: ${version}`,
+      )
     },
     TIMEOUT_MS,
   )

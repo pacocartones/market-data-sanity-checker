@@ -5,9 +5,10 @@
 # MDSC_CLI overrides the command (used by the repository's own tests).
 set -uo pipefail
 
-# Render untrusted diagnostics as one JSON string so line breaks and terminal
-# controls cannot become commands in the GitHub Runner's log stream.
-encode_log_data() { jq -Rs .; }
+# Render untrusted diagnostics as one JSON string. Also escape hashes: the
+# runner's legacy ##[command] syntax is recognized anywhere, even inside JSON.
+# JSON decoding still recovers the complete diagnostic without loss.
+encode_log_data() { jq -Rrs 'tojson | gsub("#"; "\\u0023")'; }
 
 die() {
   local message
