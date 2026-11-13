@@ -193,9 +193,10 @@ mdsc check --file aapl.csv --html report.html
 mdsc compare --files yahoo-aapl.json,stooq-aapl.csv --html compare.html   # writes a self-contained comparison dashboard
 ```
 
-HTML and audit-history writes require regular files under regular directories. Intentional
-symbolic-link outputs, including symlinked parent directories, are rejected; use a trusted
-output directory that lower-trust checkout content cannot replace.
+HTML and audit-history writes reject pre-existing symbolic links and directory junctions
+in the selected output path. Use regular output files under regular directories;
+intentionally linked outputs are unsupported. This protects against links already present
+in lower-trust checkout content, not concurrent mutation by another local process.
 
 ### GitHub Action
 

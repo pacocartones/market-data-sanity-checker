@@ -103,7 +103,7 @@ async function openSecureOutput(
   }
 }
 
-/** Writes a UTF-8 file without following links in the target or any parent directory. */
+/** Writes a UTF-8 file without following pre-existing links in the target or its parents. */
 export async function writeFileSecurely(filePath: string, content: string): Promise<void> {
   const handle = await openSecureOutput(
     filePath,
@@ -119,7 +119,7 @@ export async function writeFileSecurely(filePath: string, content: string): Prom
   }
 }
 
-/** Appends UTF-8 content, creating safe parent directories and the final file as needed. */
+/** Appends UTF-8 content while rejecting pre-existing linked output path components. */
 export async function appendFileSecurely(filePath: string, content: string): Promise<void> {
   const handle = await openSecureOutput(
     filePath,

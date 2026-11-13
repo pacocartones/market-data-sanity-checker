@@ -45,4 +45,19 @@ describe('writeFileSecurely', () => {
     )
     await expect(access(join(outside, 'report.html'))).rejects.toThrow()
   })
+
+  it('refuses a junction used as a non-immediate output ancestor', async () => {
+    const reports = join(dir, 'reports')
+    const outside = join(dir, 'outside')
+    const outsideNested = join(outside, 'nested')
+    const linkedAncestor = join(reports, 'linked')
+    await mkdir(reports)
+    await mkdir(outsideNested, { recursive: true })
+    await symlink(outside, linkedAncestor, 'junction')
+
+    await expect(
+      writeFileSecurely(join(linkedAncestor, 'nested', 'report.html'), 'report'),
+    ).rejects.toThrow('symbolic links')
+    await expect(access(join(outsideNested, 'report.html'))).rejects.toThrow()
+  })
 })
