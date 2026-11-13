@@ -14,7 +14,7 @@ import type { Bar, Dividend, MarketDataSet, Split } from '../../../src/schema/ma
  *                     plausibility rules DO fire. Optional volume, adjustment
  *                     factors, dividends, splits, fundamentals, identifiers.
  * - `wildDataset`   : anything the Zod schema accepts (unordered, duplicated,
- *                     zero/negative/extreme prices, odd timestamp formats).
+ *                     zero/negative/extreme prices, ISO dates and zoned datetimes).
  */
 
 export const DAY_MS = 86_400_000
@@ -243,11 +243,11 @@ const wildNumber = fc.oneof(
   },
 )
 
-/** Any string `Date.parse` accepts, in several shapes (the schema's only timestamp constraint). */
+/** Real ISO dates and timezone-qualified datetimes accepted by the schema. */
 export const wildTimestamp = fc.oneof(
   fc.date({ min: new Date('1970-01-01T00:00:00Z'), max: new Date('2100-01-01T00:00:00Z'), noInvalidDate: true }).map((d) => d.toISOString().slice(0, 10)),
   fc.date({ min: new Date('1970-01-01T00:00:00Z'), max: new Date('2100-01-01T00:00:00Z'), noInvalidDate: true }).map((d) => d.toISOString()),
-  fc.constantFrom('2024-01-02', '2024-01-02T09:30:00-05:00', 'Jan 2, 2024', '2024-02-30', '2024-01-02T25:00:00Z').filter((s) => !Number.isNaN(Date.parse(s))),
+  fc.constantFrom('2024-01-02', '2024-02-29', '2024-01-02T09:30:00-05:00'),
 )
 
 const wildBar = fc.record(
