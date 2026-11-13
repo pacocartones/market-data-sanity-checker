@@ -511,6 +511,40 @@ describe('rules — catalog listing', () => {
 })
 
 describe('compare — error paths and exit codes', () => {
+  it('rejects a third file instead of silently comparing only the first two', async () => {
+    const validFile = fixture('ohlcv-valid.csv')
+    const result = await runCli(['compare', '--files', `${validFile},${validFile},${validFile}`, '--format', 'json'])
+    expect(result.code).toBe(2)
+    expect(result.stdout).toBe('')
+    expect(result.stderr).toContain('--files needs exactly two paths separated by a comma')
+  })
+
+  it('rejects a trailing empty file entry before opening files', async () => {
+    const result = await runCli(['compare', '--files', 'missing-a.csv,missing-b.csv,'])
+    expect(result.code).toBe(2)
+    expect(result.stderr).toContain('--files needs exactly two paths separated by a comma')
+    expect(result.stderr).not.toContain('ENOENT')
+  })
+
+  it('rejects a third provider before resolving providers or fetching data', async () => {
+    const result = await runCli(['compare', '--symbol', 'X', '--providers', 'unknown,alpha-vantage,extra'])
+    expect(result.code).toBe(2)
+    expect(result.stdout).toBe('')
+    expect(result.stderr).toContain('--providers needs two providers')
+    expect(result.stderr).not.toContain('Unknown provider')
+  })
+
+  it('rejects simultaneous files and providers before reading a config', async () => {
+    const result = await runCli([
+      'compare', '--files', 'missing-a.csv,missing-b.csv', '--providers', 'yahoo,alpha-vantage',
+      '--config', 'missing-config.json',
+    ])
+    expect(result.code).toBe(2)
+    expect(result.stdout).toBe('')
+    expect(result.stderr).toContain('--files and --providers cannot be used together')
+    expect(result.stderr).not.toContain('missing-config.json')
+  })
+
   it('exits 2 when --files has fewer than two paths', async () => {
     const result = await runCli(['compare', '--files', 'one.csv'])
     expect(result.code).toBe(2)
