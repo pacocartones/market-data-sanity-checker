@@ -188,6 +188,10 @@ mdsc check --file aapl.csv --html report.html
 mdsc compare --files yahoo-aapl.json,stooq-aapl.csv --html compare.html   # writes a self-contained comparison dashboard
 ```
 
+HTML and audit-history writes require regular files under regular directories. Intentional
+symbolic-link outputs, including symlinked parent directories, are rejected; use a trusted
+output directory that lower-trust checkout content cannot replace.
+
 ### GitHub Action
 
 Fail a workflow when a data file is bad, with the score and finding counts in the job summary. It is listed on the [GitHub Marketplace](https://github.com/marketplace/actions/market-data-sanity-checker).

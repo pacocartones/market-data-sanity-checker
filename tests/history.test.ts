@@ -1,4 +1,4 @@
-import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
+import { access, mkdir, mkdtemp, readFile, rm, symlink, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
@@ -139,6 +139,27 @@ describe('appendHistory + readHistory', () => {
     const filePath = await appendHistory(dir, makeEntry({ symbol: 'BRK/B' }))
     expect(filePath).toBe(join(dir, 'BRK_B.jsonl'))
     expect(await readHistory(dir, 'BRK/B')).toHaveLength(1)
+  })
+
+  it('refuses a history-file symlink without modifying its target', async () => {
+    const historyDir = join(dir, 'history')
+    const target = join(dir, 'outside.jsonl')
+    await mkdir(historyDir)
+    await writeFile(target, 'unchanged\n', 'utf8')
+    await symlink(target, join(historyDir, 'AAPL.jsonl'), 'file')
+
+    await expect(appendHistory(historyDir, makeEntry())).rejects.toThrow('symbolic links')
+    expect(await readFile(target, 'utf8')).toBe('unchanged\n')
+  })
+
+  it('refuses a symlinked history parent without writing outside it', async () => {
+    const outside = join(dir, 'outside')
+    const linkedParent = join(dir, 'linked-history')
+    await mkdir(outside)
+    await symlink(outside, linkedParent, 'dir')
+
+    await expect(appendHistory(linkedParent, makeEntry())).rejects.toThrow('symbolic links')
+    await expect(access(join(outside, 'AAPL.jsonl'))).rejects.toThrow()
   })
 
   it('exposes the default history directory', () => {

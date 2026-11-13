@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 import { createRequire } from 'node:module'
-import { writeFile } from 'node:fs/promises'
 import { basename } from 'node:path'
 import { Command } from 'commander'
 import type { ZodIssue } from 'zod'
@@ -24,6 +23,7 @@ import {
 } from './history/store'
 import type { Finding, SanityReport, Severity } from './report/types'
 import { SEVERITY_ORDER } from './report/types'
+import { writeFileSecurely } from './filesystem/secure-output'
 
 const { version } = createRequire(import.meta.url)('../package.json') as { version: string }
 
@@ -294,7 +294,7 @@ program
       }
 
       if (options.html) {
-        await writeFile(
+        await writeFileSecurely(
           options.html,
           renderCheckHtml(report, dataset.success ? { dataset: dataset.data } : {}),
         )
@@ -384,7 +384,7 @@ program
       }
 
       if (options.html) {
-        await writeFile(options.html, renderCompareHtml(report, { a, b }))
+        await writeFileSecurely(options.html, renderCompareHtml(report, { a, b }))
         console.error(`mdsc: HTML dashboard written to ${options.html}`)
       }
 
