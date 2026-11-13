@@ -67,6 +67,20 @@ beforeAll(async () => {
 }, 180_000)
 
 describe('check — gating exit codes', () => {
+  it.each([
+    ['csv', 'date,open,high,low,close\n2024-01-02T09:30:00-0500,1,1,1,1\n'],
+    ['json', JSON.stringify({ symbol: 'X', source: 'synthetic', bars: [{ timestamp: '2024-01-02T09:30:00+0530', open: 1, high: 1, low: 1, close: 1 }] })],
+  ])('accepts a timezone offset without a colon in a %s file', async (extension, content) => {
+    await withTempDir(async (dir) => {
+      const path = join(dir, `input.${extension}`)
+      await writeFile(path, content, 'utf8')
+      const result = await runCli(['check', '--file', path, '--format', 'json'], { cwd: dir })
+      expect(result.code).toBe(0)
+      const report = JSON.parse(result.stdout) as { findings: Array<{ rule: string }> }
+      expect(report.findings.some((finding) => finding.rule === 'SCHEMA_INVALID')).toBe(false)
+    })
+  }, CLI_TIMEOUT_MS)
+
   it(
     'exits 1 when a critical finding is present (default gate)',
     async () => {
