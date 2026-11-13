@@ -114,6 +114,10 @@ commit the generated file with your PR.
 - **Maintainers' branch names:** `<type>/<short-slug>`, lower case with hyphens, where the type is
   the conventional-commit type: `feat/`, `fix/`, `docs/`, `test/`, `ci/`, `chore/` or `refactor/`. Example: `fix/sitemap-canonical`. Branch names
   describe the change, not who made it or an internal ticket. Reserved: `main`, `gh-pages`, `changeset-release/main` and `bot/*` (for example `bot/scoreboard`).
+- **Codex Security branches:** the generated format `codex-security/arp_<32 lowercase hexadecimal characters>`
+  is accepted for branches in this repository. Other `codex-security/*` names must follow the normal
+  naming rule instead. This is a branch-name exception only: it does not authenticate a tool or author,
+  approve the patch, or exempt maintainer commits from the identity and attribution rules below.
 - **What a branch type means for the version** (maintainers' branches): `docs/`, `test/`, `ci/` and
   `chore/` carry no changeset; `fix/` is a patch; `feat/` is a minor (see `RELEASING.md`, rules 1
   and 9). If you contribute from a fork, add a changeset when your change affects users, whatever
