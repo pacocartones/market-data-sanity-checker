@@ -73,6 +73,43 @@ beforeAll(async () => {
 }, 180_000)
 
 describe('check — gating exit codes', () => {
+  it('accepts 513 valid corporate actions through check and compare', async () => {
+    await withTempDir(async (dir) => {
+      const dates = Array.from({ length: 513 }, (_, index) =>
+        new Date(Date.UTC(2023, 0, index * 8 + 1)).toISOString().slice(0, 10))
+      const first = {
+        symbol: 'TEST', source: 'first', currency: 'USD',
+        bars: Array.from({ length: 20 }, (_, index) => ({
+          timestamp: new Date(Date.UTC(2024, 0, index + 1)).toISOString().slice(0, 10),
+          open: 100 + index, high: 100 + index, low: 100 + index, close: 100 + index,
+        })),
+        dividends: dates.map((exDate, index) => ({ exDate, amount: index + 1 })),
+      }
+      const second = {
+        ...first, source: 'second',
+        dividends: first.dividends.map((dividend, index) =>
+          index === 512 ? { ...dividend, amount: 1026 } : dividend),
+      }
+      const a = join(dir, 'first.json')
+      const b = join(dir, 'second.json')
+      await writeFile(a, JSON.stringify(first), 'utf8')
+      await writeFile(b, JSON.stringify(second), 'utf8')
+      const checked = await runCli(['check', '--file', a, '--format', 'json', '--fail-on', 'critical'])
+      expect(checked.code, `${checked.stderr}\n${checked.stdout}`).toBe(0)
+      expect(JSON.parse(checked.stdout).findings.some((finding: { rule: string }) =>
+        finding.rule === 'SCHEMA_INVALID')).toBe(false)
+      const compared = await runCli(['compare', '--files', `${a},${b}`, '--format', 'json', '--fail-on', 'warning'])
+      expect(compared.code).toBe(1)
+      const comparison = JSON.parse(compared.stdout)
+      expect(comparison.consistency_score).toBe(85)
+      expect(comparison.summary.warning).toBe(1)
+      expect(comparison.findings.find((finding: { rule: string }) =>
+        finding.rule === 'DIVIDEND_MISMATCH')).toMatchObject({
+        occurrences: 1, evidence: { exDate: dates[512], amount_a: 513, amount_b: 1026 },
+      })
+    })
+  }, CLI_TIMEOUT_MS)
+
   it('gates on a later warning occurrence after an info-only stale run', async () => {
     await withTempDir(async (dir) => {
       const dates = [

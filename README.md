@@ -371,6 +371,14 @@ Findings carry `rule`, `severity` (critical/warning/info), `action` (block/flag/
 `dimension` (DAMA data quality dimension), a human-readable `explanation`, `evidence`, and
 `references` to the incident or literature justifying the rule.
 
+Corporate action arrays have no fixed length limit. The check report counts all
+`DIV_DUPLICATED` pairs but retains one representative finding; comparison uses
+date indexes and preserves the first matching action in input order. Direct
+`DIV_DUPLICATED.check` calls still return every matching pair, so their output
+and memory grow with the number of pairs. Other direct rules can also depend
+on the number of nearby bars or actions; large datasets need caller-side
+resource planning.
+
 ## When NOT to use it
 
 - **It does not repair data.** `mdsc` flags, never rewrites — *flag, don't delete*. If you

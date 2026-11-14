@@ -54,7 +54,9 @@ export interface Rule {
   meta: RuleMeta
   /**
    * Returns one finding per occurrence. The engine collapses them into a
-   * single report entry with `occurrences` — rules should NOT self-collapse.
+   * single report entry with `occurrences`. The engine may use a private,
+   * exact summary for a rule with pairwise output; direct check calls retain
+   * this one-finding-per-occurrence contract.
    *
    * Findings normally carry `context.config.severity`, but a rule may lower or
    * raise the severity of an individual case. Without a user override, the
