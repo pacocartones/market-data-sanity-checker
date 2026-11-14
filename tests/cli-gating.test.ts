@@ -2,7 +2,7 @@ import { execFile } from 'node:child_process'
 import { access, mkdtemp, readFile, readdir, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { fileURLToPath, pathToFileURL } from 'node:url'
 import { promisify } from 'node:util'
 import { beforeAll, describe, expect, it } from 'vitest'
 
@@ -654,6 +654,36 @@ describe('providers — --format', () => {
       expect(result.code).toBe(2)
       expect(result.stdout).toBe('')
       expect(result.stderr).toContain('--format must be one of: table, json')
+    },
+    CLI_TIMEOUT_MS,
+  )
+})
+
+describe('check — provider error redaction', () => {
+  it(
+    'prints only the categorized Alpha Vantage parser failure to stderr',
+    async () => {
+      await withTempDir(async (dir) => {
+        const apiKey = 'response-secret-key'
+        const preload = join(dir, 'stub-alpha-invalid-json.mjs')
+        await writeFile(
+          preload,
+          `globalThis.fetch = async () => new Response(${JSON.stringify(`${apiKey}\n{`)})\n`,
+          'utf8',
+        )
+        const nodeOptions = [process.env.NODE_OPTIONS, `--import=${pathToFileURL(preload).href}`]
+          .filter(Boolean)
+          .join(' ')
+
+        const result = await runCli(['check', '--provider', 'alpha-vantage', '--symbol', 'IBM'], {
+          env: { ...process.env, ALPHA_VANTAGE_API_KEY: apiKey, NODE_OPTIONS: nodeOptions },
+        })
+
+        expect(result.code).toBe(2)
+        expect(result.stdout).toBe('')
+        expect(result.stderr.replace(/\r\n/g, '\n')).toBe('mdsc: Alpha Vantage request failed for IBM\n')
+        expect(result.stderr).not.toContain(apiKey)
+      })
     },
     CLI_TIMEOUT_MS,
   )
