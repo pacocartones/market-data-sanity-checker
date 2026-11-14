@@ -10,6 +10,7 @@
 import { readFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import type { SanityReport } from '../report/types'
+import { escapeTerminalText } from '../report/terminal'
 import { appendFileSecurely } from '../filesystem/secure-output'
 
 /** One recorded check — a compact, self-contained snapshot of a SanityReport. */
@@ -97,13 +98,14 @@ export function formatHistory(entries: readonly HistoryEntry[]): string {
   if (entries.length === 0) return 'no history entries'
 
   const header = ['DATE', 'SCORE', 'C', 'W', 'I', 'RULES']
+  const terminalCell = (value: unknown): string => escapeTerminalText(String(value))
   const rows = entries.map((entry) => [
-    formatDate(entry.at),
-    String(entry.sanity_score),
-    String(entry.summary.critical),
-    String(entry.summary.warning),
-    String(entry.summary.info),
-    entry.rules.join(','),
+    terminalCell(formatDate(entry.at)),
+    terminalCell(entry.sanity_score),
+    terminalCell(entry.summary.critical),
+    terminalCell(entry.summary.warning),
+    terminalCell(entry.summary.info),
+    terminalCell(entry.rules.join(',')),
   ])
 
   const widths = header.map((title, column) =>

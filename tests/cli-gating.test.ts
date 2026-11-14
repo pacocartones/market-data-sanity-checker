@@ -36,6 +36,12 @@ interface CliResult {
   stderr: string
 }
 
+const DANGEROUS_TERMINAL_CHARACTERS = ['\u001b', '\u0007', '\r', '\u202e', '\u2066'] as const
+
+function expectTerminalSafeText(text: string): void {
+  for (const character of DANGEROUS_TERMINAL_CHARACTERS) expect(text).not.toContain(character)
+}
+
 /** Runs the compiled CLI; non-zero exits resolve (not reject) with their code. */
 async function runCli(args: string[], options: { cwd?: string; env?: NodeJS.ProcessEnv } = {}): Promise<CliResult> {
   try {
@@ -178,6 +184,32 @@ describe('check — gating exit codes', () => {
     },
     CLI_TIMEOUT_MS,
   )
+
+  it('keeps non-string schema envelopes in the table gating flow and preserves JSON values', async () => {
+    await withTempDir(async (dir) => {
+      const path = join(dir, 'non-string-envelope.json')
+      await writeFile(
+        path,
+        JSON.stringify({
+          symbol: 42,
+          source: 7,
+          bars: [{ timestamp: '2024-01-02', open: 1, high: 1, low: 1, close: 1 }],
+        }),
+      )
+
+      const tableResult = await runCli(['check', '--file', path])
+      expect(tableResult.code).toBe(1)
+      expect(tableResult.stderr).toContain('gate failed')
+      expect(tableResult.stdout).toContain('42 (7) — sanity_score:')
+      expect(tableResult.stdout).toContain('SCHEMA_INVALID')
+
+      const jsonResult = await runCli(['check', '--file', path, '--format', 'json'])
+      expect(jsonResult.code).toBe(1)
+      const report = JSON.parse(jsonResult.stdout) as { symbol?: unknown; source?: unknown }
+      expect(report.symbol).toBe(42)
+      expect(report.source).toBe(7)
+    })
+  })
 
   it(
     'exits 1 with --fail-on warning when a warning is present',
@@ -455,6 +487,54 @@ describe('history — --format', () => {
     },
     CLI_TIMEOUT_MS,
   )
+
+  it('keeps hand-edited history terminal-safe while preserving JSON values', async () => {
+    await withTempDir(async (dir) => {
+      const hostile = {
+        ...entry('2026-\u001b[2J\nspoof', 90),
+        summary: {
+          critical: '1\nforged\u202e',
+          warning: '0\u001b[2J',
+          info: 0,
+        },
+        rules: ['RULE\u001b]8;;https://evil.example\u0007\nforged\u202e'],
+      }
+      await writeFile(join(dir, 'AAPL.jsonl'), JSON.stringify(hostile) + '\n')
+
+      const tableResult = await runCli(['history', '--symbol', 'AAPL', '--history-dir', dir])
+      expect(tableResult.code).toBe(0)
+      expectTerminalSafeText(tableResult.stdout)
+      expect(tableResult.stdout).toContain('\\n')
+      expect(tableResult.stdout).toContain('\\u202E')
+      expect(tableResult.stdout).not.toContain('evil.example')
+
+      const jsonResult = await runCli([
+        'history',
+        '--symbol',
+        'AAPL',
+        '--history-dir',
+        dir,
+        '--format',
+        'json',
+      ])
+      expect(jsonResult.code).toBe(0)
+      expect(JSON.parse(jsonResult.stdout)).toEqual({ symbol: 'AAPL', entries: [hostile] })
+    })
+  })
+
+  it('keeps an empty-history symbol inside one terminal-safe guidance block', async () => {
+    await withTempDir(async (dir) => {
+      const symbol = 'AA\u001b]8;;https://evil.example\u0007PL\u001b]8;;\u0007\nspoof\u202e'
+      const result = await runCli(['history', '--symbol', symbol, '--history-dir', dir])
+
+      expect(result.code).toBe(0)
+      expect(result.stderr).toBe('')
+      expectTerminalSafeText(result.stdout)
+      expect(result.stdout).toContain('\\n')
+      expect(result.stdout).toContain('\\u202E')
+      expect(result.stdout).not.toContain('evil.example')
+    })
+  })
 })
 
 describe('bare mdsc', () => {
@@ -587,6 +667,19 @@ describe('rules — catalog listing', () => {
     expect(result.stderr).toContain('unknown rule "ZZZ_NONEXISTENT_ZZZ"')
     expect(result.stderr).not.toMatch(/did you mean/)
   })
+
+  it('keeps an unknown rule id on one terminal-safe diagnostic line', async () => {
+    const id = 'ZZZ\u001b]8;;https://evil.example\u0007BAD\u001b]8;;\u0007\nspoof\u202e'
+    const result = await runCli(['rules', id])
+
+    expect(result.code).toBe(1)
+    expect(result.stdout).toBe('')
+    expectTerminalSafeText(result.stderr)
+    expect(result.stderr.trimEnd().split('\n')).toHaveLength(1)
+    expect(result.stderr).toContain('\\n')
+    expect(result.stderr).toContain('\\u202E')
+    expect(result.stderr).not.toContain('evil.example')
+  })
 })
 
 describe('compare — error paths and exit codes', () => {
@@ -703,6 +796,85 @@ describe('compare — error paths and exit codes', () => {
     expect(result.stdout.split('\n')[0]).toBe(
       '## AAPL \\[free prize\\](https\u200b://evil.example) \\<img src=x onerror=alert(1)\\> (csv) — sanity_score: 80/100',
     )
+  })
+
+  it('neutralizes terminal controls in table output while preserving JSON data', async () => {
+    const symbol = 'AAPL\u001b[2J\u001b]8;;https://evil.example\u0007link\u001b]8;;\u0007\r\u202e'
+    const source = 'feed\u001b]52;c;Y2xpcGJvYXJk\u0007\u2066'
+    const args = ['check', '--file', fixture('ohlcv-valid.csv'), '--symbol', symbol, '--source', source]
+
+    const tableResult = await runCli(args)
+    expectTerminalSafeText(tableResult.stdout)
+    expect(tableResult.stdout).toContain('AAPLlink\\r\\u202E')
+    expect(tableResult.stdout).not.toContain('evil.example')
+    expect(tableResult.stdout).not.toContain('Y2xpcGJvYXJk')
+
+    const jsonResult = await runCli([...args, '--format', 'json'])
+    const report = JSON.parse(jsonResult.stdout) as { symbol?: unknown; source?: unknown }
+    expect(report.symbol).toBe(symbol)
+    expect(report.source).toBe(source)
+  })
+
+  it('keeps a crafted CSV header error on one terminal-safe stderr line', async () => {
+    await withTempDir(async (dir) => {
+      const path = join(dir, 'crafted.csv')
+      const hostileColumn = 'cl\u001b]8;;https://evil.example\u0007o\nspoof\u001b]8;;\u0007se\u202e'
+      await writeFile(
+        path,
+        `date,open,high,low,"${hostileColumn}"\n2024-01-02,1,1,1,1\n`,
+        'utf8',
+      )
+
+      const result = await runCli(['check', '--file', path])
+      expect(result.code).toBe(2)
+      expect(result.stdout).toBe('')
+      expectTerminalSafeText(result.stderr)
+      expect(result.stderr.trimEnd().split('\n')).toHaveLength(1)
+      expect(result.stderr).toContain('\\n')
+      expect(result.stderr).toContain('\\u202E')
+      expect(result.stderr).not.toContain('evil.example')
+    })
+  })
+
+  it('neutralizes terminal controls reflected by a compare error path', async () => {
+    await withTempDir(async (dir) => {
+      const missing = join(dir, 'missing\u001b[2J\u202e.csv')
+      const result = await runCli([
+        'compare',
+        '--files',
+        `${missing},${fixture('ohlcv-valid.csv')}`,
+      ])
+
+      expect(result.code).toBe(2)
+      expect(result.stdout).toBe('')
+      expectTerminalSafeText(result.stderr)
+      expect(result.stderr).toContain('\\u202E')
+    })
+  })
+
+  it('neutralizes terminal controls in written-path confirmations', async () => {
+    await withTempDir(async (dir) => {
+      const html = join(dir, 'dashboard\u202e.html')
+      const historyDir = join(dir, 'history\u2066')
+
+      const htmlResult = await runCli(['check', '--file', fixture('ohlcv-valid.csv'), '--html', html])
+      expect(htmlResult.code).toBe(0)
+      expectTerminalSafeText(htmlResult.stderr)
+      expect(htmlResult.stderr).toContain('\\u202E')
+      await access(html)
+
+      const historyResult = await runCli([
+        'check',
+        '--file',
+        fixture('ohlcv-valid.csv'),
+        '--save',
+        '--history-dir',
+        historyDir,
+      ])
+      expect(historyResult.code).toBe(0)
+      expectTerminalSafeText(historyResult.stderr)
+      expect(historyResult.stderr).toContain('\\u2066')
+    })
   })
 })
 

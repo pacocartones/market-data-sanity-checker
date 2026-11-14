@@ -214,6 +214,12 @@ describe('escapeHeading', () => {
     expect(escapeHeading('a\\[b')).toBe('a\\\\\\[b')
   })
 
+  it('preserves legitimate Unicode format characters and joined emoji', () => {
+    const text = 'A\u200bB\u200cC\u200dD\u2060E 👩‍💻'
+    expect(escapeCell(text)).toBe(text)
+    expect(escapeHeading(text)).toBe(text)
+  })
+
   it('neutralizes GitHub autolinks and references while preserving visible punctuation', () => {
     expect(
       escapeHeading(
