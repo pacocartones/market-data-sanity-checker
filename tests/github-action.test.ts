@@ -104,8 +104,35 @@ describe.skipIf(process.platform === 'win32')('GitHub Action wrapper', () => {
       expect(result.code).toBe(1)
       expect(result.outputs.critical).toBe('1')
       expect(result.summary).toContain('market-data-sanity-checker: failed')
+      expect(result.summary).toContain('BRK\\.A')
       const report = JSON.parse(await readFile(join(dir, 'mdsc-report.json'), 'utf8'))
       expect(report.symbol).toBe('BRK.A')
+    },
+    TIMEOUT_MS,
+  )
+
+  it(
+    'keeps dataset markdown inert inside the job summary table',
+    async () => {
+      const data = JSON.parse(
+        await readFile(fixture('ge-reverse-split.json'), 'utf8'),
+      ) as Record<string, unknown>
+      data.symbol =
+        'AAPL\r\n# forged\n[review](https://evil.example) ![pixel](https://evil.example/pixel) <img src=x> | fake'
+      const crafted = join(dir, 'crafted.json')
+      await writeFile(crafted, JSON.stringify(data), 'utf8')
+
+      const result = await runAction({ MDSC_FILE: crafted })
+      const row = result.summary.split('\n').find((line) => line.includes('forged'))
+
+      expect(row).toContain(
+        'AAPL \\# forged \\[review\\]\\(https\\:\\/\\/evil\\.example\\) \\!\\[pixel\\]\\(https\\:\\/\\/evil\\.example\\/pixel\\) \\<img src\\=x\\> \\| fake',
+      )
+      expect(row?.match(/(?<!\\)\|/g)).toHaveLength(7)
+      expect(result.summary).not.toContain('\n# forged')
+      expect(result.summary).not.toContain('[review](https://evil.example)')
+      expect(result.summary).not.toContain('![pixel]')
+      expect(/(^|[^\\])</.test(row ?? '')).toBe(false)
     },
     TIMEOUT_MS,
   )
@@ -128,6 +155,36 @@ describe.skipIf(process.platform === 'win32')('GitHub Action wrapper', () => {
       expect(result.stderr.trim().split('\n')).toHaveLength(1)
       expect(combinedLog).not.toMatch(/(?:^|\r?\n)::add-mask::forged/)
       expect(result.stdout).toContain('::error title=market-data-sanity-checker::mdsc produced no report')
+    },
+    TIMEOUT_MS,
+  )
+
+  it(
+    'keeps diagnostics and summary cells inert in the same gated run',
+    async () => {
+      const symbol =
+        'AAPL\r\n# forged\n[review](https://evil.example) <img src=x> | fake'
+      const result = await runAction({
+        MDSC_FILE: fixture('ohlcv-valid.csv'),
+        MDSC_SYMBOL: symbol,
+        MDSC_MIN_SCORE: '100',
+      })
+      const prefix = 'mdsc: CLI diagnostics: '
+      const row = result.summary.split('\n').find((line) => line.includes('forged'))
+
+      expect(result.code).toBe(1)
+      expect(result.stderr.startsWith(prefix)).toBe(true)
+      expect(result.stderr.trimEnd().split('\n')).toHaveLength(1)
+      expect(JSON.parse(result.stderr.slice(prefix.length).trimEnd())).toBe(
+        'mdsc: gate failed — score 80 below --min-score 100\n',
+      )
+      expect(row).toContain(
+        'AAPL \\# forged \\[review\\]\\(https\\:\\/\\/evil\\.example\\) \\<img src\\=x\\> \\| fake',
+      )
+      expect(row?.match(/(?<!\\)\|/g)).toHaveLength(7)
+      expect(result.summary).not.toContain('\n# forged')
+      expect(result.summary).not.toContain('[review](https://evil.example)')
+      expect(/(^|[^\\])</.test(row ?? '')).toBe(false)
     },
     TIMEOUT_MS,
   )
