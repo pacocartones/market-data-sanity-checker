@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 import { createRequire } from 'node:module'
-import { writeFile } from 'node:fs/promises'
 import { basename } from 'node:path'
 import { Command } from 'commander'
 import type { ZodIssue } from 'zod'
@@ -24,6 +23,7 @@ import {
 } from './history/store'
 import type { Finding, SanityReport, Severity } from './report/types'
 import { SEVERITY_ORDER } from './report/types'
+import { writeFileSecurely } from './filesystem/secure-output'
 
 const { version } = createRequire(import.meta.url)('../package.json') as { version: string }
 
@@ -294,7 +294,7 @@ program
       }
 
       if (options.html) {
-        await writeFile(
+        await writeFileSecurely(
           options.html,
           renderCheckHtml(report, dataset.success ? { dataset: dataset.data } : {}),
         )
@@ -343,25 +343,26 @@ program
     }
     const format = options.format.toLowerCase()
     try {
-      const config = await loadConfig(options.config)
+      if (options.files !== undefined && options.providers !== undefined) {
+        throw new Error('--files and --providers cannot be used together')
+      }
 
-      let a: MarketDataSet
-      let b: MarketDataSet
-
-      if (options.files) {
-        const [fileA, fileB] = options.files.split(',').map((entry) => entry.trim())
-        if (!fileA || !fileB) {
+      let input:
+        | { mode: 'files'; values: [string, string] }
+        | { mode: 'providers'; values: [string, string]; symbol: string }
+      if (options.files !== undefined) {
+        const entries = options.files.split(',').map((entry) => entry.trim())
+        if (entries.length !== 2 || !entries[0] || !entries[1]) {
           throw new Error(
             '--files needs exactly two paths separated by a comma, e.g. --files "a.csv,b.csv". ' +
               'On PowerShell the quotes are required — an unquoted comma is swallowed by the shell.',
           )
         }
-        a = marketDataSetSchema.parse(await ingestFile(fileA, { source: basename(fileA) }))
-        b = marketDataSetSchema.parse(await ingestFile(fileB, { source: basename(fileB) }))
+        input = { mode: 'files', values: [entries[0], entries[1]] }
       } else {
         if (!options.symbol) throw new Error('--symbol is required when comparing providers')
-        const [nameA, nameB] = (options.providers ?? '').split(',').map((entry) => entry.trim())
-        if (!nameA || !nameB) {
+        const entries = (options.providers ?? '').split(',').map((entry) => entry.trim())
+        if (entries.length !== 2 || !entries[0] || !entries[1]) {
           throw new Error(
             '--providers needs two providers, e.g. --providers "yahoo,alpha-vantage". ' +
               'On PowerShell the quotes are required — an unquoted comma is swallowed by the shell. ' +
@@ -370,8 +371,21 @@ program
                 .join(', ')}`,
           )
         }
-        a = await getConnector(nameA).fetchDaily(options.symbol, { range: options.range })
-        b = await getConnector(nameB).fetchDaily(options.symbol, { range: options.range })
+        input = { mode: 'providers', values: [entries[0], entries[1]], symbol: options.symbol }
+      }
+
+      const config = await loadConfig(options.config)
+      let a: MarketDataSet
+      let b: MarketDataSet
+
+      if (input.mode === 'files') {
+        const [fileA, fileB] = input.values
+        a = marketDataSetSchema.parse(await ingestFile(fileA, { source: basename(fileA) }))
+        b = marketDataSetSchema.parse(await ingestFile(fileB, { source: basename(fileB) }))
+      } else {
+        const [nameA, nameB] = input.values
+        a = await getConnector(nameA).fetchDaily(input.symbol, { range: options.range })
+        b = await getConnector(nameB).fetchDaily(input.symbol, { range: options.range })
       }
 
       const report = compareDatasets(a, b, config.compare)
@@ -384,7 +398,7 @@ program
       }
 
       if (options.html) {
-        await writeFile(options.html, renderCompareHtml(report, { a, b }))
+        await writeFileSecurely(options.html, renderCompareHtml(report, { a, b }))
         console.error(`mdsc: HTML dashboard written to ${options.html}`)
       }
 

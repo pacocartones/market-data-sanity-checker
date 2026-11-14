@@ -20,17 +20,6 @@ function lowerBound(values: readonly IndexedValue[], target: number): number {
   return low
 }
 
-function upperBound(values: readonly IndexedValue[], target: number): number {
-  let low = 0
-  let high = values.length
-  while (low < high) {
-    const middle = Math.floor((low + high) / 2)
-    if (values[middle]!.time <= target) low = middle + 1
-    else high = middle
-  }
-  return low
-}
-
 /**
  * Indexes dated values for logarithmic window lookups. The range-min tree
  * returns the earliest value in original input order, preserving Array.find's
@@ -73,11 +62,28 @@ export function createDateWindowIndex<T extends DatedValue>(values: readonly T[]
   return {
     find(exDate, windowDays) {
       const time = Date.parse(exDate)
-      const windowMs = windowDays * MS_PER_DAY
-      if (Number.isNaN(time) || Number.isNaN(windowMs) || windowMs < 0) return undefined
+      if (Number.isNaN(time)) return undefined
 
-      const start = lowerBound(sorted, time - windowMs)
-      const end = upperBound(sorted, time + windowMs)
+      // Compare the quotient exactly as the original Array.find predicate.
+      // Multiplying a fractional day window can round a boundary below the
+      // millisecond that should match (31 / MS_PER_DAY is one example).
+      const pivot = lowerBound(sorted, time)
+      let low = 0
+      let high = pivot
+      while (low < high) {
+        const middle = Math.floor((low + high) / 2)
+        if ((time - sorted[middle]!.time) / MS_PER_DAY <= windowDays) high = middle
+        else low = middle + 1
+      }
+      const start = low
+      low = pivot
+      high = sorted.length
+      while (low < high) {
+        const middle = Math.floor((low + high) / 2)
+        if ((sorted[middle]!.time - time) / MS_PER_DAY <= windowDays) low = middle + 1
+        else high = middle
+      }
+      const end = low
       if (start === end) return undefined
       const originalIndex = minimumInRange(start, end)
       return Number.isFinite(originalIndex) ? values[originalIndex] : undefined

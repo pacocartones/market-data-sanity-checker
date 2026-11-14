@@ -15,10 +15,22 @@ export const currencySchema = z
   .regex(/^[A-Z]{3}$/, 'currency must be a 3-letter uppercase code (e.g. USD, EUR, GBX)')
 
 /** ISO 8601 date or datetime. Timezone must be explicit for datetimes. */
+const ISO_DATE_OR_ZONED_DATETIME = /^(\d{4}-\d{2}-\d{2})(?:T\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?(?:Z|[+-]\d{2}:?\d{2}))?$/
+
+function isValidTimestamp(value: string): boolean {
+  const match = ISO_DATE_OR_ZONED_DATETIME.exec(value)
+  if (!match) return false
+  const date = match[1]!
+  const parsedDate = Date.parse(date)
+  return !Number.isNaN(parsedDate)
+    && new Date(parsedDate).toISOString().slice(0, 10) === date
+    && !Number.isNaN(Date.parse(value))
+}
+
 export const timestampSchema = z
   .string()
-  .refine((value) => !Number.isNaN(Date.parse(value)), {
-    message: 'must be a parseable ISO 8601 date or datetime',
+  .refine(isValidTimestamp, {
+    message: 'must be a real ISO 8601 date or timezone-qualified datetime',
   })
 
 export const barSchema = z.object({
@@ -70,14 +82,6 @@ export const identifiersSchema = z
   })
   .partial()
 
-/**
- * Per-symbol work budget for each corporate-action collection. This is far
- * above ordinary dividend and split histories while bounding every rule that
- * consumes these arrays, including callers that bypass schema parsing and use
- * the typed SDK engines directly.
- */
-export const MAX_CORPORATE_ACTIONS = 512
-
 export const marketDataSetSchema = z.object({
   symbol: z.string().min(1),
   exchange: z.string().optional(),
@@ -86,8 +90,8 @@ export const marketDataSetSchema = z.object({
   source: z.string().min(1),
   identifiers: identifiersSchema.optional(),
   bars: z.array(barSchema),
-  dividends: z.array(dividendSchema).max(MAX_CORPORATE_ACTIONS).optional(),
-  splits: z.array(splitSchema).max(MAX_CORPORATE_ACTIONS).optional(),
+  dividends: z.array(dividendSchema).optional(),
+  splits: z.array(splitSchema).optional(),
   fundamentals: fundamentalsSchema.optional(),
 })
 
@@ -97,20 +101,3 @@ export type Split = z.infer<typeof splitSchema>
 export type Fundamentals = z.infer<typeof fundamentalsSchema>
 export type Identifiers = z.infer<typeof identifiersSchema>
 export type MarketDataSet = z.infer<typeof marketDataSetSchema>
-
-/** Reject unsafe typed SDK inputs instead of truncating or partially checking them. */
-export function assertCorporateActionBudget(
-  data: Pick<MarketDataSet, 'dividends' | 'splits'>,
-  label = 'dataset',
-): void {
-  if ((data.dividends?.length ?? 0) > MAX_CORPORATE_ACTIONS) {
-    throw new RangeError(
-      `${label} contains ${data.dividends!.length} dividends; the maximum is ${MAX_CORPORATE_ACTIONS}`,
-    )
-  }
-  if ((data.splits?.length ?? 0) > MAX_CORPORATE_ACTIONS) {
-    throw new RangeError(
-      `${label} contains ${data.splits!.length} splits; the maximum is ${MAX_CORPORATE_ACTIONS}`,
-    )
-  }
-}

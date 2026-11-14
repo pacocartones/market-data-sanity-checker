@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { MAX_CORPORATE_ACTIONS, marketDataSetSchema } from '../src/schema/market-data'
+import { marketDataSetSchema } from '../src/schema/market-data'
 
 const validDataset = {
   symbol: 'AAPL',
@@ -11,6 +11,38 @@ const validDataset = {
 }
 
 describe('marketDataSetSchema', () => {
+  it.each(['2024-02-30', '2023-02-29', '2024-04-31', '01/02/2024', '2024-01-02T14:30:00', '2024-02-30T09:30:00-0500', '2024-01-02T09:30:00+053'])(
+    'rejects an invalid or ambiguous timestamp: %s',
+    (timestamp) => {
+      const dataset = { ...validDataset, bars: [{ ...validDataset.bars[0], timestamp }] }
+      expect(marketDataSetSchema.safeParse(dataset).success).toBe(false)
+    },
+  )
+
+  it.each(['2024-02-29', '2024-01-02T14:30:00Z', '2024-01-02T14:30:00.123+02:00', '2024-01-02T09:30:00-0500', '2024-01-02T09:30:00+0530'])(
+    'accepts a real ISO date or zoned datetime: %s',
+    (timestamp) => {
+      const dataset = { ...validDataset, bars: [{ ...validDataset.bars[0], timestamp }] }
+      expect(marketDataSetSchema.safeParse(dataset).success).toBe(true)
+    },
+  )
+
+  it('rejects an impossible corporate-action date through the shared timestamp schema', () => {
+    const dataset = {
+      ...validDataset,
+      dividends: [{ exDate: '2024-02-30', amount: 1 }],
+      splits: [{ exDate: '2024-04-31', numerator: 2, denominator: 1 }],
+    }
+    const result = marketDataSetSchema.safeParse(dataset)
+    expect(result.success).toBe(false)
+    if (!result.success) {
+      expect(result.error.issues.map((issue) => issue.path.join('.'))).toEqual([
+        'dividends.0.exDate',
+        'splits.0.exDate',
+      ])
+    }
+  })
+
   it('accepts a structurally valid dataset', () => {
     const result = marketDataSetSchema.safeParse(validDataset)
     expect(result.success).toBe(true)
@@ -40,31 +72,5 @@ describe('marketDataSetSchema', () => {
       bars: [{ timestamp: '2024-01-02', open: -5, high: 1, low: 10, close: 185.14 }],
     }
     expect(marketDataSetSchema.safeParse(implausible).success).toBe(true)
-  })
-
-  it('accepts the corporate-action limit and rejects larger collections', () => {
-    const dividends = Array.from({ length: MAX_CORPORATE_ACTIONS }, (_, index) => ({
-      exDate: '2024-01-02',
-      amount: index + 1,
-    }))
-    const splits = Array.from({ length: MAX_CORPORATE_ACTIONS }, () => ({
-      exDate: '2024-01-02',
-      numerator: 2,
-      denominator: 1,
-    }))
-
-    expect(marketDataSetSchema.safeParse({ ...validDataset, dividends, splits }).success).toBe(true)
-    expect(
-      marketDataSetSchema.safeParse({
-        ...validDataset,
-        dividends: [...dividends, { exDate: '2024-01-03', amount: 1 }],
-      }).success,
-    ).toBe(false)
-    expect(
-      marketDataSetSchema.safeParse({
-        ...validDataset,
-        splits: [...splits, { exDate: '2024-01-03', numerator: 3, denominator: 1 }],
-      }).success,
-    ).toBe(false)
   })
 })

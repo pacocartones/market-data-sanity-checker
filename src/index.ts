@@ -6,7 +6,6 @@ export {
   fundamentalsSchema,
   identifiersSchema,
   currencySchema,
-  MAX_CORPORATE_ACTIONS,
 } from './schema/market-data'
 export type { MarketDataSet, Bar, Dividend, Split, Fundamentals, Identifiers } from './schema/market-data'
 

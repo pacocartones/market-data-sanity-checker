@@ -1,4 +1,4 @@
-import { assertCorporateActionBudget, type MarketDataSet } from '../schema/market-data'
+import type { MarketDataSet } from '../schema/market-data'
 import type { Finding, Severity } from '../report/types'
 import { SEVERITY_ORDER } from '../report/types'
 import { ACTION_FOR_SEVERITY } from '../rules/engine'
@@ -75,8 +75,6 @@ function collapseCompare(
 }
 
 export function runCompareRules(a: MarketDataSet, b: MarketDataSet, config: CompareConfig = {}): Finding[] {
-  assertCorporateActionBudget(a, 'dataset A')
-  assertCorporateActionBudget(b, 'dataset B')
   const alignment = buildCompareContext(a, b)
   const findings: Finding[] = []
 

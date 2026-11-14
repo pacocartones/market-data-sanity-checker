@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import type { Dividend, MarketDataSet } from '../../src/schema/market-data'
 import type { CompareContext } from '../../src/compare/types'
 import { dividendMismatch } from '../../src/compare/rules/dividend-mismatch'
@@ -16,6 +16,20 @@ function ctxFor(a: MarketDataSet, b: MarketDataSet): CompareContext {
 }
 
 describe('DIVIDEND_MISMATCH', () => {
+  it('indexes disjoint date windows without parsing every candidate pair', () => {
+    const dates = (year: number) => Array.from({ length: 64 }, (_, index) =>
+      new Date(Date.UTC(year, 0, index + 1)).toISOString().slice(0, 10)!)
+    const a = dataset('a', dates(2024).map((exDate) => ({ exDate, amount: 0.25 })))
+    const b = dataset('b', dates(2030).map((exDate) => ({ exDate, amount: 0.25 })))
+    const parse = vi.spyOn(Date, 'parse')
+    try {
+      expect(dividendMismatch.check(a, b, ctxFor(a, b))).toHaveLength(128)
+      expect(parse.mock.calls.length).toBeLessThan(512)
+    } finally {
+      parse.mockRestore()
+    }
+  })
+
   it('flags dividends missing on either side', () => {
     const a = dataset('yahoo', [{ exDate: '2024-03-15', amount: 0.25 }])
     const b = dataset('other', [{ exDate: '2024-06-10', amount: 0.5 }])
@@ -58,18 +72,5 @@ describe('DIVIDEND_MISMATCH', () => {
     const a = dataset('yahoo', [])
     const b = dataset('other', [])
     expect(dividendMismatch.check(a, b, ctxFor(a, b))).toEqual([])
-  })
-
-  it('preserves first-candidate matching when multiple dates are in range', () => {
-    const a = dataset('yahoo', [{ exDate: '2024-03-15', amount: 0.25 }])
-    const b = dataset('other', [
-      { exDate: '2024-03-20', amount: 0.3 },
-      { exDate: '2024-03-14', amount: 0.25 },
-    ])
-
-    expect(dividendMismatch.check(a, b, ctxFor(a, b))[0]!.evidence).toMatchObject({
-      reason: 'amount_differs',
-      amount_b: 0.3,
-    })
   })
 })

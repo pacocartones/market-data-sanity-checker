@@ -1,5 +1,4 @@
 import type { Finding } from '../../report/types'
-import { assertCorporateActionBudget } from '../../schema/market-data'
 import type { Rule } from '../types'
 
 const DAY_MS = 24 * 60 * 60 * 1000
@@ -29,14 +28,12 @@ export const divDuplicated: Rule = {
   },
 
   check(data, context) {
-    assertCorporateActionBudget(data)
     const { windowDays, amountTolerancePct } = context.config.params as {
       windowDays: number
       amountTolerancePct: number
     }
+    const findings: Finding[] = []
     const dividends = data.dividends ?? []
-    let representative: Finding | undefined
-    let occurrences = 0
 
     for (let first = 0; first < dividends.length; first += 1) {
       for (let second = first + 1; second < dividends.length; second += 1) {
@@ -54,8 +51,7 @@ export const divDuplicated: Rule = {
           scale === 0 ? a.amount === b.amount : Math.abs(a.amount - b.amount) / scale <= amountTolerancePct
         if (!sameAmount) continue
 
-        occurrences += 1
-        representative ??= {
+        findings.push({
           rule: 'DIV_DUPLICATED',
           severity: context.config.severity,
           action: 'flag',
@@ -72,12 +68,10 @@ export const divDuplicated: Rule = {
             duplicate_exDate: b.exDate,
             days_apart: Math.round(daysApart),
           },
-        }
+        })
       }
     }
 
-    if (!representative) return []
-    representative.occurrences = occurrences
-    return [representative]
+    return findings
   },
 }
