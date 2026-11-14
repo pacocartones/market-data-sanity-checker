@@ -213,8 +213,9 @@ describe.skipIf(process.platform === 'win32')('GitHub Action wrapper', () => {
       // Unlike a start-of-line check, this excludes the legacy protocol even
       // after a benign prefix, and regardless of the command name or properties.
       expect(result.stderr).not.toMatch(/##\[|(?:^|\r?\n)\s*::/)
+      const terminalSafeHeader = header.replaceAll('\n', String.raw`\n`)
       expect(JSON.parse(result.stderr.slice(prefix.length).trimEnd())).toBe(
-        `mdsc: CSV is missing required column(s): timestamp. Found columns: ${header}, open, high, low, close\n`,
+        `mdsc: CSV is missing required column(s): timestamp. Found columns: ${terminalSafeHeader}, open, high, low, close\n`,
       )
       expect(result.stdout).toContain('::error title=market-data-sanity-checker::mdsc produced no report')
     },
