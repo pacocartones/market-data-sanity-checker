@@ -36,18 +36,24 @@ function resolveContext(rule: Rule, config: CheckerConfig, profile: DataProfile)
 }
 
 /**
- * Collapses a rule's occurrences into ONE finding: representative = first
- * occurrence, `occurrences` = total count. A rule fires once per dataset —
- * 847 bad bars must not produce 847 report lines nor 847 penalties.
+ * Collapses a rule's occurrences into ONE finding: representative = highest
+ * severity occurrence (first among ties), `occurrences` = total count. A rule
+ * fires once per dataset — 847 bad bars must not produce 847 report lines nor
+ * 847 penalties.
  *
- * Severity: the representative's own severity is preserved — a rule may
- * deliberately degrade a lighter case to a lower severity (documented in the
- * rule contract). Only an explicit USER override in the config forces all of
- * the rule's findings to one severity. The action always follows the final
- * severity, so the pair stays consistent.
+ * Severity: without an override, the most severe occurrence wins regardless
+ * of input order; a rule may still deliberately degrade a lighter case when
+ * every occurrence is lighter. An explicit USER override in the config keeps
+ * the first representative and forces all findings to one severity. The
+ * action always follows the final severity, so the pair stays consistent.
  */
 function collapse(rule: Rule, occurrences: Finding[], forcedSeverity?: Severity): Finding {
-  const representative = occurrences[0]!
+  const representative =
+    forcedSeverity === undefined
+      ? occurrences.reduce((highest, occurrence) =>
+          SEVERITY_ORDER[occurrence.severity] < SEVERITY_ORDER[highest.severity] ? occurrence : highest,
+        )
+      : occurrences[0]!
   const severity = forcedSeverity ?? representative.severity
   return {
     ...representative,

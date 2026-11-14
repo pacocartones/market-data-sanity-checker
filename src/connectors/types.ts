@@ -23,6 +23,14 @@ export interface FetchOptions {
 /** Default per-request timeout for connector HTTP calls. */
 export const DEFAULT_TIMEOUT_MS = 15_000
 
+/** Maximum decoded response bytes buffered from any provider. */
+export const MAX_PROVIDER_RESPONSE_BYTES = 8 * 1024 * 1024
+
+/** Maximum entries accepted in a provider-controlled daily or event collection. */
+export const MAX_PROVIDER_COLLECTION_ITEMS = 25_000
+
+const INITIAL_RESPONSE_BUFFER_BYTES = 16 * 1024
+
 /**
  * True when `error` is the rejection produced by a fired AbortSignal.timeout
  * (a TimeoutError DOMException). Structural check: DOMException does not
@@ -39,6 +47,90 @@ export function isTimeoutError(error: unknown): boolean {
 
 export class ConnectorError extends Error {
   override name = 'ConnectorError'
+}
+
+function responseSizeError(provider: string): ConnectorError {
+  return new ConnectorError(
+    `${provider} response exceeds the ${MAX_PROVIDER_RESPONSE_BYTES}-byte limit`,
+  )
+}
+
+/**
+ * Reads and parses a provider response without allowing a fast body to bypass
+ * the request timeout's resource protection. The stream limit applies to the
+ * decoded bytes exposed by fetch, including when Content-Length is absent or
+ * describes a smaller encoded body.
+ */
+export async function readProviderJson(response: Response, provider: string): Promise<unknown> {
+  const contentLength = response.headers.get('content-length')
+  if (contentLength !== null && /^\d+$/.test(contentLength.trim())) {
+    const parsed = Number(contentLength)
+    if (!Number.isSafeInteger(parsed) || parsed > MAX_PROVIDER_RESPONSE_BYTES) {
+      throw responseSizeError(provider)
+    }
+  }
+
+  const reader = response.body?.getReader()
+  if (!reader) return JSON.parse('') as unknown
+
+  let bytes = new Uint8Array(INITIAL_RESPONSE_BUFFER_BYTES)
+  let length = 0
+
+  try {
+    while (true) {
+      const { done, value } = await reader.read()
+      if (done) break
+
+      const nextLength = length + value.byteLength
+      if (nextLength > MAX_PROVIDER_RESPONSE_BYTES) {
+        try {
+          await reader.cancel()
+        } catch {
+          // Preserve the deterministic size error even if stream cancellation fails.
+        }
+        throw responseSizeError(provider)
+      }
+
+      if (nextLength > bytes.byteLength) {
+        let capacity = bytes.byteLength
+        while (capacity < nextLength) {
+          capacity = Math.min(capacity * 2, MAX_PROVIDER_RESPONSE_BYTES)
+        }
+        const grown = new Uint8Array(capacity)
+        grown.set(bytes.subarray(0, length))
+        bytes = grown
+      }
+      bytes.set(value, length)
+      length = nextLength
+    }
+  } finally {
+    reader.releaseLock()
+  }
+
+  return JSON.parse(new TextDecoder().decode(bytes.subarray(0, length))) as unknown
+}
+
+/** Rejects provider collections before callers copy, sort, or traverse them. */
+export function assertProviderCollectionLimit(
+  collection: readonly unknown[] | Record<string, unknown>,
+  provider: string,
+  collectionName: string,
+): void {
+  if (Array.isArray(collection)) {
+    if (collection.length <= MAX_PROVIDER_COLLECTION_ITEMS) return
+  } else {
+    let count = 0
+    for (const key in collection) {
+      if (!Object.prototype.hasOwnProperty.call(collection, key)) continue
+      count += 1
+      if (count > MAX_PROVIDER_COLLECTION_ITEMS) break
+    }
+    if (count <= MAX_PROVIDER_COLLECTION_ITEMS) return
+  }
+
+  throw new ConnectorError(
+    `${provider} ${collectionName} exceeds the ${MAX_PROVIDER_COLLECTION_ITEMS}-item limit`,
+  )
 }
 
 export interface Connector {
