@@ -27,6 +27,28 @@ function steadySeries(closes: number[], volumes?: number[]): MarketDataSet {
 const STEADY_CLOSES = Array.from({ length: 30 }, (_, i) => 100 * (1 + 0.001 * Math.sin(i) + 0.0005 * i))
 
 describe('RETURN_SPIKE', () => {
+  it('reports the later warning rather than an earlier info outlier', () => {
+    const returns = [
+      -0.015, -0.012, -0.010, -0.009, -0.008, -0.007, -0.006, -0.005, -0.004, -0.002,
+      0.05, 0.002, 0.004, 0.005, 0.006, 0.007, 0.008, 0.009, 0.010, 0.012, 0.015, 0.09,
+    ]
+    const closes = returns.reduce<number[]>((series, dailyReturn) => {
+      series.push(series[series.length - 1]! * (1 + dailyReturn))
+      return series
+    }, [100])
+    const data = steadySeries(closes)
+    const finding = runRules(data).find((item) => item.rule === 'RETURN_SPIKE')
+
+    expect(finding).toMatchObject({
+      severity: 'warning',
+      action: 'flag',
+      occurrences: 2,
+      where: { date: data.bars.at(-1)!.timestamp },
+      evidence: { return: 0.09 },
+    })
+    expect(finding?.explanation).toContain('9.0%')
+  })
+
   it('flags a violent non-split move in steady data', () => {
     const closes = [...STEADY_CLOSES]
     closes[15] = closes[14]! * 1.32 // +32% overnight: matches no split ratio
