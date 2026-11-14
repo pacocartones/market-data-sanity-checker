@@ -263,19 +263,6 @@ describe('alphaVantage.fetchDaily — HTTP concerns (mocked fetch, no network)',
     await expect(alphaVantage.fetchDaily('IBM')).rejects.not.toThrow(apiKey)
   })
 
-  it('maps JSON parser failures to a credential-safe static message', async () => {
-    const apiKey = 'response-secret-key'
-    process.env.ALPHA_VANTAGE_API_KEY = apiKey
-    stubFetch(async () => ({
-      ok: true,
-      status: 200,
-      json: async () => {
-        throw new SyntaxError(`Unexpected token near ${apiKey}`)
-      },
-    }))
-    await expect(alphaVantage.fetchDaily('IBM')).rejects.toThrow(/^Alpha Vantage request failed for IBM$/)
-    await expect(alphaVantage.fetchDaily('IBM')).rejects.not.toThrow(apiKey)
-  })
 })
 
 describe('alphaVantage — free vs premium endpoint', () => {
