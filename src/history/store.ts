@@ -7,10 +7,11 @@
  * hand-edited history file must never break the command, corrupt lines are
  * skipped instead.
  */
-import { appendFile, mkdir, readFile } from 'node:fs/promises'
+import { readFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import type { SanityReport } from '../report/types'
 import { escapeTerminalText } from '../report/terminal'
+import { appendFileSecurely } from '../filesystem/secure-output'
 
 /** One recorded check — a compact, self-contained snapshot of a SanityReport. */
 export interface HistoryEntry {
@@ -53,9 +54,8 @@ export function historyEntryFromReport(report: SanityReport): HistoryEntry {
  * directory recursively. Returns the path of the history file.
  */
 export async function appendHistory(dir: string, entry: HistoryEntry): Promise<string> {
-  await mkdir(dir, { recursive: true })
   const filePath = join(dir, historyFileName(entry.symbol))
-  await appendFile(filePath, JSON.stringify(entry) + '\n', 'utf8')
+  await appendFileSecurely(filePath, JSON.stringify(entry) + '\n')
   return filePath
 }
 

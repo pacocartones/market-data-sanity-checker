@@ -1,5 +1,5 @@
 import { execFile } from 'node:child_process'
-import { access, mkdtemp, readFile, rm } from 'node:fs/promises'
+import { access, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -25,6 +25,7 @@ const TIMEOUT_MS = 30_000
 interface ActionResult {
   code: number
   stdout: string
+  stderr: string
   outputs: Record<string, string>
   summary: string
 }
@@ -45,13 +46,15 @@ async function runAction(env: Record<string, string>): Promise<ActionResult> {
   }
   let code = 0
   let stdout: string
+  let stderr: string
   try {
-    ;({ stdout } = await execFileAsync('bash', [RUN], { cwd: REPO_ROOT, env: fullEnv }))
+    ;({ stdout, stderr } = await execFileAsync('bash', [RUN], { cwd: REPO_ROOT, env: fullEnv }))
   } catch (error) {
-    const failed = error as { code?: unknown; stdout?: unknown }
+    const failed = error as { code?: unknown; stdout?: unknown; stderr?: unknown }
     if (typeof failed.code !== 'number') throw error // spawn failure, not an exit code
     code = failed.code
     stdout = typeof failed.stdout === 'string' ? failed.stdout : ''
+    stderr = typeof failed.stderr === 'string' ? failed.stderr : ''
   }
   const read = (path: string) => readFile(path, 'utf8').catch(() => '')
   const outputs = Object.fromEntries(
@@ -60,7 +63,7 @@ async function runAction(env: Record<string, string>): Promise<ActionResult> {
       .filter(Boolean)
       .map((line) => [line.slice(0, line.indexOf('=')), line.slice(line.indexOf('=') + 1)]),
   )
-  return { code, stdout, outputs, summary: await read(summaryPath) }
+  return { code, stdout, stderr, outputs, summary: await read(summaryPath) }
 }
 
 beforeAll(async () => {
@@ -108,6 +111,60 @@ describe.skipIf(process.platform === 'win32')('GitHub Action wrapper', () => {
   )
 
   it(
+    'encodes CLI diagnostics before replaying them to the runner log',
+    async () => {
+      const csv = join(dir, 'workflow-command.csv')
+      await writeFile(
+        csv,
+        '"date\n::add-mask::forged",open,high,low,close\n2024-01-02,100,101,99,100.5\n',
+        'utf8',
+      )
+
+      const result = await runAction({ MDSC_FILE: csv })
+      const combinedLog = `${result.stdout}\n${result.stderr}`
+
+      expect(result.code).toBe(2)
+      expect(result.stderr).toContain(String.raw`\n::add-mask::forged`)
+      expect(result.stderr.trim().split('\n')).toHaveLength(1)
+      expect(combinedLog).not.toMatch(/(?:^|\r?\n)::add-mask::forged/)
+      expect(result.stdout).toContain('::error title=market-data-sanity-checker::mdsc produced no report')
+    },
+    TIMEOUT_MS,
+  )
+
+  // Runner v2.338.2 ActionCommand.TryParse searches for ##[ anywhere in a line,
+  // including inside JSON strings. A line prefix only protects the V2 :: syntax.
+  it.each([
+    ['inline warning', 'date##[warning]forged'],
+    ['legacy properties', 'date##[error title=forged]message'],
+    ['mask command', 'date##[add-mask]forged'],
+    ['multiline stop command', 'date\n##[stop-commands]forged'],
+    ['ordinary punctuation', 'date#price\\u0023 café%0a'],
+  ])(
+    'preserves the %s diagnostic as data rather than a runner command',
+    async (_name, header) => {
+      const csv = join(dir, 'legacy-command.csv')
+      await writeFile(csv, `"${header}",open,high,low,close\n2024-01-02,100,101,99,100.5\n`, 'utf8')
+
+      const result = await runAction({ MDSC_FILE: csv })
+      const prefix = 'mdsc: CLI diagnostics: '
+
+      expect(result.code).toBe(2)
+      expect(result.outputs).toEqual({})
+      expect(result.stderr.startsWith(prefix)).toBe(true)
+      expect(result.stderr.trimEnd().split('\n')).toHaveLength(1)
+      // Unlike a start-of-line check, this excludes the legacy protocol even
+      // after a benign prefix, and regardless of the command name or properties.
+      expect(result.stderr).not.toMatch(/##\[|(?:^|\r?\n)\s*::/)
+      expect(JSON.parse(result.stderr.slice(prefix.length).trimEnd())).toBe(
+        `mdsc: CSV is missing required column(s): timestamp. Found columns: ${header}, open, high, low, close\n`,
+      )
+      expect(result.stdout).toContain('::error title=market-data-sanity-checker::mdsc produced no report')
+    },
+    TIMEOUT_MS,
+  )
+
+  it(
     'gates on warnings with fail-on warning, and on min-score',
     async () => {
       const clean = fixture('ohlcv-valid.csv')
@@ -144,6 +201,43 @@ describe.skipIf(process.platform === 'win32')('GitHub Action wrapper', () => {
       expect(result.code).toBe(2)
       expect(result.stdout).toContain(message)
       expect(result.outputs).toEqual({})
+    },
+    TIMEOUT_MS,
+  )
+
+  it(
+    'encodes rejected action inputs before emitting an error annotation',
+    async () => {
+      const result = await runAction({
+        MDSC_FILE: fixture('ohlcv-valid.csv'),
+        MDSC_VERSION: 'latest\n::warning::forged',
+      })
+
+      expect(result.code).toBe(2)
+      expect(result.stdout).toContain(String.raw`\n::warning::forged`)
+      expect(result.stdout.trim().split('\n')).toHaveLength(1)
+      expect(result.stdout).not.toMatch(/(?:^|\r?\n)::warning::forged/)
+    },
+    TIMEOUT_MS,
+  )
+
+  it(
+    'preserves rejected input inside the one intended error annotation',
+    async () => {
+      const version = 'latest\r\n##[warning]forged%0A::add-mask::value#café'
+      const result = await runAction({ MDSC_FILE: fixture('ohlcv-valid.csv'), MDSC_VERSION: version })
+      const prefix = '::error title=market-data-sanity-checker::'
+
+      expect(result.code).toBe(2)
+      expect(result.outputs).toEqual({})
+      expect(result.stderr).toBe('')
+      expect(result.stdout.startsWith(prefix)).toBe(true)
+      expect(result.stdout.trimEnd().split('\n')).toHaveLength(1)
+      expect(result.stdout).not.toContain('##[')
+      // The runner unescapes %25 after parsing the fixed V2 error command.
+      expect(JSON.parse(result.stdout.slice(prefix.length).trimEnd().replaceAll('%25', '%'))).toBe(
+        `'version' must be a major, major.minor or exact version, got: ${version}`,
+      )
     },
     TIMEOUT_MS,
   )
