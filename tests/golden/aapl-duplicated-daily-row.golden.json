@@ -1,0 +1,8 @@
+{
+  "fixture": "aapl-duplicated-daily-row.json",
+  "sanity_score": 45,
+  "findings": [
+    { "rule": "TS_DUPLICATED", "severity": "critical", "action": "block", "where": { "date": "2021-01-29" } },
+    { "rule": "INSUFFICIENT_DATA", "severity": "warning", "action": "flag", "where": null }
+  ]
+}
