@@ -1,11 +1,11 @@
 # Provider scoreboard
 
-Generated: 2026-10-17T12:20:27.750Z · basket: 30 liquid symbols · range: 1y · reproducible with `pnpm scoreboard`
+Generated: 2026-11-09T14:02:12.424Z · basket: 30 liquid symbols · range: 1y · reproducible with `pnpm scoreboard`
 
 | Provider | Symbols | Mean sanity score | Min | Critical | Warning | Info |
 |---|---|---|---|---|---|---|
-| yahoo | 30 (+0 failed) | 91.3 | 45 | 1 | 10 | 14 |
-| alpha-vantage | 23 (+2 failed, 5 skipped: daily cap) | 87.2 | 55 | 1 | 7 | 30 |
+| yahoo | 30 (+0 failed) | 88.8 | 45 | 1 | 15 | 14 |
+| alpha-vantage | 25 (+0 failed, 5 skipped: daily cap) | 84.4 | 40 | 1 | 12 | 34 |
 
 - alpha-vantage skipped (daily request cap): GLD, TLT, EEM, ARKK, NFLX
 
@@ -21,7 +21,7 @@ Generated: 2026-10-17T12:20:27.750Z · basket: 30 liquid symbols · range: 1y ·
 
 ### alpha-vantage
 
-- **CAT** — 55/100 (PRICE_SPIKE_INTRADAY, CURRENCY_SUSPECT)
+- **CAT** — 40/100 (PRICE_SPIKE_INTRADAY, RETURN_SPIKE, CURRENCY_SUSPECT)
 - **MSFT** — 80/100 (RETURN_SPIKE, CURRENCY_SUSPECT)
 - **NVDA** — 80/100 (RETURN_SPIKE, CURRENCY_SUSPECT)
 - **AMZN** — 80/100 (RETURN_SPIKE, CURRENCY_SUSPECT)
@@ -42,15 +42,17 @@ Generated: 2026-10-17T12:20:27.750Z · basket: 30 liquid symbols · range: 1y ·
 | JPM | 85 | 100 | DIVIDEND_MISMATCH (warning, 2026-01-06) |
 | V | 85 | 100 | DIVIDEND_MISMATCH (warning, 2025-11-12) |
 | KO | 85 | 100 | DIVIDEND_MISMATCH (warning, 2025-12-01) |
-| PG | 85 | 100 | DIVIDEND_MISMATCH (warning, 2025-10-24) |
+| PG | 85 | 100 | DIVIDEND_MISMATCH (warning, 2026-01-23) |
 | JNJ | 85 | 100 | DIVIDEND_MISMATCH (warning, 2025-11-25) |
 | XOM | 85 | 100 | DIVIDEND_MISMATCH (warning, 2025-11-14) |
 | WMT | 85 | 100 | DIVIDEND_MISMATCH (warning, 2025-12-12) |
 | BRK-B | 100 | 100 | none |
 | GE | 85 | 100 | DIVIDEND_MISMATCH (warning, 2025-12-29) |
-| CAT | 85 | 100 | DIVIDEND_MISMATCH (warning, 2025-10-20) |
+| CAT | 85 | 100 | DIVIDEND_MISMATCH (warning, 2026-01-20) |
 | BA | 100 | 100 | none |
-| HON | 65 | 100 | DIVIDEND_MISMATCH (warning, 2025-11-14); SPLIT_MISMATCH (warning, 2025-10-30); PRICE_DATE_MISMATCH (info, 2026-05-27) |
+| HON | 65 | 100 | DIVIDEND_MISMATCH (warning, 2025-11-14); SPLIT_MISMATCH (warning, 2026-06-29); PRICE_DATE_MISMATCH (info, 2026-06-17) |
 | SPY | 85 | 100 | DIVIDEND_MISMATCH (warning, 2025-12-19) |
 | QQQ | 85 | 100 | DIVIDEND_MISMATCH (warning, 2025-12-22) |
 | IWM | 85 | 100 | DIVIDEND_MISMATCH (warning, 2025-12-16) |
+| DIA | 85 | 100 | DIVIDEND_MISMATCH (warning, 2025-11-21) |
+| VTI | 85 | 100 | DIVIDEND_MISMATCH (warning, 2025-12-22) |
