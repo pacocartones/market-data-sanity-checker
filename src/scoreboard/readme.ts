@@ -39,7 +39,21 @@ interface ScoreboardReadmeInput {
   excluded: ExcludedProvider[]
   skipped: SkippedProvider[]
   comparisons: ScoreboardComparison[]
+  /** Paragraphs shown under the cross-provider heading, before the table (for example, a plan limit). */
+  comparisonNotes?: string[]
 }
+
+/**
+ * Shown next to the cross-provider table when Alpha Vantage runs on its free plan. That plan
+ * returns the latest 100 daily bars, unadjusted, with no dividends or splits, so a corporate
+ * action the other source reports cannot be matched there. The note keeps the table from reading
+ * as a data defect of either feed.
+ */
+export const ALPHA_VANTAGE_FREE_PLAN_NOTE =
+  'Alpha Vantage runs here on its free plan, which returns the latest 100 daily bars, unadjusted, ' +
+  'without dividends or splits. A `DIVIDEND_MISMATCH` or `SPLIT_MISMATCH` against Alpha Vantage in ' +
+  'this table therefore means that the event is outside what that plan returns, not that either feed ' +
+  'has wrong data. Corporate actions can only be compared between sources whose plans both include them.'
 
 function formatFindings(findings: ScoreboardFinding[]): string {
   if (findings.length === 0) return 'none'
@@ -56,6 +70,7 @@ export function renderScoreboardReadme({
   excluded,
   skipped,
   comparisons,
+  comparisonNotes = [],
 }: ScoreboardReadmeInput): string {
   const lines = [
     '# Provider scoreboard',
@@ -94,6 +109,7 @@ export function renderScoreboardReadme({
       ? [
           '## Cross-provider consistency',
           '',
+          ...comparisonNotes.flatMap((note) => [note, '']),
           '| Symbol | Consistency score | Compared dates | Findings |',
           '|---|---|---|---|',
           ...comparisons.map(

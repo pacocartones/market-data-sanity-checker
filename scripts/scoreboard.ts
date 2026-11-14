@@ -26,6 +26,7 @@ import { splitByDailyLimit } from '../src/connectors/types'
 import { checkMarketData } from '../src/checker'
 import { compareDatasets } from '../src/compare/comparator'
 import {
+  ALPHA_VANTAGE_FREE_PLAN_NOTE,
   renderScoreboardReadme,
   type ScoreboardComparison,
   type ScoreboardProviderResult,
@@ -201,6 +202,14 @@ await writeFile(
   JSON.stringify({ generated_at: generatedAt, basket: BASKET, range: '1y', providers: providerResults, excluded, comparisons }, null, 2),
 )
 
+// Alpha Vantage's free plan returns no dividends or splits, so every corporate action the other
+// source reports shows up as "missing" there. Say so next to the table rather than let it read as a
+// data defect of either feed.
+const comparisonNotes =
+  active.some((connector) => connector.name === 'alpha-vantage') && process.env.ALPHA_VANTAGE_PREMIUM !== 'true'
+    ? [ALPHA_VANTAGE_FREE_PLAN_NOTE]
+    : []
+
 await writeFile(
   'scoreboard/README.md',
   renderScoreboardReadme({
@@ -210,6 +219,7 @@ await writeFile(
     excluded,
     skipped: skippedForReadme,
     comparisons,
+    comparisonNotes,
   }),
 )
 
