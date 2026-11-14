@@ -382,6 +382,49 @@ describe('history — --format', () => {
     },
     CLI_TIMEOUT_MS,
   )
+
+  it('keeps hand-edited history terminal-safe while preserving JSON values', async () => {
+    await withTempDir(async (dir) => {
+      const hostile = {
+        ...entry('2026-\u001b[2J\nspoof', 90),
+        rules: ['RULE\u001b]8;;https://evil.example\u0007\nforged\u202e'],
+      }
+      await writeFile(join(dir, 'AAPL.jsonl'), JSON.stringify(hostile) + '\n')
+
+      const tableResult = await runCli(['history', '--symbol', 'AAPL', '--history-dir', dir])
+      expect(tableResult.code).toBe(0)
+      expectTerminalSafeText(tableResult.stdout)
+      expect(tableResult.stdout).toContain('\\n')
+      expect(tableResult.stdout).toContain('\\u202E')
+      expect(tableResult.stdout).not.toContain('evil.example')
+
+      const jsonResult = await runCli([
+        'history',
+        '--symbol',
+        'AAPL',
+        '--history-dir',
+        dir,
+        '--format',
+        'json',
+      ])
+      expect(jsonResult.code).toBe(0)
+      expect(JSON.parse(jsonResult.stdout)).toEqual({ symbol: 'AAPL', entries: [hostile] })
+    })
+  })
+
+  it('keeps an empty-history symbol inside one terminal-safe guidance block', async () => {
+    await withTempDir(async (dir) => {
+      const symbol = 'AA\u001b]8;;https://evil.example\u0007PL\u001b]8;;\u0007\nspoof\u202e'
+      const result = await runCli(['history', '--symbol', symbol, '--history-dir', dir])
+
+      expect(result.code).toBe(0)
+      expect(result.stderr).toBe('')
+      expectTerminalSafeText(result.stdout)
+      expect(result.stdout).toContain('\\n')
+      expect(result.stdout).toContain('\\u202E')
+      expect(result.stdout).not.toContain('evil.example')
+    })
+  })
 })
 
 describe('bare mdsc', () => {
@@ -513,6 +556,19 @@ describe('rules — catalog listing', () => {
     expect(result.code).toBe(1)
     expect(result.stderr).toContain('unknown rule "ZZZ_NONEXISTENT_ZZZ"')
     expect(result.stderr).not.toMatch(/did you mean/)
+  })
+
+  it('keeps an unknown rule id on one terminal-safe diagnostic line', async () => {
+    const id = 'ZZZ\u001b]8;;https://evil.example\u0007BAD\u001b]8;;\u0007\nspoof\u202e'
+    const result = await runCli(['rules', id])
+
+    expect(result.code).toBe(1)
+    expect(result.stdout).toBe('')
+    expectTerminalSafeText(result.stderr)
+    expect(result.stderr.trimEnd().split('\n')).toHaveLength(1)
+    expect(result.stderr).toContain('\\n')
+    expect(result.stderr).toContain('\\u202E')
+    expect(result.stderr).not.toContain('evil.example')
   })
 })
 

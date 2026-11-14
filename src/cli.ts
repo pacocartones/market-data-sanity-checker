@@ -430,15 +430,16 @@ program
         console.log(JSON.stringify({ symbol: options.symbol, entries }, null, 2))
         return
       }
+      const symbol = escapeTerminalText(options.symbol)
       if (entries.length === 0) {
-        console.log(`\nNo audit history for ${options.symbol}. Run: mdsc check --provider yahoo --symbol ${options.symbol} --save\n`)
+        console.log(`\nNo audit history for ${symbol}. Run: mdsc check --provider yahoo --symbol ${symbol} --save\n`)
         return
       }
-      console.log(`\nAudit history — ${options.symbol}\n`)
+      console.log(`\nAudit history — ${symbol}\n`)
       console.log(formatHistory(entries))
       console.log()
     } catch (error) {
-      console.error(`mdsc: ${error instanceof Error ? error.message : String(error)}`)
+      console.error(`mdsc: ${formatTerminalError(error)}`)
       process.exitCode = 2
     }
   })
@@ -487,7 +488,7 @@ program
         const suggestionText = suggestions.length > 0
           ? `\nmdsc: did you mean one of: ${suggestions.join(', ')}?`
           : ''
-        console.error(`mdsc: unknown rule "${id}"${suggestionText}`)
+        console.error(`mdsc: unknown rule "${escapeTerminalText(id)}"${suggestionText}`)
         process.exitCode = 1
         return
       }
