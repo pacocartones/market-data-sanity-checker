@@ -1,8 +1,39 @@
 import type { Finding, SanityReport } from './types'
 import type { ComparisonReport } from '../compare/comparator'
 
+const ZERO_WIDTH_SPACE = '\u200b'
+
+function foldLines(value: string): string {
+  return value.replaceAll(/[\r\n]+/g, ' ')
+}
+
+/**
+ * GitHub applies autolinks and other extensions after processing CommonMark
+ * backslash escapes. Separators keep linkable tokens and emoji shortcodes as
+ * visible text; paired dollar delimiters use a full-width opener because even
+ * escaped ASCII dollars start GitHub's math extension.
+ */
+function neutralizeGithubExtensions(value: string): string {
+  return value
+    .replaceAll(/\bhttps?(?=:\/\/)/gi, (scheme) => `${scheme}${ZERO_WIDTH_SPACE}`)
+    .replaceAll(/\bwww(?=\.)/gi, (www) => `${www}${ZERO_WIDTH_SPACE}`)
+    .replaceAll(/@(?=[a-z0-9-]+(?:\.[a-z0-9-]+)+\b)/gi, `@${ZERO_WIDTH_SPACE}`)
+    .replaceAll(/@(?=[a-z0-9](?:[a-z0-9-]{0,38})\b)/gi, `@${ZERO_WIDTH_SPACE}`)
+    .replaceAll(/#(?=\d+\b)/g, `#${ZERO_WIDTH_SPACE}`)
+    .replaceAll(/\bGH-(?=\d+\b)/gi, (prefix) => `${prefix}${ZERO_WIDTH_SPACE}`)
+    .replaceAll(/\$(?=[^$]*\$)/g, '＄')
+    .replaceAll(/:(?=[a-z0-9_+-]{2,}:)/gi, `:${ZERO_WIDTH_SPACE}`)
+    .replaceAll(/\b(?=[0-9a-f]{7,40}\b)(?=[0-9a-f]*[a-f])[0-9a-f]{7,40}\b/gi, (sha) =>
+      `${sha[0]}${ZERO_WIDTH_SPACE}${sha.slice(1)}`,
+    )
+}
+
 export function escapeCell(value: string): string {
-  return value.replaceAll('\\', '\\\\').replaceAll('|', '\\|').replaceAll(/\r?\n/g, ' ')
+  const escaped = foldLines(value)
+    .replaceAll(/[\\[\]<>`*~&|]/g, '\\$&')
+    // Intraword underscores are literal in CommonMark and stable rule IDs rely on them.
+    .replaceAll(/(?<![a-z0-9])_|_(?![a-z0-9])/gi, '\\_')
+  return neutralizeGithubExtensions(escaped)
 }
 
 // The backslash must be doubled before the other escapes are added, otherwise an
@@ -16,6 +47,7 @@ const HEADING_ESCAPES: ReadonlyArray<readonly [string, string]> = [
   ['&', '\\&'],
   ['`', '\\`'],
   ['*', '\\*'],
+  ['~', '\\~'],
   ['_', '\\_'],
   ['|', '\\|'],
 ]
@@ -29,9 +61,9 @@ const HEADING_ESCAPES: ReadonlyArray<readonly [string, string]> = [
  * punctuation that can start a construct.
  */
 export function escapeHeading(value: string): string {
-  let out = value.replaceAll(/[\r\n]+/g, ' ')
+  let out = foldLines(value)
   for (const [from, to] of HEADING_ESCAPES) out = out.replaceAll(from, to)
-  return out
+  return neutralizeGithubExtensions(out)
 }
 
 function formatDate(where: Finding['where']): string {
@@ -42,7 +74,8 @@ function formatDate(where: Finding['where']): string {
 /** Renders a single-source SanityReport as Markdown suitable for PR comments or GITHUB_STEP_SUMMARY. */
 export function renderReportMarkdown(report: SanityReport): string {
   const lines: string[] = []
-  lines.push(`## ${escapeHeading(report.symbol)} (${escapeHeading(report.source)}) — sanity_score: ${report.sanity_score}/100`)
+  const score = escapeHeading(String(report.sanity_score))
+  lines.push(`## ${escapeHeading(report.symbol)} (${escapeHeading(report.source)}) — sanity_score: ${score}/100`)
   lines.push('')
   if (report.findings.length === 0) {
     lines.push('No findings.')
@@ -64,7 +97,8 @@ export function renderReportMarkdown(report: SanityReport): string {
 export function renderCompareMarkdown(report: ComparisonReport): string {
   const [sourceA, sourceB] = report.sources
   const lines: string[] = []
-  lines.push(`## ${escapeHeading(report.symbol)} — ${escapeHeading(sourceA)} vs ${escapeHeading(sourceB)} — consistency_score: ${report.consistency_score}/100`)
+  const score = escapeHeading(String(report.consistency_score))
+  lines.push(`## ${escapeHeading(report.symbol)} — ${escapeHeading(sourceA)} vs ${escapeHeading(sourceB)} — consistency_score: ${score}/100`)
   lines.push('')
   if (report.findings.length === 0) {
     lines.push('No findings.')
