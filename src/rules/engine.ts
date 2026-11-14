@@ -3,6 +3,8 @@ import type { Finding, RecommendedAction, Severity } from '../report/types'
 import { SEVERITY_ORDER } from '../report/types'
 import { simpleReturns, mad, median } from './stats'
 import { registry } from './registry'
+import { divDuplicated } from './corporate/div-duplicated'
+import { summarizeDuplicateDividends } from './corporate/div-duplicated-summary'
 import type { CheckerConfig, DataProfile, Rule, RuleContext } from './types'
 
 /** Severity → recommended action. Fixed mapping: the action is the severity's consequence. */
@@ -62,7 +64,7 @@ function collapse(rule: Rule, occurrences: Finding[], forcedSeverity?: Severity)
     action: ACTION_FOR_SEVERITY[severity],
     dimension: rule.meta.dimension,
     references: rule.meta.references,
-    occurrences: occurrences.length,
+    occurrences: occurrences.reduce((count, occurrence) => count + (occurrence.occurrences ?? 1), 0),
   }
 }
 
@@ -80,7 +82,12 @@ export function runRules(data: MarketDataSet, config: CheckerConfig = {}): Findi
     if (!context) continue
     let occurrences: Finding[]
     try {
-      occurrences = rule.check(data, context)
+      if (rule === divDuplicated) {
+        const summary = summarizeDuplicateDividends(data, context)
+        occurrences = summary ? [summary] : []
+      } else {
+        occurrences = rule.check(data, context)
+      }
     } catch (error) {
       throw new Error(
         `Rule ${rule.meta.id} threw — rules must be total functions: ${error instanceof Error ? error.message : String(error)}`,

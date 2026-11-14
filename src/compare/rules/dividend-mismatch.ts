@@ -1,13 +1,6 @@
 import type { Finding } from '../../report/types'
-import type { Dividend } from '../../schema/market-data'
 import type { CompareRule } from '../types'
-
-const MS_PER_DAY = 24 * 60 * 60 * 1000
-
-/** Absolute distance between two ex-dates, in calendar days. */
-function daysApart(x: string, y: string): number {
-  return Math.abs(Date.parse(x) - Date.parse(y)) / MS_PER_DAY
-}
+import { createDateWindowIndex } from '../date-window-index'
 
 /**
  * DIVIDEND_MISMATCH — a dividend present in one source is missing or carries
@@ -43,14 +36,13 @@ export const dividendMismatch: CompareRule = {
     }
     const dividendsA = a.dividends ?? []
     const dividendsB = b.dividends ?? []
-
-    const matchIn = (dividend: Dividend, candidates: readonly Dividend[]): Dividend | undefined =>
-      candidates.find((candidate) => daysApart(dividend.exDate, candidate.exDate) <= matchWindowDays)
+    const indexA = createDateWindowIndex(dividendsA)
+    const indexB = createDateWindowIndex(dividendsB)
 
     const findings: Finding[] = []
 
     for (const dividend of dividendsA) {
-      const match = matchIn(dividend, dividendsB)
+      const match = indexB.find(dividend.exDate, matchWindowDays)
       if (!match) {
         findings.push({
           rule: 'DIVIDEND_MISMATCH',
@@ -92,7 +84,7 @@ export const dividendMismatch: CompareRule = {
     }
 
     for (const dividend of dividendsB) {
-      if (matchIn(dividend, dividendsA)) continue
+      if (indexA.find(dividend.exDate, matchWindowDays)) continue
       findings.push({
         rule: 'DIVIDEND_MISMATCH',
         severity: context.config.severity,
