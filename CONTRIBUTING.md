@@ -118,6 +118,10 @@ commit the generated file with your PR.
   is accepted for branches in this repository. Other `codex-security/*` names must follow the normal
   naming rule instead. This is a branch-name exception only: it does not authenticate a tool or author,
   approve the patch, or exempt maintainer commits from the identity and attribution rules below.
+  - **Dependabot branches:** `dependabot/github_actions/<slug>` and `dependabot/npm_and_yarn/<slug>`
+    are accepted for branches in this repository only when Dependabot opened the pull request.
+    The workflow actor or a lookalike branch name does not grant this exception; maintainer commit
+    identity and attribution rules still apply.
 - **What a branch type means for the version** (maintainers' branches): `docs/`, `test/`, `ci/` and
   `chore/` carry no changeset; `fix/` is a patch; `feat/` is a minor (see `RELEASING.md`, rules 1
   and 9). If you contribute from a fork, add a changeset when your change affects users, whatever
