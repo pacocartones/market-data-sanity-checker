@@ -1,74 +1,94 @@
 name: Deploy API Docs
 
 on:
-  # Keep publication bound to reviewed default-branch pushes. A manual dispatch
-  # can select another ref and must not reach this privileged workflow.
   push:
     branches: [main]
+  workflow_dispatch:
 
 permissions:
   contents: read
-  # pages: write and id-token: write are only needed by the deploy job
-  # (deploy-pages), so they are scoped there — least privilege.
 
 concurrency:
-  group: "pages"
+  group: pages
   cancel-in-progress: false
 
 jobs:
-  build:
+  # Local guard only. External Pages/main controls are required before activation.
+  context:
+    if: github.repository == 'pacocartones/market-data-sanity-checker' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          ref: ${{ github.sha }}
           persist-credentials: false
-      
-      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
-      
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version: 22
-          cache: pnpm
-      
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+          node-version: 24
+      - id: context
+        run: node scripts/check-automation-context.mjs docs --check-main
+        env:
+          DOCS_AUTOMATION_READY: ${{ vars.DOCS_AUTOMATION_READY }}
+          GH_TOKEN: ${{ github.token }}
 
+  build:
+    needs: context
+    if: github.repository == 'pacocartones/market-data-sanity-checker' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+        # pnpm 11 and the package support this LTS runtime.
+      - run: pnpm install --frozen-lockfile
       - name: Generate API docs
         run: pnpm typedoc
-
-      # The coverage badge is measured on the default branch only. Fixed paths,
-      # no untrusted input. The file is published next to the API docs and read
-      # by the README's shields.io endpoint badge.
       - name: Measure coverage
         id: coverage
         if: github.ref == 'refs/heads/main'
-        # A failing test run must not take the API docs down: the badge is simply not
-        # refreshed (the badge step below only runs when the measurement succeeded).
         continue-on-error: true
         run: pnpm test:coverage
-
       - name: Write coverage badge
         if: github.ref == 'refs/heads/main' && steps.coverage.outcome == 'success'
         run: pnpm coverage:badge coverage/coverage-summary.json docs/api/coverage-badge.json
-
-      - name: Setup Pages
-        uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
-      
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+      - uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
+      - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
         with:
           path: ./docs/api
-  
+
   deploy:
+    needs: [context, build]
+    if: github.repository == 'pacocartones/market-data-sanity-checker' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     permissions:
+      contents: read
       pages: write
       id-token: write
-    runs-on: ubuntu-latest
-    needs: build
     steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+      - name: Recheck current main before publication
+        run: node scripts/check-automation-context.mjs docs --check-main
+        env:
+          DOCS_AUTOMATION_READY: ${{ vars.DOCS_AUTOMATION_READY }}
+          GH_TOKEN: ${{ github.token }}
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
