@@ -1,8 +1,9 @@
 import { stripVTControlCharacters } from 'node:util'
 
-// Cc covers C0/C1 (including ESC), Cf covers bidi and zero-width formatting,
-// Cs covers lone surrogates, and Zl/Zp cover Unicode line separators.
-const NON_PRINTABLE = /[\p{Cc}\p{Cf}\p{Cs}\p{Zl}\p{Zp}]/gu
+// Cc covers C0/C1 (including ESC), Cs covers lone surrogates, Zl/Zp cover
+// Unicode line separators, and Bidi_Control covers direction overrides and
+// isolates. Other Cf characters (for example ZWJ/ZWNJ) remain legitimate text.
+const NON_PRINTABLE = /[\p{Cc}\p{Cs}\p{Zl}\p{Zp}\p{Bidi_Control}]/gu
 
 function visibleCodePoint(character: string): string {
   if (character === '\n') return '\\n'
@@ -18,4 +19,9 @@ function visibleCodePoint(character: string): string {
 /** Neutralizes untrusted text before it is written to a terminal or control-aware log. */
 export function escapeTerminalText(value: string): string {
   return stripVTControlCharacters(value).replace(NON_PRINTABLE, visibleCodePoint)
+}
+
+/** Extracts and neutralizes an unknown thrown value for human CLI diagnostics. */
+export function formatTerminalError(error: unknown): string {
+  return escapeTerminalText(error instanceof Error ? error.message : String(error))
 }
