@@ -192,4 +192,37 @@ describe('formatHistory', () => {
   it('renders an empty history without crashing', () => {
     expect(formatHistory([])).toBe('no history entries')
   })
+
+  it('keeps hand-edited control-bearing cells in one terminal-safe row', () => {
+    const output = formatHistory([
+      makeEntry({
+        at: '2026-\u001b[2J\nspoof',
+        rules: ['RULE\u001b]8;;https://evil.example\u0007\nforged\u202e'],
+      }),
+    ])
+
+    expect(output.split('\n')).toHaveLength(3)
+    for (const character of ['\u001b', '\u0007', '\r', '\u202e']) {
+      expect(output).not.toContain(character)
+    }
+    expect(output).toContain('\\n')
+    expect(output).toContain('\\u202E')
+    expect(output).not.toContain('evil.example')
+  })
+
+  it('keeps hand-edited summary cells terminal-safe', () => {
+    const output = formatHistory([
+      makeEntry({
+        summary: {
+          critical: '1\nforged\u202e' as unknown as number,
+          warning: '0\u001b[2J' as unknown as number,
+          info: 0,
+        },
+      }),
+    ])
+
+    expect(output.split('\n')).toHaveLength(3)
+    for (const character of ['\u001b', '\r', '\u202e']) expect(output).not.toContain(character)
+    expect(output).toContain('1\\nforged\\u202E')
+  })
 })
