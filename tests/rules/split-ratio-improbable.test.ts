@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url'
 import { marketDataSetSchema } from '../../src/schema/market-data'
 import type { RuleContext } from '../../src/rules/types'
 import { splitRatioImprobable } from '../../src/rules/corporate/split-ratio-improbable'
+import { runRules } from '../../src/rules/engine'
 
 const ctx: RuleContext = {
   config: {
@@ -19,6 +20,37 @@ async function loadFixture(name: string) {
 }
 
 describe('SPLIT_RATIO_IMPROBABLE', () => {
+  it('uses the warning occurrence in a mixed bucket and preserves explicit overrides', async () => {
+    const data = await loadFixture('ge-reverse-split.json')
+    const spinOff = { exDate: '2024-03-01', numerator: 1907, denominator: 2000 }
+    const invalid = { exDate: '2024-03-04', numerator: 1, denominator: 1 }
+    const mixed = { ...data, splits: [spinOff, invalid] }
+    const find = (input: typeof mixed, severity?: 'info' | 'critical') =>
+      runRules(input, severity ? { rules: { SPLIT_RATIO_IMPROBABLE: { severity } } } : {})
+        .find((item) => item.rule === 'SPLIT_RATIO_IMPROBABLE')
+
+    expect(find(mixed)).toMatchObject({
+      severity: 'warning', action: 'flag', occurrences: 2,
+      where: { date: invalid.exDate }, evidence: { reason: 'identity' },
+    })
+    expect(find({ ...data, splits: [invalid, spinOff] })).toMatchObject({
+      severity: 'warning', occurrences: 2,
+      where: { date: invalid.exDate }, evidence: { reason: 'identity' },
+    })
+    expect(find({ ...data, splits: [spinOff] })).toMatchObject({
+      severity: 'info', action: 'review', occurrences: 1,
+      where: { date: spinOff.exDate }, evidence: { reason: 'near_one' },
+    })
+    expect(find(mixed, 'info')).toMatchObject({
+      severity: 'info', action: 'review', occurrences: 2,
+      where: { date: spinOff.exDate }, evidence: { reason: 'near_one' },
+    })
+    expect(find(mixed, 'critical')).toMatchObject({
+      severity: 'critical', action: 'block', occurrences: 2,
+      where: { date: spinOff.exDate }, evidence: { reason: 'near_one' },
+    })
+  })
+
   it("accepts GE's legitimate 1-for-8 reverse split (Aug 2021)", async () => {
     expect(splitRatioImprobable.check(await loadFixture('ge-reverse-split.json'), ctx)).toEqual([])
   })

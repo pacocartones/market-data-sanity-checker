@@ -126,6 +126,7 @@ describe('escapeCell', () => {
   it('escapes pipes and replaces newlines with spaces', () => {
     expect(escapeCell('hello|world')).toBe('hello\\|world')
     expect(escapeCell('line 1\nline 2\r\nline 3')).toBe('line 1 line 2 line 3')
+    expect(escapeCell('line 1\rline 2')).toBe('line 1 line 2')
   })
 
   it('doubles the backslash first, so a value ending in one cannot eat the pipe escape', () => {
@@ -150,6 +151,45 @@ describe('escapeCell', () => {
     expect(row).toBe('| BAR_MISSING | info | - | trailing backslash \\\\ ends the value |')
     expect(row?.match(/(?<!\\)\|/g)).toHaveLength(5)
   })
+
+  it('keeps active Markdown and GitHub autolinks inert without escaping ordinary punctuation', () => {
+    const hostile =
+      '[link](https://evil.example) ![pixel](https://evil.example/p.png) ' +
+      '<https://evil.example> <img src=x> &copy; `code` *bold* _emphasis_ ~~strike~~ ' +
+      'www.evil.example admin@evil.example @octocat #123 GH-456 octocat/Hello-World#1 $x^2$ :warning: ' +
+      '512e192a069dca8dfa6da394262673387ff975a1'
+
+    expect(escapeCell(hostile)).toBe(
+      '\\[link\\](https\u200b://evil.example) !\\[pixel\\](https\u200b://evil.example/p.png) ' +
+        '\\<https\u200b://evil.example\\> \\<img src=x\\> \\&copy; \\`code\\` \\*bold\\* \\_emphasis\\_ \\~\\~strike\\~\\~ ' +
+        'www\u200b.evil.example admin@\u200bevil.example @\u200boctocat #\u200b123 GH-\u200b456 octocat/Hello-World#\u200b1 ＄x^2$ :\u200bwarning: ' +
+        '5\u200b12e192a069dca8dfa6da394262673387ff975a1',
+    )
+
+    expect(
+      escapeCell('C:\\path PRICE_SPIKE_INTRADAY 2024-06-03 4.5% Price $185.15 (yahoo: 100 | alpha: 104.5)'),
+    ).toBe('C:\\\\path PRICE_SPIKE_INTRADAY 2024-06-03 4.5% Price $185.15 (yahoo: 100 \\| alpha: 104.5)')
+  })
+
+  it('encodes every attacker-controlled table field at the final renderer boundary', () => {
+    const report = reportWith('AAPL', [
+      {
+        rule: '[RULE](https://evil.example)',
+        severity: 'warning',
+        action: 'flag',
+        dimension: 'validity',
+        where: { date: 'www.evil.example' },
+        explanation:
+          'admin@evil.example @octocat #123 GH-456 512e192a069dca8dfa6da394262673387ff975a1 <img src=x> *bold*',
+      },
+    ])
+
+    expect(renderReportMarkdown(report).split('\n')[4]).toBe(
+      '| \\[RULE\\](https\u200b://evil.example) | warning | www\u200b.evil.example | ' +
+        'admin@\u200bevil.example @\u200boctocat #\u200b123 GH-\u200b456 ' +
+        '5\u200b12e192a069dca8dfa6da394262673387ff975a1 \\<img src=x\\> \\*bold\\* |',
+    )
+  })
 })
 
 describe('escapeHeading', () => {
@@ -164,12 +204,51 @@ describe('escapeHeading', () => {
   })
 
   it('escapes the markdown and html characters that can start a construct', () => {
-    expect(escapeHeading('[x](y) <i> & `z` * _ |')).toBe('\\[x\\](y) \\<i\\> \\& \\`z\\` \\* \\_ \\|')
+    expect(escapeHeading('[x](y) <i> & `z` * _ | ~~strike~~')).toBe(
+      '\\[x\\](y) \\<i\\> \\& \\`z\\` \\* \\_ \\| \\~\\~strike\\~\\~',
+    )
   })
 
   it('doubles the backslash before adding escapes', () => {
     // a literal backslash must not become the escape of the character after it
     expect(escapeHeading('a\\[b')).toBe('a\\\\\\[b')
+  })
+
+  it('neutralizes GitHub autolinks and references while preserving visible punctuation', () => {
+    expect(
+      escapeHeading(
+        'https://evil.example www.evil.example admin@evil.example @octocat #123 GH-456 $x^2$ :warning: 512e192a069dca8dfa6da394262673387ff975a1',
+      ),
+    ).toBe(
+      'https\u200b://evil.example www\u200b.evil.example admin@\u200bevil.example @\u200boctocat #\u200b123 GH-\u200b456 ＄x^2$ :\u200bwarning: 5\u200b12e192a069dca8dfa6da394262673387ff975a1',
+    )
+  })
+})
+
+describe('runtime-shaped report values', () => {
+  const hostileScore = '0\n\n[click](https://evil.example) <img src=x>' as unknown as number
+
+  it('keeps an untyped sanity score inside the check heading', () => {
+    const report = { ...reportWith('AAPL'), sanity_score: hostileScore }
+    expect(renderReportMarkdown(report).split('\n')[0]).toBe(
+      '## AAPL (yahoo) — sanity_score: 0 \\[click\\](https\u200b://evil.example) \\<img src=x\\>/100',
+    )
+  })
+
+  it('keeps an untyped consistency score inside the compare heading', () => {
+    const report: ComparisonReport = {
+      symbol: 'AAPL',
+      sources: ['yahoo', 'other'],
+      consistency_score: hostileScore,
+      compared_dates: 1,
+      only_in: { yahoo: 0, other: 0 },
+      findings: [],
+      summary: { critical: 0, warning: 0, info: 0 },
+      generated_at: '2026-10-15T00:00:00.000Z',
+    }
+    expect(renderCompareMarkdown(report).split('\n')[0]).toBe(
+      '## AAPL — yahoo vs other — consistency_score: 0 \\[click\\](https\u200b://evil.example) \\<img src=x\\>/100',
+    )
   })
 })
 
@@ -181,7 +260,7 @@ describe('heading injection', () => {
   it('keeps a hostile symbol inside the heading instead of emitting a live link or tag', () => {
     const md = renderReportMarkdown(reportWith(hostile))
     const lines = md.split('\n')
-    expect(lines[0]).toBe('## AAPL \\[free prize\\](https://evil.example) \\<img src=x onerror=alert(1)\\> (yahoo) — sanity_score: 100/100')
+    expect(lines[0]).toBe('## AAPL \\[free prize\\](https\u200b://evil.example) \\<img src=x onerror=alert(1)\\> (yahoo) — sanity_score: 100/100')
     expect(lines).toHaveLength(3)
     expect(lines[1]).toBe('')
     expect(lines[2]).toBe('No findings.')
@@ -207,7 +286,7 @@ describe('heading injection', () => {
       generated_at: '2026-10-15T00:00:00.000Z',
     }
     const md = renderCompareMarkdown(report)
-    expect(md.split('\n')[0]).toBe('## AAPL - ignored — yahoo\\](https://evil.example) vs poly ding — consistency_score: 100/100')
+    expect(md.split('\n')[0]).toBe('## AAPL - ignored — yahoo\\](https\u200b://evil.example) vs poly ding — consistency_score: 100/100')
     expect(md.split('\n')).toHaveLength(3)
   })
 })

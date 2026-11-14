@@ -82,4 +82,15 @@ describe('weekdaysBetween', () => {
     // Mon 2024-01-01 → Mon 2024-01-15: 9 weekdays strictly between (Jan 2-5 and 8-12)
     expect(weekdaysBetween('2024-01-01', '2024-01-15')).toBe(9)
   })
+
+  it('preserves the timestamp time when deciding which endpoint days are between', () => {
+    expect(weekdaysBetween('2024-01-05T12:00:00Z', '2024-01-08T11:00:00Z')).toBe(0)
+    expect(weekdaysBetween('2024-01-05T12:00:00Z', '2024-01-08T13:00:00Z')).toBe(1)
+  })
+
+  it('handles the full JavaScript Date range without distance-proportional iteration', () => {
+    expect(
+      weekdaysBetween('-271821-04-20T00:00:00.000Z', '+275760-09-13T00:00:00.000Z'),
+    ).toBe(142_857_143)
+  })
 })
