@@ -134,6 +134,11 @@ mdsc rules --format json | jq '.single_source[].id'
 mdsc --version
 ```
 
+Input dates must be real `YYYY-MM-DD` calendar dates. Datetimes need an ISO timezone
+(`Z`, `±HH:MM` or `±HHMM`). Bar timestamps in compact `YYYYMMDD` or plausible epoch
+seconds are normalized when CSV or JSON files are ingested. Invalid dates produce a
+`SCHEMA_INVALID` finding and fail the data gate.
+
 Exit codes: `0` gate passed · `1` gate failed (critical findings, or `--fail-on`/`--min-score`)
 · `2` operational error (file unreadable, invalid flags, provider unavailable, invalid config).
 
