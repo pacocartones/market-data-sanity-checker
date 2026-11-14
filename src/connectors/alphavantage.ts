@@ -1,6 +1,12 @@
 import type { Bar, Dividend, MarketDataSet, Split } from '../schema/market-data'
 import type { Connector, FetchOptions } from './types'
-import { ConnectorError, DEFAULT_TIMEOUT_MS, isTimeoutError } from './types'
+import {
+  assertProviderCollectionLimit,
+  ConnectorError,
+  DEFAULT_TIMEOUT_MS,
+  isTimeoutError,
+  readProviderJson,
+} from './types'
 
 /**
  * Alpha Vantage connector — pure parser + thin fetch wrapper.
@@ -93,6 +99,7 @@ export function parseAlphaVantageDaily(payload: unknown, symbol: string): Market
   const dividends: Dividend[] = []
   const splits: Split[] = []
 
+  assertProviderCollectionLimit(series, 'Alpha Vantage', 'daily time series')
   for (const date of Object.keys(series).sort()) {
     const entry = asRecord(series[date])
     if (!entry) continue
@@ -176,7 +183,7 @@ export const alphaVantage: Connector = {
       if (!response.ok) {
         throw new ConnectorError(`Alpha Vantage HTTP ${response.status} fetching ${symbol}`)
       }
-      payload = await response.json()
+      payload = await readProviderJson(response, 'Alpha Vantage')
     } catch (error) {
       if (error instanceof ConnectorError) throw error
       if (isTimeoutError(error)) {
