@@ -114,6 +114,29 @@ describe('parseAlphaVantageDaily', () => {
     expect(() => parseAlphaVantageDaily({ Information: 'Premium endpoint.' }, 'IBM')).toThrow(ConnectorError)
   })
 
+  it('never copies provider-controlled credential reflections into ConnectorError messages', () => {
+    const apiKey = 'SECRET123'
+    const transformedKey = 'S-E-C-R-E-T-1-2-3'
+    const providerText = `Detected ${apiKey} or ${transformedKey}\nforged log line`
+
+    for (const key of ['Error Message', 'Note', 'Information'] as const) {
+      let thrown: unknown
+      try {
+        parseAlphaVantageDaily({ [key]: providerText }, 'IBM')
+      } catch (error) {
+        thrown = error
+      }
+
+      expect(thrown).toBeInstanceOf(ConnectorError)
+      const message = (thrown as Error).message
+      expect(message).toContain(`"${key}"`)
+      expect(message).not.toContain(apiKey)
+      expect(message).not.toContain(transformedKey)
+      expect(message).not.toContain('forged log line')
+      expect(message).not.toContain('\n')
+    }
+  })
+
   it('throws ConnectorError when the time series is missing', () => {
     expect(() => parseAlphaVantageDaily({ 'Meta Data': {} }, 'IBM')).toThrow(ConnectorError)
     expect(() => parseAlphaVantageDaily(undefined, 'IBM')).toThrow(ConnectorError)
@@ -199,6 +222,19 @@ describe('alphaVantage.fetchDaily — HTTP concerns (mocked fetch, no network)',
     expect(cancelled).toBe(true)
   })
 
+  it('redacts credentials from JSON parser failures on the bounded response path', async () => {
+    const apiKey = 'response-secret-key'
+    process.env.ALPHA_VANTAGE_API_KEY = apiKey
+    stubFetch(async () => new Response(`${apiKey}\n{`))
+
+    const error = await alphaVantage.fetchDaily('IBM').catch((caught: unknown) => caught)
+
+    expect(error).toBeInstanceOf(ConnectorError)
+    expect((error as Error).message).toBe('Alpha Vantage request failed for IBM')
+    expect((error as Error).message).not.toContain(apiKey)
+    expect((error as Error).message).not.toContain('\n')
+  })
+
   it('maps a timeout rejection to a ConnectorError naming the default timeout', async () => {
     process.env.ALPHA_VANTAGE_API_KEY = 'test-key'
     expect(DEFAULT_TIMEOUT_MS).toBe(15_000)
@@ -217,13 +253,16 @@ describe('alphaVantage.fetchDaily — HTTP concerns (mocked fetch, no network)',
     await expect(alphaVantage.fetchDaily('IBM', { timeoutMs: 250 })).rejects.toThrow(/timeout after 250ms/)
   })
 
-  it('keeps the generic failure message for non-timeout network errors', async () => {
-    process.env.ALPHA_VANTAGE_API_KEY = 'test-key'
+  it('maps non-timeout network errors to a credential-safe static message', async () => {
+    const apiKey = 'network-secret-key'
+    process.env.ALPHA_VANTAGE_API_KEY = apiKey
     stubFetch(async () => {
-      throw new Error('socket hang up')
+      throw new Error(`socket hang up for https://www.alphavantage.co/query?apikey=${apiKey}`)
     })
-    await expect(alphaVantage.fetchDaily('IBM')).rejects.toThrow(/Alpha Vantage request failed for IBM: socket hang up/)
+    await expect(alphaVantage.fetchDaily('IBM')).rejects.toThrow(/^Alpha Vantage request failed for IBM$/)
+    await expect(alphaVantage.fetchDaily('IBM')).rejects.not.toThrow(apiKey)
   })
+
 })
 
 describe('alphaVantage — free vs premium endpoint', () => {
