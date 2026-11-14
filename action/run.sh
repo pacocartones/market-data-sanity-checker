@@ -96,7 +96,25 @@ summary=${GITHUB_STEP_SUMMARY:-/dev/null}
   echo
   echo "| File | Symbol | Score | Critical | Warning | Info |"
   echo "| --- | --- | --- | --- | --- | --- |"
-  jq -r --arg f "$file" '"| \($f | gsub("\\|"; "\\|")) | \(.symbol // "" | gsub("\\|"; "\\|")) | \(.sanity_score) | \(.summary.critical) | \(.summary.warning) | \(.summary.info) |"' "$report"
+  # GFM renders backslash-escaped ASCII punctuation literally. Escape it all so
+  # untrusted values cannot create Markdown constructs after line breaks collapse.
+  jq -r --arg f "$file" '
+    def markdown_cell:
+      gsub("[\\r\\n]+"; " ")
+      | explode
+      | map(
+          if ((. >= 33 and . <= 47) or
+              (. >= 58 and . <= 64) or
+              (. >= 91 and . <= 96) or
+              (. >= 123 and . <= 126))
+          then [92, .]
+          else [.]
+          end
+        )
+      | flatten
+      | implode;
+    "| \($f | markdown_cell) | \((.symbol // "") | markdown_cell) | \(.sanity_score) | \(.summary.critical) | \(.summary.warning) | \(.summary.info) |"
+  ' "$report"
   echo
   echo "Full report: \`$report\` (JSON)."
 } >>"$summary"
