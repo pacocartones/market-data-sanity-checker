@@ -2,7 +2,7 @@ import { execFile } from 'node:child_process'
 import { access, mkdtemp, readFile, readdir, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { fileURLToPath, pathToFileURL } from 'node:url'
 import { promisify } from 'node:util'
 import { beforeAll, describe, expect, it } from 'vitest'
 
@@ -67,6 +67,85 @@ beforeAll(async () => {
 }, 180_000)
 
 describe('check — gating exit codes', () => {
+  it('accepts 513 valid corporate actions through check and compare', async () => {
+    await withTempDir(async (dir) => {
+      const dates = Array.from({ length: 513 }, (_, index) =>
+        new Date(Date.UTC(2023, 0, index * 8 + 1)).toISOString().slice(0, 10))
+      const first = {
+        symbol: 'TEST', source: 'first', currency: 'USD',
+        bars: Array.from({ length: 20 }, (_, index) => ({
+          timestamp: new Date(Date.UTC(2024, 0, index + 1)).toISOString().slice(0, 10),
+          open: 100 + index, high: 100 + index, low: 100 + index, close: 100 + index,
+        })),
+        dividends: dates.map((exDate, index) => ({ exDate, amount: index + 1 })),
+      }
+      const second = {
+        ...first, source: 'second',
+        dividends: first.dividends.map((dividend, index) =>
+          index === 512 ? { ...dividend, amount: 1026 } : dividend),
+      }
+      const a = join(dir, 'first.json')
+      const b = join(dir, 'second.json')
+      await writeFile(a, JSON.stringify(first), 'utf8')
+      await writeFile(b, JSON.stringify(second), 'utf8')
+      const checked = await runCli(['check', '--file', a, '--format', 'json', '--fail-on', 'critical'])
+      expect(checked.code, `${checked.stderr}\n${checked.stdout}`).toBe(0)
+      expect(JSON.parse(checked.stdout).findings.some((finding: { rule: string }) =>
+        finding.rule === 'SCHEMA_INVALID')).toBe(false)
+      const compared = await runCli(['compare', '--files', `${a},${b}`, '--format', 'json', '--fail-on', 'warning'])
+      expect(compared.code).toBe(1)
+      const comparison = JSON.parse(compared.stdout)
+      expect(comparison.consistency_score).toBe(85)
+      expect(comparison.summary.warning).toBe(1)
+      expect(comparison.findings.find((finding: { rule: string }) =>
+        finding.rule === 'DIVIDEND_MISMATCH')).toMatchObject({
+        occurrences: 1, evidence: { exDate: dates[512], amount_a: 513, amount_b: 1026 },
+      })
+    })
+  }, CLI_TIMEOUT_MS)
+
+  it('gates on a later warning occurrence after an info-only stale run', async () => {
+    await withTempDir(async (dir) => {
+      const dates = [
+        '2024-01-02', '2024-01-03', '2024-01-04', '2024-01-05',
+        '2024-01-08', '2024-01-09', '2024-01-10', '2024-01-11', '2024-01-12',
+        '2024-01-15', '2024-01-16', '2024-01-17', '2024-01-18', '2024-01-19',
+      ]
+      const bars = dates.map((timestamp, index) => {
+        const close = index < 11 ? 42 : 43
+        return { timestamp, open: close, high: close, low: close, close, volume: index < 11 ? 0 : 100 }
+      })
+      const input = join(dir, 'mixed.json')
+      const infoOnly = join(dir, 'info-only.json')
+      const config = join(dir, 'mdsc.config.json')
+      const data = { symbol: 'TEST', source: 'synthetic', bars }
+      await writeFile(input, JSON.stringify(data), 'utf8')
+      await writeFile(infoOnly, JSON.stringify({ ...data, bars: bars.slice(0, 11) }), 'utf8')
+      await writeFile(config, JSON.stringify({ rules: { STALE_PRICE: { severity: 'info' } } }), 'utf8')
+
+      const mixed = await runCli(['check', '--file', input, '--format', 'json', '--fail-on', 'warning'])
+      const report = JSON.parse(mixed.stdout) as {
+        findings: Array<{ rule: string; severity: string; action: string; occurrences: number; where: { date: string }; evidence: { sessions: number } }>
+        summary: { warning: number }
+      }
+      expect(mixed.code).toBe(1)
+      expect(report.findings.find((finding) => finding.rule === 'STALE_PRICE')).toMatchObject({
+        severity: 'warning', action: 'flag', occurrences: 2,
+        where: { date: '2024-01-19' }, evidence: { sessions: 3 },
+      })
+      expect(report.summary.warning).toBeGreaterThanOrEqual(1)
+
+      expect((await runCli(['check', '--file', infoOnly, '--fail-on', 'warning'])).code).toBe(0)
+      expect((await runCli(['check', '--file', infoOnly, '--fail-on', 'info'])).code).toBe(1)
+      const overridden = await runCli([
+        'check', '--file', input, '--format', 'json', '--fail-on', 'warning', '--config', config,
+      ])
+      expect(overridden.code).toBe(0)
+      expect(JSON.parse(overridden.stdout).findings.find((finding: { rule: string }) => finding.rule === 'STALE_PRICE'))
+        .toMatchObject({ severity: 'info', action: 'review', occurrences: 2 })
+    })
+  }, CLI_TIMEOUT_MS)
+
   it.each([
     ['csv', 'date,open,high,low,close\n2024-01-02T09:30:00-0500,1,1,1,1\n'],
     ['json', JSON.stringify({ symbol: 'X', source: 'synthetic', bars: [{ timestamp: '2024-01-02T09:30:00+0530', open: 1, high: 1, low: 1, close: 1 }] })],
@@ -511,6 +590,40 @@ describe('rules — catalog listing', () => {
 })
 
 describe('compare — error paths and exit codes', () => {
+  it('rejects a third file instead of silently comparing only the first two', async () => {
+    const validFile = fixture('ohlcv-valid.csv')
+    const result = await runCli(['compare', '--files', `${validFile},${validFile},${validFile}`, '--format', 'json'])
+    expect(result.code).toBe(2)
+    expect(result.stdout).toBe('')
+    expect(result.stderr).toContain('--files needs exactly two paths separated by a comma')
+  })
+
+  it('rejects a trailing empty file entry before opening files', async () => {
+    const result = await runCli(['compare', '--files', 'missing-a.csv,missing-b.csv,'])
+    expect(result.code).toBe(2)
+    expect(result.stderr).toContain('--files needs exactly two paths separated by a comma')
+    expect(result.stderr).not.toContain('ENOENT')
+  })
+
+  it('rejects a third provider before resolving providers or fetching data', async () => {
+    const result = await runCli(['compare', '--symbol', 'X', '--providers', 'unknown,alpha-vantage,extra'])
+    expect(result.code).toBe(2)
+    expect(result.stdout).toBe('')
+    expect(result.stderr).toContain('--providers needs two providers')
+    expect(result.stderr).not.toContain('Unknown provider')
+  })
+
+  it('rejects simultaneous files and providers before reading a config', async () => {
+    const result = await runCli([
+      'compare', '--files', 'missing-a.csv,missing-b.csv', '--providers', 'yahoo,alpha-vantage',
+      '--config', 'missing-config.json',
+    ])
+    expect(result.code).toBe(2)
+    expect(result.stdout).toBe('')
+    expect(result.stderr).toContain('--files and --providers cannot be used together')
+    expect(result.stderr).not.toContain('missing-config.json')
+  })
+
   it('exits 2 when --files has fewer than two paths', async () => {
     const result = await runCli(['compare', '--files', 'one.csv'])
     expect(result.code).toBe(2)
@@ -588,7 +701,7 @@ describe('compare — error paths and exit codes', () => {
     expect(result.code).toBe(0)
     // one heading line, break collapsed to a space, markdown and html punctuation escaped
     expect(result.stdout.split('\n')[0]).toBe(
-      '## AAPL \\[free prize\\](https://evil.example) \\<img src=x onerror=alert(1)\\> (csv) — sanity_score: 80/100',
+      '## AAPL \\[free prize\\](https\u200b://evil.example) \\<img src=x onerror=alert(1)\\> (csv) — sanity_score: 80/100',
     )
   })
 })
@@ -654,6 +767,34 @@ describe('providers — --format', () => {
       expect(result.code).toBe(2)
       expect(result.stdout).toBe('')
       expect(result.stderr).toContain('--format must be one of: table, json')
+    },
+    CLI_TIMEOUT_MS,
+  )
+})
+
+describe('check — provider error redaction', () => {
+  it(
+    'prints only the categorized Alpha Vantage parser failure to stderr',
+    async () => {
+      const apiKey = 'response-secret-key'
+      const preload = fixture('stub-alpha-invalid-json.mjs')
+      const nodeOptions = [process.env.NODE_OPTIONS, `--import=${pathToFileURL(preload).href}`]
+        .filter(Boolean)
+        .join(' ')
+
+      const result = await runCli(['check', '--provider', 'alpha-vantage', '--symbol', 'IBM'], {
+        env: {
+          ...process.env,
+          ALPHA_VANTAGE_API_KEY: apiKey,
+          MDSC_TEST_ALPHA_RESPONSE_BODY: `${apiKey}\n{`,
+          NODE_OPTIONS: nodeOptions,
+        },
+      })
+
+      expect(result.code).toBe(2)
+      expect(result.stdout).toBe('')
+      expect(result.stderr.replace(/\r\n/g, '\n')).toBe('mdsc: Alpha Vantage request failed for IBM\n')
+      expect(result.stderr).not.toContain(apiKey)
     },
     CLI_TIMEOUT_MS,
   )
