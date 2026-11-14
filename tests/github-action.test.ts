@@ -25,6 +25,7 @@ const TIMEOUT_MS = 30_000
 interface ActionResult {
   code: number
   stdout: string
+  stderr: string
   outputs: Record<string, string>
   summary: string
 }
@@ -45,13 +46,15 @@ async function runAction(env: Record<string, string>): Promise<ActionResult> {
   }
   let code = 0
   let stdout: string
+  let stderr: string
   try {
-    ;({ stdout } = await execFileAsync('bash', [RUN], { cwd: REPO_ROOT, env: fullEnv }))
+    ;({ stdout, stderr } = await execFileAsync('bash', [RUN], { cwd: REPO_ROOT, env: fullEnv }))
   } catch (error) {
-    const failed = error as { code?: unknown; stdout?: unknown }
+    const failed = error as { code?: unknown; stdout?: unknown; stderr?: unknown }
     if (typeof failed.code !== 'number') throw error // spawn failure, not an exit code
     code = failed.code
     stdout = typeof failed.stdout === 'string' ? failed.stdout : ''
+    stderr = typeof failed.stderr === 'string' ? failed.stderr : ''
   }
   const read = (path: string) => readFile(path, 'utf8').catch(() => '')
   const outputs = Object.fromEntries(
@@ -60,7 +63,7 @@ async function runAction(env: Record<string, string>): Promise<ActionResult> {
       .filter(Boolean)
       .map((line) => [line.slice(0, line.indexOf('=')), line.slice(line.indexOf('=') + 1)]),
   )
-  return { code, stdout, outputs, summary: await read(summaryPath) }
+  return { code, stdout, stderr, outputs, summary: await read(summaryPath) }
 }
 
 beforeAll(async () => {
@@ -129,6 +132,36 @@ describe.skipIf(process.platform === 'win32')('GitHub Action wrapper', () => {
       expect(result.summary).not.toContain('\n# forged')
       expect(result.summary).not.toContain('[review](https://evil.example)')
       expect(result.summary).not.toContain('![pixel]')
+      expect(/(^|[^\\])</.test(row ?? '')).toBe(false)
+    },
+    TIMEOUT_MS,
+  )
+
+  it(
+    'keeps diagnostics and summary cells inert in the same gated run',
+    async () => {
+      const symbol =
+        'AAPL\r\n# forged\n[review](https://evil.example) <img src=x> | fake'
+      const result = await runAction({
+        MDSC_FILE: fixture('ohlcv-valid.csv'),
+        MDSC_SYMBOL: symbol,
+        MDSC_MIN_SCORE: '100',
+      })
+      const prefix = 'mdsc: CLI diagnostics: '
+      const row = result.summary.split('\n').find((line) => line.includes('forged'))
+
+      expect(result.code).toBe(1)
+      expect(result.stderr.startsWith(prefix)).toBe(true)
+      expect(result.stderr.trimEnd().split('\n')).toHaveLength(1)
+      expect(JSON.parse(result.stderr.slice(prefix.length).trimEnd())).toBe(
+        'mdsc: gate failed — score 80 below --min-score 100\n',
+      )
+      expect(row).toContain(
+        'AAPL \\# forged \\[review\\]\\(https\\:\\/\\/evil\\.example\\) \\<img src\\=x\\> \\| fake',
+      )
+      expect(row?.match(/(?<!\\)\|/g)).toHaveLength(7)
+      expect(result.summary).not.toContain('\n# forged')
+      expect(result.summary).not.toContain('[review](https://evil.example)')
       expect(/(^|[^\\])</.test(row ?? '')).toBe(false)
     },
     TIMEOUT_MS,
