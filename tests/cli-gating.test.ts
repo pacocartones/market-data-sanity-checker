@@ -630,7 +630,7 @@ describe('compare — error paths and exit codes', () => {
     expect(result.code).toBe(0)
     // one heading line, break collapsed to a space, markdown and html punctuation escaped
     expect(result.stdout.split('\n')[0]).toBe(
-      '## AAPL \\[free prize\\](https://evil.example) \\<img src=x onerror=alert(1)\\> (csv) — sanity_score: 80/100',
+      '## AAPL \\[free prize\\](https\u200b://evil.example) \\<img src=x onerror=alert(1)\\> (csv) — sanity_score: 80/100',
     )
   })
 })
