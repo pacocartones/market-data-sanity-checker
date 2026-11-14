@@ -73,7 +73,7 @@ function printTable(report: SanityReport, coverage?: DatasetCoverage): void {
   const { critical, warning, info } = report.summary
   console.log()
   console.log(
-    `${escapeTerminalText(report.symbol)} (${escapeTerminalText(report.source)}) — sanity_score: ${report.sanity_score}/100`,
+    `${escapeTerminalText(String(report.symbol))} (${escapeTerminalText(String(report.source))}) — sanity_score: ${report.sanity_score}/100`,
   )
   console.log(`findings: ${critical} critical · ${warning} warning · ${info} info`)
   printFindings(report.findings)

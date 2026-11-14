@@ -106,6 +106,32 @@ describe('check — gating exit codes', () => {
     CLI_TIMEOUT_MS,
   )
 
+  it('keeps non-string schema envelopes in the table gating flow and preserves JSON values', async () => {
+    await withTempDir(async (dir) => {
+      const path = join(dir, 'non-string-envelope.json')
+      await writeFile(
+        path,
+        JSON.stringify({
+          symbol: 42,
+          source: 7,
+          bars: [{ timestamp: '2024-01-02', open: 1, high: 1, low: 1, close: 1 }],
+        }),
+      )
+
+      const tableResult = await runCli(['check', '--file', path])
+      expect(tableResult.code).toBe(1)
+      expect(tableResult.stderr).toContain('gate failed')
+      expect(tableResult.stdout).toContain('42 (7) — sanity_score:')
+      expect(tableResult.stdout).toContain('SCHEMA_INVALID')
+
+      const jsonResult = await runCli(['check', '--file', path, '--format', 'json'])
+      expect(jsonResult.code).toBe(1)
+      const report = JSON.parse(jsonResult.stdout) as { symbol?: unknown; source?: unknown }
+      expect(report.symbol).toBe(42)
+      expect(report.source).toBe(7)
+    })
+  })
+
   it(
     'exits 1 with --fail-on warning when a warning is present',
     async () => {
@@ -387,6 +413,11 @@ describe('history — --format', () => {
     await withTempDir(async (dir) => {
       const hostile = {
         ...entry('2026-\u001b[2J\nspoof', 90),
+        summary: {
+          critical: '1\nforged\u202e',
+          warning: '0\u001b[2J',
+          info: 0,
+        },
         rules: ['RULE\u001b]8;;https://evil.example\u0007\nforged\u202e'],
       }
       await writeFile(join(dir, 'AAPL.jsonl'), JSON.stringify(hostile) + '\n')

@@ -188,4 +188,20 @@ describe('formatHistory', () => {
     expect(output).toContain('\\u202E')
     expect(output).not.toContain('evil.example')
   })
+
+  it('keeps hand-edited summary cells terminal-safe', () => {
+    const output = formatHistory([
+      makeEntry({
+        summary: {
+          critical: '1\nforged\u202e' as unknown as number,
+          warning: '0\u001b[2J' as unknown as number,
+          info: 0,
+        },
+      }),
+    ])
+
+    expect(output.split('\n')).toHaveLength(3)
+    for (const character of ['\u001b', '\r', '\u202e']) expect(output).not.toContain(character)
+    expect(output).toContain('1\\nforged\\u202E')
+  })
 })
