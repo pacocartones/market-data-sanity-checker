@@ -15,7 +15,7 @@ import { connectorStatus, getConnector } from './connectors/index'
 import { loadConfig, type MdscConfig } from './config'
 import { renderCheckHtml, renderCompareHtml } from './report/html'
 import { renderReportMarkdown, renderCompareMarkdown } from './report/markdown'
-import { escapeTerminalText } from './report/terminal'
+import { escapeTerminalText, formatTerminalError } from './report/terminal'
 import {
   appendHistory,
   readHistory,
@@ -51,14 +51,14 @@ function zodIssuesToFindings(issues: readonly ZodIssue[]): Finding[] {
 
 function printFindings(findings: readonly Finding[]): void {
   for (const finding of findings) {
-    const where = finding.where ? ` [${Object.values(finding.where).join(', ')}]` : ''
+    const where = finding.where
+      ? ` [${Object.values(finding.where).map((value) => escapeTerminalText(String(value))).join(', ')}]`
+      : ''
     const occurrences = finding.occurrences && finding.occurrences > 1 ? ` ×${finding.occurrences}` : ''
     console.log(
-      escapeTerminalText(
-        `  ${finding.severity.toUpperCase().padEnd(8)} ${finding.rule}${occurrences}${where} → ${finding.action}`,
-      ),
+      `  ${finding.severity.toUpperCase().padEnd(8)} ${escapeTerminalText(finding.rule)}${occurrences}${where} → ${finding.action}`,
     )
-    console.log(escapeTerminalText(`           ${finding.explanation}`))
+    console.log(`           ${escapeTerminalText(finding.explanation)}`)
   }
 }
 
@@ -73,7 +73,7 @@ function printTable(report: SanityReport, coverage?: DatasetCoverage): void {
   const { critical, warning, info } = report.summary
   console.log()
   console.log(
-    escapeTerminalText(`${report.symbol} (${report.source}) — sanity_score: ${report.sanity_score}/100`),
+    `${escapeTerminalText(report.symbol)} (${escapeTerminalText(report.source)}) — sanity_score: ${report.sanity_score}/100`,
   )
   console.log(`findings: ${critical} critical · ${warning} warning · ${info} info`)
   printFindings(report.findings)
@@ -92,14 +92,10 @@ function printComparison(report: ComparisonReport): void {
   const [sourceA, sourceB] = report.sources
   console.log()
   console.log(
-    escapeTerminalText(
-      `${report.symbol} — ${sourceA} vs ${sourceB} — consistency_score: ${report.consistency_score}/100`,
-    ),
+    `${escapeTerminalText(report.symbol)} — ${escapeTerminalText(sourceA)} vs ${escapeTerminalText(sourceB)} — consistency_score: ${report.consistency_score}/100`,
   )
   console.log(
-    escapeTerminalText(
-      `compared dates: ${report.compared_dates} · only in ${sourceA}: ${report.only_in[sourceA] ?? 0} · only in ${sourceB}: ${report.only_in[sourceB] ?? 0}`,
-    ),
+    `compared dates: ${report.compared_dates} · only in ${escapeTerminalText(sourceA)}: ${report.only_in[sourceA] ?? 0} · only in ${escapeTerminalText(sourceB)}: ${report.only_in[sourceB] ?? 0}`,
   )
   console.log(`findings: ${critical} critical · ${warning} warning · ${info} info`)
   printFindings(report.findings)
@@ -309,17 +305,17 @@ program
           options.html,
           renderCheckHtml(report, dataset.success ? { dataset: dataset.data } : {}),
         )
-        console.error(`mdsc: HTML dashboard written to ${options.html}`)
+        console.error(`mdsc: HTML dashboard written to ${escapeTerminalText(options.html)}`)
       }
 
       if (options.save) {
         const path = await appendHistory(options.historyDir, historyEntryFromReport(report))
-        console.error(`mdsc: saved to audit history (${path})`)
+        console.error(`mdsc: saved to audit history (${escapeTerminalText(path)})`)
       }
 
       process.exitCode = evaluateGating(report.summary, report.sanity_score, options)
     } catch (error) {
-      console.error(`mdsc: ${error instanceof Error ? error.message : String(error)}`)
+      console.error(`mdsc: ${formatTerminalError(error)}`)
       process.exitCode = 2
     }
   })
@@ -396,12 +392,12 @@ program
 
       if (options.html) {
         await writeFile(options.html, renderCompareHtml(report, { a, b }))
-        console.error(`mdsc: HTML dashboard written to ${options.html}`)
+        console.error(`mdsc: HTML dashboard written to ${escapeTerminalText(options.html)}`)
       }
 
       process.exitCode = evaluateGating(report.summary, report.consistency_score, options)
     } catch (error) {
-      console.error(`mdsc: ${error instanceof Error ? error.message : String(error)}`)
+      console.error(`mdsc: ${formatTerminalError(error)}`)
       process.exitCode = 2
     }
   })

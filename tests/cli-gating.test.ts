@@ -36,6 +36,12 @@ interface CliResult {
   stderr: string
 }
 
+const DANGEROUS_TERMINAL_CHARACTERS = ['\u001b', '\u0007', '\r', '\u202e', '\u2066'] as const
+
+function expectTerminalSafeText(text: string): void {
+  for (const character of DANGEROUS_TERMINAL_CHARACTERS) expect(text).not.toContain(character)
+}
+
 /** Runs the compiled CLI; non-zero exits resolve (not reject) with their code. */
 async function runCli(args: string[], options: { cwd?: string; env?: NodeJS.ProcessEnv } = {}): Promise<CliResult> {
   try {
@@ -595,11 +601,10 @@ describe('compare — error paths and exit codes', () => {
   it('neutralizes terminal controls in table output while preserving JSON data', async () => {
     const symbol = 'AAPL\u001b[2J\u001b]8;;https://evil.example\u0007link\u001b]8;;\u0007\r\u202e'
     const source = 'feed\u001b]52;c;Y2xpcGJvYXJk\u0007\u2066'
-    const dangerousCharacters = ['\u001b', '\u0007', '\r', '\u202e', '\u2066']
     const args = ['check', '--file', fixture('ohlcv-valid.csv'), '--symbol', symbol, '--source', source]
 
     const tableResult = await runCli(args)
-    for (const character of dangerousCharacters) expect(tableResult.stdout).not.toContain(character)
+    expectTerminalSafeText(tableResult.stdout)
     expect(tableResult.stdout).toContain('AAPLlink\\r\\u202E')
     expect(tableResult.stdout).not.toContain('evil.example')
     expect(tableResult.stdout).not.toContain('Y2xpcGJvYXJk')
@@ -608,6 +613,68 @@ describe('compare — error paths and exit codes', () => {
     const report = JSON.parse(jsonResult.stdout) as { symbol?: unknown; source?: unknown }
     expect(report.symbol).toBe(symbol)
     expect(report.source).toBe(source)
+  })
+
+  it('keeps a crafted CSV header error on one terminal-safe stderr line', async () => {
+    await withTempDir(async (dir) => {
+      const path = join(dir, 'crafted.csv')
+      const hostileColumn = 'cl\u001b]8;;https://evil.example\u0007o\nspoof\u001b]8;;\u0007se\u202e'
+      await writeFile(
+        path,
+        `date,open,high,low,"${hostileColumn}"\n2024-01-02,1,1,1,1\n`,
+        'utf8',
+      )
+
+      const result = await runCli(['check', '--file', path])
+      expect(result.code).toBe(2)
+      expect(result.stdout).toBe('')
+      expectTerminalSafeText(result.stderr)
+      expect(result.stderr.trimEnd().split('\n')).toHaveLength(1)
+      expect(result.stderr).toContain('\\n')
+      expect(result.stderr).toContain('\\u202E')
+      expect(result.stderr).not.toContain('evil.example')
+    })
+  })
+
+  it('neutralizes terminal controls reflected by a compare error path', async () => {
+    await withTempDir(async (dir) => {
+      const missing = join(dir, 'missing\u001b[2J\u202e.csv')
+      const result = await runCli([
+        'compare',
+        '--files',
+        `${missing},${fixture('ohlcv-valid.csv')}`,
+      ])
+
+      expect(result.code).toBe(2)
+      expect(result.stdout).toBe('')
+      expectTerminalSafeText(result.stderr)
+      expect(result.stderr).toContain('\\u202E')
+    })
+  })
+
+  it('neutralizes terminal controls in written-path confirmations', async () => {
+    await withTempDir(async (dir) => {
+      const html = join(dir, 'dashboard\u202e.html')
+      const historyDir = join(dir, 'history\u2066')
+
+      const htmlResult = await runCli(['check', '--file', fixture('ohlcv-valid.csv'), '--html', html])
+      expect(htmlResult.code).toBe(0)
+      expectTerminalSafeText(htmlResult.stderr)
+      expect(htmlResult.stderr).toContain('\\u202E')
+      await access(html)
+
+      const historyResult = await runCli([
+        'check',
+        '--file',
+        fixture('ohlcv-valid.csv'),
+        '--save',
+        '--history-dir',
+        historyDir,
+      ])
+      expect(historyResult.code).toBe(0)
+      expectTerminalSafeText(historyResult.stderr)
+      expect(historyResult.stderr).toContain('\\u2066')
+    })
   })
 })
 
