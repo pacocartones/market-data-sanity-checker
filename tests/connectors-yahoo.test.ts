@@ -1,7 +1,12 @@
 import { readFile } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { ConnectorError, DEFAULT_TIMEOUT_MS } from '../src/connectors/types'
+import {
+  ConnectorError,
+  DEFAULT_TIMEOUT_MS,
+  MAX_PROVIDER_COLLECTION_ITEMS,
+  MAX_PROVIDER_RESPONSE_BYTES,
+} from '../src/connectors/types'
 import { parseYahooChart, yahoo } from '../src/connectors/yahoo'
 import { marketDataSetSchema } from '../src/schema/market-data'
 
@@ -83,11 +88,15 @@ describe('yahoo.fetchDaily — HTTP concerns (mocked fetch, no network)', () => 
   }
 
   function stubFetchResolving(payload: unknown) {
-    const fetchMock = vi.fn(async (_url: unknown, _init?: RequestInit) => ({
-      ok: true,
-      status: 200,
-      json: async () => payload,
-    }))
+    const fetchMock = vi.fn(async (_url: unknown, _init?: RequestInit) =>
+      new Response(JSON.stringify(payload)),
+    )
+    vi.stubGlobal('fetch', fetchMock)
+    return fetchMock
+  }
+
+  function stubFetchResponse(response: Response) {
+    const fetchMock = vi.fn(async (_url: unknown, _init?: RequestInit) => response)
     vi.stubGlobal('fetch', fetchMock)
     return fetchMock
   }
@@ -109,6 +118,18 @@ describe('yahoo.fetchDaily — HTTP concerns (mocked fetch, no network)', () => 
     const init = fetchMock.mock.calls[0]?.[1]
     expect(init?.signal).toBeInstanceOf(AbortSignal)
     expect((init?.headers as Record<string, string>)['User-Agent']).toContain('market-data-sanity-checker')
+  })
+
+  it('rejects an oversized Content-Length before parsing the body', async () => {
+    stubFetchResponse(
+      new Response(JSON.stringify(OK_PAYLOAD), {
+        headers: { 'Content-Length': String(MAX_PROVIDER_RESPONSE_BYTES + 1) },
+      }),
+    )
+
+    await expect(yahoo.fetchDaily('AAPL')).rejects.toThrow(
+      `Yahoo chart API response exceeds the ${MAX_PROVIDER_RESPONSE_BYTES}-byte limit`,
+    )
   })
 
   it('maps a timeout rejection to a ConnectorError naming the default timeout', async () => {
@@ -327,6 +348,28 @@ describe('parseYahooChart — events', () => {
 })
 
 describe('parseYahooChart — error paths', () => {
+  it('rejects an oversized timestamp collection before allocating bars', () => {
+    const payload = chartPayload({
+      timestamps: new Array(MAX_PROVIDER_COLLECTION_ITEMS + 1).fill(1704067200),
+      quote: { open: [1], high: [1], low: [1], close: [1] },
+    })
+
+    expect(() => parseYahooChart(payload, 'TOO-MANY')).toThrow(/timestamp collection exceeds/)
+  })
+
+  it('rejects an oversized event collection before traversing it', () => {
+    const dividends = Object.fromEntries(
+      Array.from({ length: MAX_PROVIDER_COLLECTION_ITEMS + 1 }, (_, index) => [String(index), {}]),
+    )
+    const payload = chartPayload({
+      timestamps: [1704067200],
+      quote: { open: [1], high: [1], low: [1], close: [1] },
+      events: { dividends },
+    })
+
+    expect(() => parseYahooChart(payload, 'TOO-MANY')).toThrow(/dividend collection exceeds/)
+  })
+
   it('throws ConnectorError when chart.error is present (symbol not found)', () => {
     const payload = {
       chart: { result: null, error: { code: 'Not Found', description: 'No data found, symbol may be delisted' } },

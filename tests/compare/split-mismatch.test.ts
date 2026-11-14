@@ -16,6 +16,17 @@ function ctxFor(a: MarketDataSet, b: MarketDataSet): CompareContext {
 }
 
 describe('SPLIT_MISMATCH', () => {
+  it('uses the earliest original candidate when several splits fit the date window', () => {
+    const a = dataset('first', [{ exDate: '2024-06-07', numerator: 2, denominator: 1 }])
+    const b = dataset('second', [
+      { exDate: '2024-06-09', numerator: 3, denominator: 1 },
+      { exDate: '2024-06-07', numerator: 2, denominator: 1 },
+    ])
+    expect(splitMismatch.check(a, b, ctxFor(a, b))).toMatchObject([{
+      evidence: { reason: 'ratio_differs', ratio_a: 2, ratio_b: 3 },
+    }])
+  })
+
   it('flags a split missing from the other source', () => {
     const a = dataset('yahoo', [{ exDate: '2024-06-07', numerator: 2, denominator: 1 }])
     const b = dataset('other', [])

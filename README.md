@@ -193,6 +193,11 @@ mdsc check --file aapl.csv --html report.html
 mdsc compare --files yahoo-aapl.json,stooq-aapl.csv --html compare.html   # writes a self-contained comparison dashboard
 ```
 
+HTML and audit-history writes reject pre-existing symbolic links and directory junctions
+in the selected output path. Use regular output files under regular directories;
+intentionally linked outputs are unsupported. This protects against links already present
+in lower-trust checkout content, not concurrent mutation by another local process.
+
 ### GitHub Action
 
 Fail a workflow when a data file is bad, with the score and finding counts in the job summary. It is listed on the [GitHub Marketplace](https://github.com/marketplace/actions/market-data-sanity-checker).
@@ -365,6 +370,14 @@ compare rules. Full details with defaults and references: `mdsc rules` (or
 Findings carry `rule`, `severity` (critical/warning/info), `action` (block/flag/review),
 `dimension` (DAMA data quality dimension), a human-readable `explanation`, `evidence`, and
 `references` to the incident or literature justifying the rule.
+
+Corporate action arrays have no fixed length limit. The check report counts all
+`DIV_DUPLICATED` pairs but retains one representative finding; comparison uses
+date indexes and preserves the first matching action in input order. Direct
+`DIV_DUPLICATED.check` calls still return every matching pair, so their output
+and memory grow with the number of pairs. Other direct rules can also depend
+on the number of nearby bars or actions; large datasets need caller-side
+resource planning.
 
 ## When NOT to use it
 
