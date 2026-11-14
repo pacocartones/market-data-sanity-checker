@@ -153,4 +153,36 @@ describe.skipIf(process.platform === 'win32')('check-commit-policy.sh', () => {
       expect(run({ ...securityPr, branch })).toBe(1)
     }
   })
+
+  it('accepts the existing Dependabot ecosystems when Dependabot opened the PR', () => {
+    for (const branch of [
+      'dependabot/github_actions/actions-5c5d6f0779',
+      'dependabot/npm_and_yarn/dev-minor-patch-8b5854b875',
+      'dependabot/npm_and_yarn/zod-4.6.7',
+    ]) {
+      expect(run({ name: 'dependabot[bot]', email: '49699333+dependabot[bot]@users.noreply.github.com', branch, headRepo: OWN, prAuthor: 'dependabot[bot]' })).toBe(0)
+    }
+  })
+
+  it('rejects Dependabot-shaped branches from other PR authors', () => {
+    for (const actor of ['pacocartones', 'dependabot[bot]']) {
+      expect(run({ name: 'Someone Else', email: 'someone@example.com', branch: 'dependabot/github_actions/actions-5c5d6f0779', headRepo: OWN, prAuthor: 'pacocartones', actor })).toBe(1)
+    }
+  })
+
+  it('rejects malformed Dependabot branch names even for the bot', () => {
+    for (const branch of [
+      'dependabot/other/actions-5c5d6f0779',
+      'dependabot/npm_and_yarn/',
+      'dependabot/npm_and_yarn/-zod',
+      'dependabot/npm_and_yarn/zod/4.6.7',
+      'dependabot/npm_and_yarn/Zod-4.6.7',
+    ]) {
+      expect(run({ name: 'dependabot[bot]', email: '49699333+dependabot[bot]@users.noreply.github.com', branch, headRepo: OWN, prAuthor: 'dependabot[bot]' })).toBe(1)
+    }
+  })
+
+  it('still enforces maintainer identity on a Dependabot PR', () => {
+    expect(run({ name: 'agent:maintainer', email: NOREPLY, branch: 'dependabot/npm_and_yarn/zod-4.6.7', headRepo: OWN, prAuthor: 'dependabot[bot]' })).toBe(1)
+  })
 })
