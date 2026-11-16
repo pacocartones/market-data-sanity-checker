@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest'
 import {
-  ALPHA_VANTAGE_FREE_PLAN_NOTE,
   renderScoreboardReadme,
   type ScoreboardComparison,
   type ScoreboardProviderResult,
@@ -128,28 +127,28 @@ describe('renderScoreboardReadme', () => {
 
     expect(readme).not.toContain('## Cross-provider consistency')
   })
-  it('puts a comparison note under the cross-provider heading, before the table, only when given', () => {
-    const comparisons: ScoreboardComparison[] = [
-      { symbol: 'AAPL', consistency_score: 85, compared_dates: 100, findings: [{ rule: 'DIVIDEND_MISMATCH', severity: 'warning', where: { date: '2025-11-10' } }] },
-    ]
-    const base = {
-      generatedAt: '2026-10-17T00:00:00.000Z',
-      basketSize: 1,
-      providers: [provider(), provider({ provider: 'alpha-vantage' })],
-      excluded: [],
-      skipped: [],
-      comparisons,
-    }
-    const withNote = renderScoreboardReadme({ ...base, comparisonNotes: [ALPHA_VANTAGE_FREE_PLAN_NOTE] })
-    const heading = withNote.indexOf('## Cross-provider consistency')
-    const note = withNote.indexOf(ALPHA_VANTAGE_FREE_PLAN_NOTE)
-    const table = withNote.indexOf('| Symbol | Consistency score')
-    expect(heading).toBeGreaterThanOrEqual(0)
-    expect(note).toBeGreaterThan(heading)
-    expect(table).toBeGreaterThan(note)
-    expect(ALPHA_VANTAGE_FREE_PLAN_NOTE).toContain('free plan')
-    expect(ALPHA_VANTAGE_FREE_PLAN_NOTE).toContain('not that either feed has wrong data')
+})
 
-    expect(renderScoreboardReadme(base)).not.toContain(ALPHA_VANTAGE_FREE_PLAN_NOTE)
+
+describe('Alpha Vantage coverage note policy', () => {
+  const base = {
+    generatedAt: '2026-10-17T00:00:00.000Z', basketSize: 30,
+    providers: [provider(), provider({ provider: 'alpha-vantage' })],
+    excluded: [], skipped: [],
+    comparisons: [{ symbol: 'AAPL', consistency_score: 85, compared_dates: 100, findings: [] }],
+  }
+  it('adds a free-tier coverage warning while leaving premium and unknown output alone', () => {
+    const unknown = renderScoreboardReadme(base)
+    const free = renderScoreboardReadme({ ...base, alphaVantageTier: 'free' })
+    expect(free).not.toBe(unknown)
+    expect(free).toContain('unavailable coverage')
+    expect(free).not.toContain('not that either feed has wrong data')
+    expect(renderScoreboardReadme({ ...base, alphaVantageTier: 'premium' })).toBe(unknown)
+    expect(renderScoreboardReadme({ ...base, alphaVantageTier: 'unknown' })).toBe(unknown)
+  })
+  it('does not claim AV free usage when AV is absent or no comparisons are shown', () => {
+    for (const input of [{ ...base, providers: [provider()] }, { ...base, comparisons: [] }]) {
+      expect(renderScoreboardReadme({ ...input, alphaVantageTier: 'free' })).toBe(renderScoreboardReadme(input))
+    }
   })
 })

@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 import { createRequire } from 'node:module'
-import { writeFile } from 'node:fs/promises'
 import { basename } from 'node:path'
 import { Command } from 'commander'
 import type { ZodIssue } from 'zod'
@@ -15,6 +14,7 @@ import { connectorStatus, getConnector } from './connectors/index'
 import { loadConfig, type MdscConfig } from './config'
 import { renderCheckHtml, renderCompareHtml } from './report/html'
 import { renderReportMarkdown, renderCompareMarkdown } from './report/markdown'
+import { escapeTerminalText, formatTerminalError } from './report/terminal'
 import {
   appendHistory,
   readHistory,
@@ -24,6 +24,7 @@ import {
 } from './history/store'
 import type { Finding, SanityReport, Severity } from './report/types'
 import { SEVERITY_ORDER } from './report/types'
+import { writeFileSecurely } from './filesystem/secure-output'
 
 const { version } = createRequire(import.meta.url)('../package.json') as { version: string }
 
@@ -50,12 +51,14 @@ function zodIssuesToFindings(issues: readonly ZodIssue[]): Finding[] {
 
 function printFindings(findings: readonly Finding[]): void {
   for (const finding of findings) {
-    const where = finding.where ? ` [${Object.values(finding.where).join(', ')}]` : ''
+    const where = finding.where
+      ? ` [${Object.values(finding.where).map((value) => escapeTerminalText(String(value))).join(', ')}]`
+      : ''
     const occurrences = finding.occurrences && finding.occurrences > 1 ? ` ×${finding.occurrences}` : ''
     console.log(
-      `  ${finding.severity.toUpperCase().padEnd(8)} ${finding.rule}${occurrences}${where} → ${finding.action}`,
+      `  ${finding.severity.toUpperCase().padEnd(8)} ${escapeTerminalText(finding.rule)}${occurrences}${where} → ${finding.action}`,
     )
-    console.log(`           ${finding.explanation}`)
+    console.log(`           ${escapeTerminalText(finding.explanation)}`)
   }
 }
 
@@ -68,7 +71,10 @@ interface DatasetCoverage {
 
 function printTable(report: SanityReport, coverage?: DatasetCoverage): void {
   const { critical, warning, info } = report.summary
-  console.log(`\n${report.symbol} (${report.source}) — sanity_score: ${report.sanity_score}/100`)
+  console.log()
+  console.log(
+    `${escapeTerminalText(String(report.symbol))} (${escapeTerminalText(String(report.source))}) — sanity_score: ${report.sanity_score}/100`,
+  )
   console.log(`findings: ${critical} critical · ${warning} warning · ${info} info`)
   printFindings(report.findings)
   if (report.findings.length === 0) {
@@ -84,11 +90,12 @@ function printTable(report: SanityReport, coverage?: DatasetCoverage): void {
 function printComparison(report: ComparisonReport): void {
   const { critical, warning, info } = report.summary
   const [sourceA, sourceB] = report.sources
+  console.log()
   console.log(
-    `\n${report.symbol} — ${sourceA} vs ${sourceB} — consistency_score: ${report.consistency_score}/100`,
+    `${escapeTerminalText(report.symbol)} — ${escapeTerminalText(sourceA)} vs ${escapeTerminalText(sourceB)} — consistency_score: ${report.consistency_score}/100`,
   )
   console.log(
-    `compared dates: ${report.compared_dates} · only in ${sourceA}: ${report.only_in[sourceA] ?? 0} · only in ${sourceB}: ${report.only_in[sourceB] ?? 0}`,
+    `compared dates: ${report.compared_dates} · only in ${escapeTerminalText(sourceA)}: ${report.only_in[sourceA] ?? 0} · only in ${escapeTerminalText(sourceB)}: ${report.only_in[sourceB] ?? 0}`,
   )
   console.log(`findings: ${critical} critical · ${warning} warning · ${info} info`)
   printFindings(report.findings)
@@ -294,21 +301,21 @@ program
       }
 
       if (options.html) {
-        await writeFile(
+        await writeFileSecurely(
           options.html,
           renderCheckHtml(report, dataset.success ? { dataset: dataset.data } : {}),
         )
-        console.error(`mdsc: HTML dashboard written to ${options.html}`)
+        console.error(`mdsc: HTML dashboard written to ${escapeTerminalText(options.html)}`)
       }
 
       if (options.save) {
         const path = await appendHistory(options.historyDir, historyEntryFromReport(report))
-        console.error(`mdsc: saved to audit history (${path})`)
+        console.error(`mdsc: saved to audit history (${escapeTerminalText(path)})`)
       }
 
       process.exitCode = evaluateGating(report.summary, report.sanity_score, options)
     } catch (error) {
-      console.error(`mdsc: ${error instanceof Error ? error.message : String(error)}`)
+      console.error(`mdsc: ${formatTerminalError(error)}`)
       process.exitCode = 2
     }
   })
@@ -343,25 +350,26 @@ program
     }
     const format = options.format.toLowerCase()
     try {
-      const config = await loadConfig(options.config)
+      if (options.files !== undefined && options.providers !== undefined) {
+        throw new Error('--files and --providers cannot be used together')
+      }
 
-      let a: MarketDataSet
-      let b: MarketDataSet
-
-      if (options.files) {
-        const [fileA, fileB] = options.files.split(',').map((entry) => entry.trim())
-        if (!fileA || !fileB) {
+      let input:
+        | { mode: 'files'; values: [string, string] }
+        | { mode: 'providers'; values: [string, string]; symbol: string }
+      if (options.files !== undefined) {
+        const entries = options.files.split(',').map((entry) => entry.trim())
+        if (entries.length !== 2 || !entries[0] || !entries[1]) {
           throw new Error(
             '--files needs exactly two paths separated by a comma, e.g. --files "a.csv,b.csv". ' +
               'On PowerShell the quotes are required — an unquoted comma is swallowed by the shell.',
           )
         }
-        a = marketDataSetSchema.parse(await ingestFile(fileA, { source: basename(fileA) }))
-        b = marketDataSetSchema.parse(await ingestFile(fileB, { source: basename(fileB) }))
+        input = { mode: 'files', values: [entries[0], entries[1]] }
       } else {
         if (!options.symbol) throw new Error('--symbol is required when comparing providers')
-        const [nameA, nameB] = (options.providers ?? '').split(',').map((entry) => entry.trim())
-        if (!nameA || !nameB) {
+        const entries = (options.providers ?? '').split(',').map((entry) => entry.trim())
+        if (entries.length !== 2 || !entries[0] || !entries[1]) {
           throw new Error(
             '--providers needs two providers, e.g. --providers "yahoo,alpha-vantage". ' +
               'On PowerShell the quotes are required — an unquoted comma is swallowed by the shell. ' +
@@ -370,8 +378,21 @@ program
                 .join(', ')}`,
           )
         }
-        a = await getConnector(nameA).fetchDaily(options.symbol, { range: options.range })
-        b = await getConnector(nameB).fetchDaily(options.symbol, { range: options.range })
+        input = { mode: 'providers', values: [entries[0], entries[1]], symbol: options.symbol }
+      }
+
+      const config = await loadConfig(options.config)
+      let a: MarketDataSet
+      let b: MarketDataSet
+
+      if (input.mode === 'files') {
+        const [fileA, fileB] = input.values
+        a = marketDataSetSchema.parse(await ingestFile(fileA, { source: basename(fileA) }))
+        b = marketDataSetSchema.parse(await ingestFile(fileB, { source: basename(fileB) }))
+      } else {
+        const [nameA, nameB] = input.values
+        a = await getConnector(nameA).fetchDaily(input.symbol, { range: options.range })
+        b = await getConnector(nameB).fetchDaily(input.symbol, { range: options.range })
       }
 
       const report = compareDatasets(a, b, config.compare)
@@ -384,13 +405,13 @@ program
       }
 
       if (options.html) {
-        await writeFile(options.html, renderCompareHtml(report, { a, b }))
-        console.error(`mdsc: HTML dashboard written to ${options.html}`)
+        await writeFileSecurely(options.html, renderCompareHtml(report, { a, b }))
+        console.error(`mdsc: HTML dashboard written to ${escapeTerminalText(options.html)}`)
       }
 
       process.exitCode = evaluateGating(report.summary, report.consistency_score, options)
     } catch (error) {
-      console.error(`mdsc: ${error instanceof Error ? error.message : String(error)}`)
+      console.error(`mdsc: ${formatTerminalError(error)}`)
       process.exitCode = 2
     }
   })
@@ -423,15 +444,16 @@ program
         console.log(JSON.stringify({ symbol: options.symbol, entries }, null, 2))
         return
       }
+      const symbol = escapeTerminalText(options.symbol)
       if (entries.length === 0) {
-        console.log(`\nNo audit history for ${options.symbol}. Run: mdsc check --provider yahoo --symbol ${options.symbol} --save\n`)
+        console.log(`\nNo audit history for ${symbol}. Run: mdsc check --provider yahoo --symbol ${symbol} --save\n`)
         return
       }
-      console.log(`\nAudit history — ${options.symbol}\n`)
+      console.log(`\nAudit history — ${symbol}\n`)
       console.log(formatHistory(entries))
       console.log()
     } catch (error) {
-      console.error(`mdsc: ${error instanceof Error ? error.message : String(error)}`)
+      console.error(`mdsc: ${formatTerminalError(error)}`)
       process.exitCode = 2
     }
   })
@@ -480,7 +502,7 @@ program
         const suggestionText = suggestions.length > 0
           ? `\nmdsc: did you mean one of: ${suggestions.join(', ')}?`
           : ''
-        console.error(`mdsc: unknown rule "${id}"${suggestionText}`)
+        console.error(`mdsc: unknown rule "${escapeTerminalText(id)}"${suggestionText}`)
         process.exitCode = 1
         return
       }

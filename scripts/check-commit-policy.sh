@@ -1,10 +1,16 @@
 #!/usr/bin/env bash
 # Commit policy for pull requests (new commits only: BASE..HEAD, never the history before).
-# Both rules apply to commits written under a maintainer identity only
-# (pacocartones, agent:*); contributors may use any address and may be assisted by AI
-# tools if their change is verified. Bots are exempt.
+# The rules apply to commits written under a maintainer identity only: a maintainer name
+# (pacocartones, Paco Cartones, maintainer, agent:*) or a maintainer address (the account's
+# noreply, or an internal @hq.local address). A contributor is never checked, whatever their
+# name: they may use any address and may be assisted by AI tools if their change is verified.
 #  1. No AI attribution trailers or footers in the commit message.
-#  2. A GitHub noreply address.
+#  2. The maintainer identity is exactly "Paco Cartones" with the account's noreply address,
+#     never a tool or agent name.
+#  3. On a pull request from a branch of this repository, the branch name follows CONTRIBUTING
+#     ("Branch names and commit identity"). Branches in contributors' forks are not checked;
+#     codex-security/arp_<32 lowercase hex> is accepted for naming only, and Dependabot's
+#     branch format is accepted only when the PR author is dependabot[bot].
 # Usage: scripts/check-commit-policy.sh <base-sha> <head-sha>
 set -euo pipefail
 
@@ -13,6 +19,11 @@ head="${2:?head sha}"
 
 ai_pattern='co-authored-by:[[:space:]]*(claude|gpt|chatgpt|copilot|codebuff|gemini|cursor|aider|devin|anthropic|openai|agent:)|generated (with|by) (claude|chatgpt|copilot|codex|gemini|an? ai)|🤖'
 maintainer_names='^(pacocartones|paco cartones|maintainer|agent:.*)$'
+maintainer_emails='(^|\+)pacocartones@users\.noreply\.github\.com$|@hq\.local$'
+maintainer_name='Paco Cartones'
+maintainer_email='253313177+pacocartones@users.noreply.github.com'
+branch_pattern='^((feat|fix|docs|data|test|ci|chore|refactor)/[a-z0-9][a-z0-9-]*|gh-pages|changeset-release/main|bot/[a-z0-9][a-z0-9/-]*|codex-security/arp_[0-9a-f]{32})$'
+dependabot_pattern='^dependabot/(github_actions|npm_and_yarn)/[a-z0-9][a-z0-9._+-]*$'
 
 fail=0
 while IFS= read -r sha; do
@@ -21,12 +32,12 @@ while IFS= read -r sha; do
   for pair in "$(git log -1 --format='%an|%ae' "$sha")" "$(git log -1 --format='%cn|%ce' "$sha")"; do
     name="${pair%%|*}"; email="${pair#*|}"
     lower="$(printf '%s' "$name" | tr '[:upper:]' '[:lower:]')"
-    if printf '%s' "$lower" | grep -Eq "$maintainer_names"; then
+    if printf '%s' "$lower" | grep -Eq "$maintainer_names" || printf '%s' "$email" | grep -Eiq "$maintainer_emails"; then
       maintainer=1
-      case "$email" in
-        *@users.noreply.github.com) ;;
-        *) echo "::error title=Personal address on a maintainer commit::${sha:0:10} is written under a maintainer identity with a non-noreply address; set user.email to the GitHub noreply address."; fail=1 ;;
-      esac
+      if [ "$name" != "$maintainer_name" ] || [ "$email" != "$maintainer_email" ]; then
+        echo "::error title=Maintainer identity::${sha:0:10} is written as '$name <$email>'; maintainer commits use '$maintainer_name <$maintainer_email>' (git config user.name and user.email)."
+        fail=1
+      fi
     fi
   done
   if [ "$maintainer" -eq 1 ] && printf '%s\n' "$msg" | grep -Eiq "$ai_pattern"; then
@@ -34,6 +45,24 @@ while IFS= read -r sha; do
     fail=1
   fi
 done < <(git rev-list --no-merges "${base}..${head}")
+
+# Rule 3: branch name, only for a pull request whose head branch lives in this repository.
+if [ -n "${GITHUB_HEAD_REF:-}" ] && [ -n "${GITHUB_EVENT_PATH:-}" ] && [ -f "$GITHUB_EVENT_PATH" ]; then
+  head_repo="$(jq -r '.pull_request.head.repo.full_name // empty' "$GITHUB_EVENT_PATH")"
+  if [ "$head_repo" = "${GITHUB_REPOSITORY:-}" ]; then
+    branch_allowed=0
+    if printf '%s' "$GITHUB_HEAD_REF" | grep -Eq "$branch_pattern"; then
+      branch_allowed=1
+    elif [ "$(jq -r '.pull_request.user.login // empty' "$GITHUB_EVENT_PATH")" = 'dependabot[bot]' ] &&
+      printf '%s' "$GITHUB_HEAD_REF" | grep -Eq "$dependabot_pattern"; then
+      branch_allowed=1
+    fi
+    if [ "$branch_allowed" -eq 0 ]; then
+      echo "::error title=Branch name::The branch name '$GITHUB_HEAD_REF' does not follow the naming policy in CONTRIBUTING.md (Branch names and commit identity). Use <type>/<short-slug> (types: feat, fix, docs, data, test, ci, chore, refactor; lowercase letters, digits and hyphens), for example fix/sitemap-canonical. The generated Codex Security format is codex-security/arp_<32 lowercase hex characters>; Dependabot's generated format is accepted only for PRs opened by dependabot[bot]. Rename the branch and push again; pull requests from forks are not checked."
+      fail=1
+    fi
+  fi
+fi
 
 [ "$fail" -eq 0 ] && echo "commit policy: ok"
 exit "$fail"

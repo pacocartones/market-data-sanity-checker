@@ -69,6 +69,10 @@ importers:
         specifier: ^4.1.11
         version: 4.1.11(@types/node@22.20.5)(@vitest/coverage-v8@4.1.11)(vite@7.3.6(@types/node@22.20.5)(tsx@4.23.15)(yaml@2.9.0))
 
+      yaml:
+        specifier: 2.9.0
+        version: 2.9.0
+
 packages:
 
   '@babel/helper-string-parser@7.29.7':
