@@ -1,0 +1,13 @@
+{
+  "name": "mdsc-package-floor-consumer",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "market-data-sanity-checker": "file:market-data-sanity-checker.tgz"
+  },
+  "overrides": {
+    "commander": "15.0.0",
+    "papaparse": "5.7.0",
+    "zod": "4.6.7"
+  }
+}
