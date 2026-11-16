@@ -66,17 +66,22 @@ jobs:
         run: |
           mkdir -p "$RUNNER_TEMP/package"
           npm pack --silent --pack-destination "$RUNNER_TEMP/package"
+          pnpm list --prod --depth Infinity --json > "$RUNNER_TEMP/runtime-installed.json"
+          tarball=$(find "$RUNNER_TEMP/package" -name '*.tgz' -print -quit)
+          node scripts/package-floor-lock.mjs --capture-runtime "$RUNNER_TEMP/runtime-installed.json" "$tarball" "$RUNNER_TEMP/package/runtime-dependencies.json"
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: package-tarball
-          path: ${{ runner.temp }}/package/*.tgz
+          path: |
+            ${{ runner.temp }}/package/*.tgz
+            ${{ runner.temp }}/package/runtime-dependencies.json
           if-no-files-found: error
 
   package-floor:
     # `engines.node` (>=22.12) is a promise about the published package, not about
     # the development toolchain: pnpm 11 needs >=22.13, so the verify matrix cannot
     # express the floor. This job therefore never touches pnpm — it installs the
-    # tarball built by `readme-smoke` in an empty directory on Node 22.12 itself,
+    # tarball built by `readme-smoke` with the reviewed consumer lock on Node 22.12,
     # with --engine-strict so the declared floor is enforced rather than merely
     # declared, and runs the shipped CLI on a repository fixture.
     needs: readme-smoke
@@ -99,10 +104,14 @@ jobs:
           tarball=$(find "$GITHUB_WORKSPACE/package" -name '*.tgz' -print -quit)
           fixture="$GITHUB_WORKSPACE/tests/fixtures/petr4-sa-dst-sunday-bar.json"
           work=$(mktemp -d)
+          cp "$GITHUB_WORKSPACE/.github/fixtures/package-floor/"{package.json,package-lock.json} "$work/"
+          cp "$tarball" "$work/market-data-sanity-checker.tgz"
+          cp "$GITHUB_WORKSPACE/package/runtime-dependencies.json" "$work/"
+          tar -xOf "$tarball" package/package.json > "$work/packed-package.json"
+          node "$GITHUB_WORKSPACE/scripts/package-floor-lock.mjs" "$work"
           cd "$work"
           echo "running on node $(node -v), npm $(npm -v)"
-          npm init --yes > /dev/null
-          npm install --no-audit --no-fund --engine-strict "$tarball"
+          npm ci --ignore-scripts --no-audit --no-fund --engine-strict
           set +e
           output=$("$work/node_modules/.bin/mdsc" check --file "$fixture" 2>&1)
           status=$?
