@@ -157,7 +157,8 @@ export function validateData(files) {
       }
     }
   }
-  const expectedReadme=renderScoreboardReadme({generatedAt:data.generated_at,basketSize:30,providers:data.providers,excluded:data.excluded,skipped,comparisons:data.comparisons})
+  // The fixed automation profile uses AV free; derive the note from trusted policy, not artifact prose.
+  const expectedReadme=renderScoreboardReadme({generatedAt:data.generated_at,basketSize:30,providers:data.providers,excluded:data.excluded,skipped,comparisons:data.comparisons,alphaVantageTier:'free'})
   requireThat(files['README.md'].toString('utf8')===expectedReadme)
   requireThat(isDeepStrictEqual(JSON.parse(files['datapackage.json'].toString('utf8')),descriptor(data.generated_at)))
   return data

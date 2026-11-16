@@ -56,6 +56,25 @@ async function quorum(ok: number, failed: number, skipped: number, rules: string
   }))
 }
 describe('scoreboard artifact boundary', () => {
+  it('accepts the free-tier note through pack/load and rejects its omission from the fixed automation profile', async () => {
+    const data = await json()
+    const input = {
+      generatedAt: data.generated_at, basketSize: 30, providers: data.providers,
+      excluded: data.excluded, skipped: [{ provider: 'alpha-vantage', symbols: data.basket.slice(25) }],
+      comparisons: data.comparisons,
+    }
+    const free = renderScoreboardReadme({ ...input, alphaVantageTier: 'free' })
+    const unknown = renderScoreboardReadme(input)
+    expect(free).not.toBe(unknown)
+    await writeFile(join(source, 'README.md'), free)
+    const api = await module()
+    const packed = await api.pack(source, bundle, env)
+    const result = await api.loadArtifact(bundle, env, packed.payloadSha256)
+    expect(result.files['README.md']?.toString()).toBe(free)
+    await writeFile(join(source, 'README.md'), unknown)
+    await expect(api.pack(source, join(dir, 'omitted-note'), env)).rejects.toThrow()
+  })
+
   it('accepts the checked-in 23/2/5 provider and preserves all four files', async () => {
     const { pack, loadArtifact } = await module()
     expect((await json()).providers.find((p: { provider: string }) => p.provider === 'alpha-vantage')).toMatchObject({
