@@ -54,12 +54,15 @@ export interface Rule {
   meta: RuleMeta
   /**
    * Returns one finding per occurrence. The engine collapses them into a
-   * single report entry with `occurrences` — rules should NOT self-collapse.
+   * single report entry with `occurrences`. The engine may use a private,
+   * exact summary for a rule with pairwise output; direct check calls retain
+   * this one-finding-per-occurrence contract.
    *
-   * Findings normally carry `context.config.severity`. A rule MAY deliberately
-   * emit a lower severity for a lighter sub-case (e.g. CURRENCY_SUSPECT
-   * degrades "currency absent" to info): the engine preserves that choice
-   * unless the user overrides the rule's severity in the config.
+   * Findings normally carry `context.config.severity`, but a rule may lower or
+   * raise the severity of an individual case. Without a user override, the
+   * engine reports the highest-severity occurrence, retaining the first among
+   * ties and its matching location and evidence. An explicit severity override
+   * forces the final severity and retains the first occurrence as representative.
    */
   check(data: MarketDataSet, context: RuleContext): Finding[]
 }

@@ -29,6 +29,8 @@ Generated: 2026-10-17T12:20:27.750Z · basket: 30 liquid symbols · range: 1y ·
 
 ## Cross-provider consistency
 
+This run uses Alpha Vantage’s free daily endpoint, which returns the latest 100 daily bars without dividends or splits. Corporate-action findings can reflect unavailable coverage and do not by themselves establish a defect in either feed. This snapshot does not retain the raw datasets and field-level coverage needed to adjudicate each event. Compare corporate actions only over periods where both sources have verified coverage, then reconcile discrepancies against issuer or exchange notices.
+
 | Symbol | Consistency score | Compared dates | Findings |
 |---|---|---|---|
 | AAPL | 85 | 100 | DIVIDEND_MISMATCH (warning, 2025-11-10) |

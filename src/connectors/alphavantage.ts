@@ -1,6 +1,12 @@
 import type { Bar, Dividend, MarketDataSet, Split } from '../schema/market-data'
 import type { Connector, FetchOptions } from './types'
-import { ConnectorError, DEFAULT_TIMEOUT_MS, isTimeoutError } from './types'
+import {
+  assertProviderCollectionLimit,
+  ConnectorError,
+  DEFAULT_TIMEOUT_MS,
+  isTimeoutError,
+  readProviderJson,
+} from './types'
 
 /**
  * Alpha Vantage connector — pure parser + thin fetch wrapper.
@@ -48,6 +54,22 @@ export const FREE_DAILY_REQUEST_LIMIT = 25
 /** Provider keys that signal an error payload instead of data. */
 const ERROR_KEYS = ['Error Message', 'Note', 'Information'] as const
 
+/** Operator-safe classifications for provider-controlled error fields. */
+const SAFE_ERROR_DETAILS = {
+  'Error Message': {
+    code: 'invalid-request',
+    guidance: 'Invalid API call; check the symbol and request parameters',
+  },
+  Note: {
+    code: 'request-limit',
+    guidance: `standard API rate limit is ${FREE_DAILY_REQUEST_LIMIT} requests per day; retry later`,
+  },
+  Information: {
+    code: 'request-unavailable',
+    guidance: 'request unavailable; check the API key tier and request parameters',
+  },
+} as const
+
 function asRecord(value: unknown): Record<string, unknown> | undefined {
   return typeof value === 'object' && value !== null ? (value as Record<string, unknown>) : undefined
 }
@@ -75,12 +97,16 @@ export function parseAlphaVantageDaily(payload: unknown, symbol: string): Market
   for (const key of ERROR_KEYS) {
     const message = root[key]
     if (typeof message === 'string' && message.length > 0) {
-      // Only the premium-endpoint refusal gets the hint. The daily rate-limit Note also links to
-      // alphavantage.co/premium/, and appending the hint there sent the reader after the wrong cause.
-      const hint = /premium endpoint/i.test(message)
-        ? ' (this endpoint needs a premium key; unset ALPHA_VANTAGE_PREMIUM to use the free endpoint)'
-        : ''
-      throw new ConnectorError(`Alpha Vantage returned "${key}" for ${symbol}: ${message}${hint}`)
+      // The provider receives the API key and can reflect it in this text. Inspect only enough to
+      // preserve the premium-endpoint hint; never copy provider-controlled text into the exception.
+      const detail =
+        key === 'Information' && /premium endpoint/i.test(message)
+          ? {
+              code: 'premium-endpoint',
+              guidance: 'this endpoint needs a premium key; unset ALPHA_VANTAGE_PREMIUM to use the free endpoint',
+            }
+          : SAFE_ERROR_DETAILS[key]
+      throw new ConnectorError(`Alpha Vantage returned "${key}" for ${symbol} [${detail.code}]: ${detail.guidance}`)
     }
   }
 
@@ -93,6 +119,7 @@ export function parseAlphaVantageDaily(payload: unknown, symbol: string): Market
   const dividends: Dividend[] = []
   const splits: Split[] = []
 
+  assertProviderCollectionLimit(series, 'Alpha Vantage', 'daily time series')
   for (const date of Object.keys(series).sort()) {
     const entry = asRecord(series[date])
     if (!entry) continue
@@ -176,15 +203,14 @@ export const alphaVantage: Connector = {
       if (!response.ok) {
         throw new ConnectorError(`Alpha Vantage HTTP ${response.status} fetching ${symbol}`)
       }
-      payload = await response.json()
+      payload = await readProviderJson(response, 'Alpha Vantage')
     } catch (error) {
       if (error instanceof ConnectorError) throw error
       if (isTimeoutError(error)) {
         throw new ConnectorError(`Alpha Vantage request for ${symbol} aborted: timeout after ${timeoutMs}ms`)
       }
-      throw new ConnectorError(
-        `Alpha Vantage request failed for ${symbol}: ${error instanceof Error ? error.message : String(error)}`,
-      )
+      // Fetch and JSON parsing errors can include the credential-bearing request URL or response text.
+      throw new ConnectorError(`Alpha Vantage request failed for ${symbol}`)
     }
     return parseAlphaVantageDaily(payload, symbol)
   },

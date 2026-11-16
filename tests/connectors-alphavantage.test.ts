@@ -2,7 +2,13 @@ import { readFile } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { alphaVantage, FREE_DAILY_REQUEST_LIMIT, parseAlphaVantageDaily } from '../src/connectors/alphavantage'
-import { ConnectorError, DEFAULT_TIMEOUT_MS, splitByDailyLimit } from '../src/connectors/types'
+import {
+  ConnectorError,
+  DEFAULT_TIMEOUT_MS,
+  MAX_PROVIDER_COLLECTION_ITEMS,
+  MAX_PROVIDER_RESPONSE_BYTES,
+  splitByDailyLimit,
+} from '../src/connectors/types'
 import { marketDataSetSchema } from '../src/schema/market-data'
 
 const fixture = (name: string) =>
@@ -108,9 +114,42 @@ describe('parseAlphaVantageDaily', () => {
     expect(() => parseAlphaVantageDaily({ Information: 'Premium endpoint.' }, 'IBM')).toThrow(ConnectorError)
   })
 
+  it('never copies provider-controlled credential reflections into ConnectorError messages', () => {
+    const apiKey = 'SECRET123'
+    const transformedKey = 'S-E-C-R-E-T-1-2-3'
+    const providerText = `Detected ${apiKey} or ${transformedKey}\nforged log line`
+
+    for (const key of ['Error Message', 'Note', 'Information'] as const) {
+      let thrown: unknown
+      try {
+        parseAlphaVantageDaily({ [key]: providerText }, 'IBM')
+      } catch (error) {
+        thrown = error
+      }
+
+      expect(thrown).toBeInstanceOf(ConnectorError)
+      const message = (thrown as Error).message
+      expect(message).toContain(`"${key}"`)
+      expect(message).not.toContain(apiKey)
+      expect(message).not.toContain(transformedKey)
+      expect(message).not.toContain('forged log line')
+      expect(message).not.toContain('\n')
+    }
+  })
+
   it('throws ConnectorError when the time series is missing', () => {
     expect(() => parseAlphaVantageDaily({ 'Meta Data': {} }, 'IBM')).toThrow(ConnectorError)
     expect(() => parseAlphaVantageDaily(undefined, 'IBM')).toThrow(ConnectorError)
+  })
+
+  it('rejects an oversized time series before copying or sorting its keys', () => {
+    const series = Object.fromEntries(
+      Array.from({ length: MAX_PROVIDER_COLLECTION_ITEMS + 1 }, (_, index) => [`day-${index}`, {}]),
+    )
+
+    expect(() => parseAlphaVantageDaily({ 'Time Series (Daily)': series }, 'IBM')).toThrow(
+      /daily time series exceeds/,
+    )
   })
 })
 
@@ -154,12 +193,46 @@ describe('alphaVantage.fetchDaily — HTTP concerns (mocked fetch, no network)',
 
   it('passes an AbortSignal to fetch', async () => {
     process.env.ALPHA_VANTAGE_API_KEY = 'test-key'
-    const fetchMock = stubFetch(async () => ({ ok: true, status: 200, json: async () => OK_PAYLOAD }))
+    const fetchMock = stubFetch(async () => new Response(JSON.stringify(OK_PAYLOAD)))
     const dataset = await alphaVantage.fetchDaily('IBM')
 
     expect(dataset.bars).toHaveLength(1)
     expect(fetchMock).toHaveBeenCalledTimes(1)
     expect(fetchMock.mock.calls[0]?.[1]?.signal).toBeInstanceOf(AbortSignal)
+  })
+
+  it('cancels a streamed body when it crosses the response-byte limit', async () => {
+    process.env.ALPHA_VANTAGE_API_KEY = 'test-key'
+    let pullCount = 0
+    let cancelled = false
+    const body = new ReadableStream<Uint8Array>({
+      pull(controller) {
+        controller.enqueue(new Uint8Array(pullCount === 0 ? MAX_PROVIDER_RESPONSE_BYTES : 1))
+        pullCount += 1
+      },
+      cancel() {
+        cancelled = true
+      },
+    })
+    stubFetch(async () => new Response(body))
+
+    await expect(alphaVantage.fetchDaily('IBM')).rejects.toThrow(
+      `Alpha Vantage response exceeds the ${MAX_PROVIDER_RESPONSE_BYTES}-byte limit`,
+    )
+    expect(cancelled).toBe(true)
+  })
+
+  it('redacts credentials from JSON parser failures on the bounded response path', async () => {
+    const apiKey = 'response-secret-key'
+    process.env.ALPHA_VANTAGE_API_KEY = apiKey
+    stubFetch(async () => new Response(`${apiKey}\n{`))
+
+    const error = await alphaVantage.fetchDaily('IBM').catch((caught: unknown) => caught)
+
+    expect(error).toBeInstanceOf(ConnectorError)
+    expect((error as Error).message).toBe('Alpha Vantage request failed for IBM')
+    expect((error as Error).message).not.toContain(apiKey)
+    expect((error as Error).message).not.toContain('\n')
   })
 
   it('maps a timeout rejection to a ConnectorError naming the default timeout', async () => {
@@ -180,13 +253,16 @@ describe('alphaVantage.fetchDaily — HTTP concerns (mocked fetch, no network)',
     await expect(alphaVantage.fetchDaily('IBM', { timeoutMs: 250 })).rejects.toThrow(/timeout after 250ms/)
   })
 
-  it('keeps the generic failure message for non-timeout network errors', async () => {
-    process.env.ALPHA_VANTAGE_API_KEY = 'test-key'
+  it('maps non-timeout network errors to a credential-safe static message', async () => {
+    const apiKey = 'network-secret-key'
+    process.env.ALPHA_VANTAGE_API_KEY = apiKey
     stubFetch(async () => {
-      throw new Error('socket hang up')
+      throw new Error(`socket hang up for https://www.alphavantage.co/query?apikey=${apiKey}`)
     })
-    await expect(alphaVantage.fetchDaily('IBM')).rejects.toThrow(/Alpha Vantage request failed for IBM: socket hang up/)
+    await expect(alphaVantage.fetchDaily('IBM')).rejects.toThrow(/^Alpha Vantage request failed for IBM$/)
+    await expect(alphaVantage.fetchDaily('IBM')).rejects.not.toThrow(apiKey)
   })
+
 })
 
 describe('alphaVantage — free vs premium endpoint', () => {
@@ -206,7 +282,9 @@ describe('alphaVantage — free vs premium endpoint', () => {
   }
 
   function stubOk(payload: unknown) {
-    const fetchMock = vi.fn(async (_url: unknown, _init?: RequestInit) => ({ ok: true, status: 200, json: async () => payload }))
+    const fetchMock = vi.fn(async (_url: unknown, _init?: RequestInit) =>
+      new Response(JSON.stringify(payload)),
+    )
     vi.stubGlobal('fetch', fetchMock)
     return fetchMock
   }
