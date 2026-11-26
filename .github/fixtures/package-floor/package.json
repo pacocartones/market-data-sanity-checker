@@ -6,8 +6,8 @@
     "market-data-sanity-checker": "file:market-data-sanity-checker.tgz"
   },
   "overrides": {
-    "commander": "15.0.0",
-    "papaparse": "5.7.0",
+    "commander": "15.1.0",
+    "papaparse": "5.7.1",
     "zod": "4.6.7"
   }
 }
