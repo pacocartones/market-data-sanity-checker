@@ -7,14 +7,14 @@ What we ask for is the same thing we ask of every contribution: **good human jud
 ## What we ask
 
 - **Understand what you send.** Read the change before you open the pull request, and be ready to explain it and answer review questions in your own words.
-- **Test it.** Run the project's checks locally (see CONTRIBUTING) and say what you ran.
-- **Check facts at the source.** AI tools can invent numbers, links and quotes. Every claim must come from a source you opened yourself. In this repository, every rule needs a real reference and a fixture, as described in CONTRIBUTING.
+- **Test it.** Run the project's checks locally (see [CONTRIBUTING.md](CONTRIBUTING.md#setup)) and say what you ran.
+- **Check facts at the source.** AI tools can invent numbers, links and quotes. Every claim must come from a source you opened yourself. In this repository, every rule needs a real reference and a fixture, as described in [the rule contract](CONTRIBUTING.md#the-rule-contract).
 - **Own the change.** You are responsible for what you submit, whoever or whatever helped write it. Keep pull requests focused: one change, one reason.
 - **Keep secrets out.** Don't paste API keys, private data or anything confidential into AI tools.
 
 ## Telling us is optional
 
-You don't have to tell us you used AI, and it never counts against you. If you'd like to, there's a checkbox in the pull request template. It simply helps reviewers know where to look more carefully. We review every pull request on its merits, by the same standard.
+You don't have to tell us you used AI, and it never counts against you. If you'd like to, there's a checkbox in the pull request template. It simply helps reviewers know where to look more carefully. We review every pull request on its merits, by the same standard. Your commits may keep the trailers your tools add; the rule for maintainer commits is in [CONTRIBUTING.md](CONTRIBUTING.md#branch-names-and-commit-identity).
 
 ## How we work
 

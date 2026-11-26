@@ -1,9 +1,22 @@
 # Contributing
 
-Thanks for considering a contribution. This project is a **trust layer for market data** —
-its value is the quality of its rule corpus, so the bar for changes is deliberate.
+Thanks for considering a contribution. This project is a **trust layer for market data**:
+its value is the quality of its rule corpus, so the bar for changes is deliberate. This page
+says how a change gets in; each rule it mentions is defined once, in the file it links to.
+
+## Your first contribution
+
+1. **Choose** an [unassigned good first issue](https://github.com/pacocartones/market-data-sanity-checker/issues?q=is%3Aissue+is%3Aopen+no%3Aassignee+label%3A%22good+first+issue%22) (they come with their source already found), or a [help wanted](https://github.com/pacocartones/market-data-sanity-checker/issues?q=is%3Aissue+is%3Aopen+no%3Aassignee+label%3A%22help+wanted%22) one once you know the repository. Read its latest comments and linked pull requests first. To add a rule, [docs/tutorial-first-rule.md](docs/tutorial-first-rule.md) walks one real rule (`VOLUME_NEGATIVE`) from the source to the pull request.
+2. **Claim** it (see [below](#claiming-an-issue)).
+3. **Fork, branch and change** the files the issue names. Anything larger than a small fix starts as an issue (rule proposal or feature request), so the approach is agreed before you write code.
+4. **Check** your change (see [Setup](#setup)), plus any check the issue names.
+5. **Open a pull request** against `main`, fill in the template, link the issue and paste the commands you ran with their results. A check you could not run is reported with its error, not ticked.
+
+Your first pull request's checks wait until a maintainer approves them (a GitHub default for first-time contributors). That says nothing about your change; push to the same branch rather than closing and reopening.
 
 ## Setup
+
+Requires Node.js ≥ 22.12 and pnpm (see `engines` and `packageManager` in `package.json`).
 
 ```bash
 pnpm install
@@ -13,11 +26,7 @@ pnpm calibrate   # 50-symbol calibration run against real Yahoo data → calibra
 pnpm scoreboard  # provider audit over ~30 liquid symbols → scoreboard/
 ```
 
-Requires Node.js ≥ 22.12 and pnpm (see `engines` and `packageManager` in `package.json`).
-
-## Your first rule
-
-New here? [docs/tutorial-first-rule.md](docs/tutorial-first-rule.md) walks one real rule (`VOLUME_NEGATIVE`) from the source to the pull request. The [good first issues](https://github.com/pacocartones/market-data-sanity-checker/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) come with their source already found.
+Property tests (fast-check): how to run, replay and add them is in [docs/property-tests.md](docs/property-tests.md).
 
 ## Claiming an issue
 
@@ -25,7 +34,18 @@ Comment `/take` on the issue and a bot assigns it to you straight away, if nobod
 
 Issues labelled both `good first issue` and `data` are small enough that nobody claims them: open a pull request when it's ready, and the first correct one is merged.
 
-We reply to every new issue, pull request and "can I take this?" comment within 24 hours, usually the same day. A reply is a real answer (a review, a question or an assignment), not an acknowledgement.
+## Good first issues
+
+An issue carries `good first issue` only if all of these hold:
+
+1. it can be done from public sources, with no third-party account or payment;
+2. it touches one or two files, named in the issue;
+3. it names a check that must pass;
+4. it takes under about two hours for someone new to the repository;
+5. it is unclaimed: no assignee and no open pull request;
+6. a maintainer reviewed it in the last 30 days.
+
+Labels and their meanings are in [`.github/labels.tsv`](.github/labels.tsv).
 
 ## The rule contract
 
@@ -61,76 +81,31 @@ A case is **one new file** in [`incidents/`](incidents/) (see its README and the
 - **Structure vs plausibility.** Zod schemas validate structure; the rules engine judges
   plausibility. A negative price is structurally valid and must parse.
 
-## Property tests
+## Changesets
 
-`tests/property/` holds [fast-check](https://fast-check.dev) properties: instead of one hand-written example, a property states a rule that must hold for *every* generated dataset, and fast-check searches for (and shrinks) a counter-example. They run as part of `pnpm test`; run only them with:
-
-```bash
-pnpm test:property
-```
-
-| Variable | Meaning | Default |
-| --- | --- | --- |
-| `FC_NUM_RUNS` | cases per property | 100 in CI, 25 locally |
-| `FC_SEED` | integer seed, or `random` to explore new inputs | fixed (so CI is reproducible) |
-| `FC_PATH` | the `path` printed with a failure; re-runs just that case | unset |
-
-**Replaying a failure.** A failing property prints the shrunk counter-example, the seed and the path, plus a ready-made `Replay:` line. Re-run it with the same values, for example `FC_SEED=20261015 FC_NUM_RUNS=25 FC_PATH=0:0:1 pnpm test:property`. To hunt for new failures, try `FC_SEED=random FC_NUM_RUNS=1000 pnpm test:property`. If you find a real bug, keep the shrunk input as an ordinary example test next to the fix.
-
-**Adding a property for a rule.** Rules are covered by the defect-injection table in `tests/property/defects.property.test.ts`: start from a dataset that is clean by construction, inject one known defect, and require the rule to fire.
-
-1. Read the rule and write down exactly what triggers it (and what it ignores).
-2. Add one entry to `DEFECTS` with the rule id, a short label and an `inject(clean, draw)` function. `clean` is a generated gentle random walk (30 to 60 weekdays, USD, no corporate actions) that no rule objects to; `draw` gives three numbers in [0, 1) that you map to a position and a magnitude with `pickInt` and `lerp`. Return the new dataset, plus the expected `date` (and `severity`, if it is not the default) when the finding points at one site.
-3. Comment WHY the injected defect must trigger the rule, citing the rule's own condition.
-4. Check the test can fail: temporarily weaken the rule and see the property go red.
-
-Generators live in `tests/property/support/arbitraries.ts` (`cleanDataset`, `validDataset`, `wildDataset`). Keep properties fast: no more than a few hundred milliseconds each at the default run count.
+A change users would notice adds a [changeset](https://github.com/changesets/changesets): run `pnpm changeset` and commit the generated file with your pull request. Docs, tests and CI changes need none. Never edit `CHANGELOG.md` directly; how changesets become releases is in [RELEASING.md](RELEASING.md).
 
 ## Using AI
 
-AI-assisted contributions are welcome. Please read [AI_POLICY.md](AI_POLICY.md): understand and test your change, check facts at their source, and own what you submit. Saying you used AI is optional and never counts against you. We also maintain this project with AI agents under human oversight; a human maintainer reviews every merge.
-
-Replies in this repository's issues, pull requests and discussions are prepared by an AI agent working under the supervision of the repository owner.
-
-Commit messages: AI-assisted contributions are welcome when you have verified the change (see above). You do not need to remove a trailer your tool adds, and you can commit under any email address. Commits written by the maintainers carry no AI attribution trailers and use GitHub noreply addresses; the *Commit policy* check on pull requests enforces that for maintainer identities only. When we squash-merge, we drop AI `Co-authored-by` lines from the final message so `main` stays clean; your authorship stays.
+AI help is welcome under the [AI policy](AI_POLICY.md). Replies in this repository's issues, pull requests and discussions are prepared by an AI agent working under the supervision of the repository owner.
 
 ## Review
 
-A human maintainer reviews and is responsible for every merge. Automated review comments (CodeRabbit) are advisory: a person makes the call, and you don't need to reply to the bot. We resolve every review conversation, from people or bots, before merging, either by changing the code or by noting why not.
+We reply to every new issue, pull request and `/take` comment within 24 hours, usually the same day. A reply is a real answer (a review, a question or an assignment), not an acknowledgement. Security reports follow [SECURITY.md](SECURITY.md).
 
-For maintainers: CodeRabbit doesn't review this repository automatically yet, so request it on each pull request that changes code with a `@coderabbitai review` comment. A green CodeRabbit status is not a review.
+A human maintainer reviews and is responsible for every merge. Automated review comments (CodeRabbit) are advisory: a person makes the call, and you don't need to reply to the bot. Every review conversation, from people or bots, is resolved before merging, by a change or a note saying why not. Maintainers request a CodeRabbit review with a `@coderabbitai review` comment on each pull request that changes code; a green CodeRabbit status is not a review.
 
-Contributions here are voluntary. We don't pay for comments, reviews or other work that nobody asked for, and a request for payment in an issue or a pull request gets no reply and doesn't change how we review it.
+Contributions are voluntary; requests for payment get no reply and don't change how we review.
 
-## Releases
-
-We use [changesets](https://github.com/changesets/changesets). Run `pnpm changeset` and
-commit the generated file with your PR.
+By contributing you agree to follow the [Code of Conduct](CODE_OF_CONDUCT.md) and to license your contribution under the [MIT License](LICENSE). How decisions are made: [GOVERNANCE.md](.github/GOVERNANCE.md).
 
 ## Branch names and commit identity
 
-- **If you contribute from a fork, none of the branch rules apply to you:** name your branch as you
-  like. They are for the maintainers' branches in this repository.
-- **Maintainers' branch names:** `<type>/<short-slug>`, lower case with hyphens, where the type is
-  the conventional-commit type: `feat/`, `fix/`, `docs/`, `test/`, `ci/`, `chore/` or `refactor/`. Example: `fix/sitemap-canonical`. Branch names
-  describe the change, not who made it or an internal ticket. Reserved: `main`, `gh-pages`, `changeset-release/main` and `bot/*` (for example `bot/scoreboard`).
-- **Codex Security branches:** the generated format `codex-security/arp_<32 lowercase hexadecimal characters>`
-  is accepted for branches in this repository. Other `codex-security/*` names must follow the normal
-  naming rule instead. This is a branch-name exception only: it does not authenticate a tool or author,
-  approve the patch, or exempt maintainer commits from the identity and attribution rules below.
-  - **Dependabot branches:** `dependabot/github_actions/<slug>` and `dependabot/npm_and_yarn/<slug>`
-    are accepted for branches in this repository only when Dependabot opened the pull request.
-    The workflow actor or a lookalike branch name does not grant this exception; maintainer commit
-    identity and attribution rules still apply.
-- **What a branch type means for the version** (maintainers' branches): `docs/`, `test/`, `ci/` and
-  `chore/` carry no changeset; `fix/` is a patch; `feat/` is a minor (see `RELEASING.md`, rules 1
-  and 9). If you contribute from a fork, add a changeset when your change affects users, whatever
-  your branch is called.
-- **What happens to branches:** in this repository, merged and closed pull requests keep their
-  commits and the branch is deleted afterwards; branches in your fork are yours.
-- **Commit identity:** maintainers commit as
-  `Paco Cartones <253313177+pacocartones@users.noreply.github.com>` (how the project is maintained,
-  including the part done by AI agents under human oversight, is described under [Using AI](#using-ai)), and
-  `scripts/check-commit-policy.sh` checks maintainer commits only. If you do not want your email in
-  the public history, use your GitHub noreply address
-  ([how](https://docs.github.com/en/account-and-profile/setting-up-and-managing-your-personal-account-on-github/managing-email-preferences/setting-your-commit-email-address)).
+**From a fork, none of this applies to you:** name your branch as you like, commit under any address, and keep the trailers your tools add. If you do not want your email in the public history, use your [GitHub noreply address](https://docs.github.com/en/account-and-profile/setting-up-and-managing-your-personal-account-on-github/managing-email-preferences/setting-your-commit-email-address).
+
+For maintainers' branches and commits in this repository, the *Commit policy* check runs [`scripts/check-commit-policy.sh`](scripts/check-commit-policy.sh), which is the source of truth for the exact patterns. In short:
+
+- **Branch names:** `<type>/<short-slug>`, lower case with hyphens; types `feat`, `fix`, `docs`, `data`, `test`, `ci`, `chore`, `refactor` (example: `fix/sitemap-canonical`). The name describes the change, not who made it. Reserved: `main`, `gh-pages`, `changeset-release/main` and `bot/*` (for example `bot/scoreboard`). Generated names accepted as-is: `codex-security/arp_<32 lowercase hex>`, and `dependabot/github_actions/<slug>` or `dependabot/npm_and_yarn/<slug>` only when Dependabot opened the pull request. These are naming exceptions only; they do not exempt commits from the identity rule.
+- **Branch type and version:** `docs/`, `test/`, `ci/` and `chore/` carry no changeset; `fix/` is a patch; `feat/` is a minor (see [RELEASING.md](RELEASING.md), rules 1 and 9).
+- **Commit identity:** maintainer commits (including the part done by AI agents under human oversight) use `Paco Cartones <253313177+pacocartones@users.noreply.github.com>` and carry no AI attribution trailers or footers. When we squash-merge, we drop AI `Co-authored-by` lines from the final message so `main` stays clean; your authorship stays.
+- Merged and closed pull requests keep their commits; the branch in this repository is deleted afterwards.

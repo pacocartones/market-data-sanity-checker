@@ -1,0 +1,26 @@
+name: Good first issue (maintainers)
+description: A bounded task for a newcomer. Maintainers only; it must meet every criterion in CONTRIBUTING.md under "Good first issues".
+labels: [good first issue, help wanted]
+body:
+  - type: textarea
+    id: goal
+    attributes:
+      label: Goal and files
+      description: The small useful outcome, the one or two files to change, and the public sources needed (no account or payment).
+    validations:
+      required: true
+  - type: textarea
+    id: check
+    attributes:
+      label: Check and acceptance
+      description: The exact command that must pass, and what result counts as done.
+    validations:
+      required: true
+  - type: input
+    id: help
+    attributes:
+      label: Who can help
+      description: The maintainer to ask in this issue.
+      placeholder: "@pacocartones"
+    validations:
+      required: true
