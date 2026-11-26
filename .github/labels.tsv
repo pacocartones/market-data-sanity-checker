@@ -1,0 +1,13 @@
+# The shared label standard, from labels-v1.tsv (dasousa contributors standard v1). Sync with standard v2.
+# One label per line: name, color (six hex digits, no #), description, tab-separated.
+# Type, one per issue or PR: bug, feature, docs, data, chore. Entry: good first issue, help wanted. State: needs info.
+# scripts/bootstrap.sh and the labels-sync workflow in pacocartones/.github read this file.
+# name	color	description
+bug	d73a4a	Something isn't working
+feature	a2eeef	New capability or improvement
+docs	0075ca	Documentation
+data	bfdadc	Facts the project ships: add, correct or re-verify
+chore	ededed	Dependency and CI upkeep
+good first issue	7057ff	Good for newcomers
+help wanted	008672	Extra attention is needed
+needs info	fbca04	Waiting for more information from the author
