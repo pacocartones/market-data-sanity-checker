@@ -11,7 +11,13 @@ const validDataset = {
 }
 
 describe('marketDataSetSchema', () => {
-  it.each(['2024-02-30', '2023-02-29', '2024-04-31', '01/02/2024', '2024-01-02T14:30:00', '2024-02-30T09:30:00-0500', '2024-01-02T09:30:00+053'])(
+  it.each([
+    '2024-02-30', '2023-02-29', '2024-04-31', '01/02/2024', '2024-02-30T09:30:00-0500', '2024-01-02T09:30:00+053',
+    // Impossible calendar dates and times stay rejected in the 1.x timezone-less forms.
+    '2024-02-30T09:30:00', '2024-02-30 09:30:00', '2023-02-29 00:00', '2024-01-02T25:00:00', '2024-01-02 14:60:00',
+    // Not a 1.x ISO datetime shape: separator, missing seconds digits, trailing text.
+    '2024-01-02  14:30:00', '2024-01-02T14', '2024-01-02 14:30:0', '2024-01-02 14:30:00 UTC',
+  ])(
     'rejects an invalid or ambiguous timestamp: %s',
     (timestamp) => {
       const dataset = { ...validDataset, bars: [{ ...validDataset.bars[0], timestamp }] }
@@ -26,6 +32,29 @@ describe('marketDataSetSchema', () => {
       expect(marketDataSetSchema.safeParse(dataset).success).toBe(true)
     },
   )
+
+  // 1.x accepted these (1.7.0 validated with Date.parse) and real exports send them:
+  // pandas/spreadsheet CSVs write "YYYY-MM-DD HH:MM:SS", intraday feeds often omit the zone.
+  it.each([
+    '2024-01-02T14:30:00', '2024-01-02T14:30', '2024-01-02T14:30:00.123',
+    '2024-01-02 14:30:00', '2024-01-02 14:30', '2024-01-02 14:30:00.123', '2024-01-02 14:30:00Z', '2024-01-02 14:30:00+01:00',
+    '2024-02-29T23:59:59',
+  ])('accepts a 1.x datetime with a real calendar date: %s', (timestamp) => {
+    const dataset = { ...validDataset, bars: [{ ...validDataset.bars[0], timestamp }] }
+    const result = marketDataSetSchema.safeParse(dataset)
+    expect(result.success).toBe(true)
+    // Kept verbatim, so the rules read it through Date.parse exactly as 1.7.0 did.
+    if (result.success) expect(result.data.bars[0]!.timestamp).toBe(timestamp)
+  })
+
+  it('accepts 1.x timezone-less datetimes in corporate-action dates too', () => {
+    const dataset = {
+      ...validDataset,
+      dividends: [{ exDate: '2024-01-02 00:00:00', payDate: '2024-01-20T00:00:00', amount: 1 }],
+      splits: [{ exDate: '2024-01-03 09:30', numerator: 2, denominator: 1 }],
+    }
+    expect(marketDataSetSchema.safeParse(dataset).success).toBe(true)
+  })
 
   it('rejects an impossible corporate-action date through the shared timestamp schema', () => {
     const dataset = {

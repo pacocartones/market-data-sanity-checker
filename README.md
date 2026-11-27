@@ -134,8 +134,10 @@ mdsc rules --format json | jq '.single_source[].id'
 mdsc --version
 ```
 
-Input dates must be real `YYYY-MM-DD` calendar dates. Datetimes need an ISO timezone
-(`Z`, `±HH:MM` or `±HHMM`). Bar timestamps in compact `YYYYMMDD` or plausible epoch
+Input dates must be real `YYYY-MM-DD` calendar dates. Datetimes should carry an ISO timezone
+(`Z`, `±HH:MM` or `±HHMM`); as in 1.x, a datetime without one (`2024-01-02T14:30:00` or the
+CSV-export form `2024-01-02 14:30:00`) is still accepted and read in the local time of the
+process running `mdsc`, so set `TZ` or add the zone when it matters. Bar timestamps in compact `YYYYMMDD` or plausible epoch
 seconds are normalized when CSV or JSON files are ingested. Invalid dates produce a
 `SCHEMA_INVALID` finding and fail the data gate.
 

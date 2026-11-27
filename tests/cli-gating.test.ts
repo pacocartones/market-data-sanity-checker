@@ -155,7 +155,11 @@ describe('check — gating exit codes', () => {
   it.each([
     ['csv', 'date,open,high,low,close\n2024-01-02T09:30:00-0500,1,1,1,1\n'],
     ['json', JSON.stringify({ symbol: 'X', source: 'synthetic', bars: [{ timestamp: '2024-01-02T09:30:00+0530', open: 1, high: 1, low: 1, close: 1 }] })],
-  ])('accepts a timezone offset without a colon in a %s file', async (extension, content) => {
+    ['csv', 'date,open,high,low,close\n2024-01-02 14:30:00,1,1,1,1\n'],
+    ['csv', 'date,open,high,low,close\n2024-01-02T14:30:00,1,1,1,1\n'],
+    ['json', JSON.stringify({ symbol: 'X', source: 'synthetic', bars: [{ timestamp: '2024-01-02T14:30:00', open: 1, high: 1, low: 1, close: 1 }] })],
+    ['json', JSON.stringify({ symbol: 'X', source: 'synthetic', bars: [{ timestamp: '2024-01-02 14:30:00', open: 1, high: 1, low: 1, close: 1 }] })],
+  ])('accepts a timezone offset without a colon, or a 1.x timezone-less datetime, in a %s file', async (extension, content) => {
     await withTempDir(async (dir) => {
       const path = join(dir, `input.${extension}`)
       await writeFile(path, content, 'utf8')

@@ -99,6 +99,12 @@ describe('parseOhlcvCsv', () => {
     const parsed = marketDataSetSchema.parse(parseOhlcvCsv(csv))
     expect(parsed.bars.map((bar) => bar.timestamp)).toEqual(stamps)
   })
+  it('keeps 1.x timezone-less datetimes verbatim, including the "YYYY-MM-DD HH:MM:SS" export form', () => {
+    const stamps = ['2024-01-02 14:30:00', '2024-01-02 14:31:00', '2024-01-02T14:32:00', '2024-01-02T14:33:00.250']
+    const csv = ['timestamp,open,high,low,close', ...stamps.map((stamp) => `${stamp},1,2,1,1.5`)].join('\n')
+    const parsed = marketDataSetSchema.parse(parseOhlcvCsv(csv))
+    expect(parsed.bars.map((bar) => bar.timestamp)).toEqual(stamps)
+  })
 })
 
 describe('parseMarketDataJson', () => {
