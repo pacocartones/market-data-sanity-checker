@@ -62,7 +62,11 @@ Checks are applied in this order. The first match decides the class.
 How to read them:
 
 - **corroborated**: the second provider sees the same thing, or the two providers disagree at that
-  date. A corroborated return spike on both feeds is usually a real move. A spike with a compare
+  date. A corroborated return spike on both feeds is usually a real move. Read `basis` first: with
+  `same-rule`, both feeds carry the same value, so for a rule whose hypothesis is a feed error (a bad
+  tick, a scale error) the finding is more likely a **false positive of that rule** than a defect, and
+  its severity is what to review. With `compare`, the feeds disagree, which supports a defect in one
+  of them. A spike with a compare
   disagreement is usually a bad print in one of the two feeds, and the compare finding says which
   values differ.
 - **contradicted**: the second provider has an ordinary, agreeing bar at that date. These are the
@@ -107,6 +111,32 @@ another provider.
 
 Error text is the connectors' categorized message, never a raw provider body. The API key is removed
 from every message and from the file before it is written.
+
+### Running it
+
+1. The repository secret `ALPHA_VANTAGE_API_KEY` must hold a real key. The run exits 1 before any
+   request when the key is not 12 or more letters and digits, so a placeholder cannot produce a
+   half-anonymous run (the first attempt, on 2026-11-27, compared 13 of 24 symbols for that reason
+   and was not published).
+2. A maintainer dispatches it on main: `gh workflow run calibration.yml --ref main`. It spends 24 of
+   the free key's 25 daily requests, so use a UTC day with no other use of that key (the scoreboard
+   shares it).
+3. Download the artifact (`gh run download <run-id> -n calibration-two-source`) and check
+   `summary.symbols_compared` (24 expected) and `failed` (empty) before reading anything else.
+4. A reviewed run is published in this folder in a pull request, with its date in the file name and
+   a short reading of `summary.by_rule` added here.
+
+### Limits
+
+- **One extra provider, free tier.** Alpha Vantage free has no corporate actions, fundamentals or
+  metadata, so those rules are not comparable (above), and its 100-session window is shorter than
+  Yahoo's 125.
+- **Agreement is not truth.** Two feeds can share an upstream error. `corroborated` means "not a
+  Yahoo-only artifact", not "correct".
+- **Small sample.** 24 large, liquid US symbols over about five months. Defects that hit small caps,
+  foreign listings or old history (most cases in `incidents/`) are out of reach of this run.
+- **Statistical rules see different baselines.** Near a threshold, one series can cross it and the
+  other not (see `contradicted`).
 
 No two-source run has been published yet. This folder will not show results until a maintainer runs
 the workflow and reviews the artifact.

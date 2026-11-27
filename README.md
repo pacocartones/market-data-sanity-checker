@@ -313,6 +313,14 @@ import { checkReportSchema, compareReportSchema } from 'market-data-sanity-check
 const report = checkReportSchema.parse(JSON.parse(stdout))
 ```
 
+Any JSON Schema 2020-12 validator works too, for example in a CI step that checks a stored report
+(here [`check-jsonschema`](https://github.com/python-jsonschema/check-jsonschema)):
+
+```sh
+mdsc schema check > check-report.schema.json
+check-jsonschema --schemafile check-report.schema.json report.json
+```
+
 **Stability:** the v1 schemas describe the 1.x output. A 1.x minor release may add optional
 fields (objects allow extra properties, so v1 still validates), but never removes, renames or
 retypes one. A breaking change to the output comes with a v2 schema and a major version
