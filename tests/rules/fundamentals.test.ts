@@ -59,6 +59,50 @@ describe('MARKETCAP_MISMATCH', () => {
       ),
     ).toEqual([])
   })
+
+  it('stays silent at exactly the 5% tolerance edge (the check is <=)', () => {
+    // Deviation is |marketCap − implied| / marketCap: 100bn against 95bn
+    // implied (950m shares × 100 close) is exactly 5%.
+    const atEdge = {
+      symbol: 'X',
+      source: 'test',
+      bars,
+      fundamentals: { marketCap: 100000000000, sharesOutstanding: 950000000 },
+    }
+    expect(marketcapMismatch.check(atEdge, ctxMarketcap)).toEqual([])
+  })
+
+  it('flags a deviation just above the 5% tolerance', () => {
+    const aboveEdge = {
+      symbol: 'X',
+      source: 'test',
+      bars,
+      fundamentals: { marketCap: 100000000000, sharesOutstanding: 949000000 },
+    }
+    const findings = marketcapMismatch.check(aboveEdge, ctxMarketcap)
+    expect(findings).toHaveLength(1)
+    expect(findings[0]).toMatchObject({
+      rule: 'MARKETCAP_MISMATCH',
+      severity: 'warning',
+      where: { date: '2024-06-07' },
+      evidence: { marketCap: 100000000000, implied_market_cap: 94900000000, deviation_pct: 5.1 },
+    })
+  })
+
+  it('accepts an 8% deviation under a configured 10% tolerance', () => {
+    const customCtx: RuleContext = {
+      ...ctxMarketcap,
+      config: { ...ctxMarketcap.config, params: { tolerancePct: 0.1 } },
+    }
+    // 100bn against 92bn implied (920m shares × 100 close) is exactly an 8% deviation.
+    const withinCustom = {
+      symbol: 'X',
+      source: 'test',
+      bars,
+      fundamentals: { marketCap: 100000000000, sharesOutstanding: 920000000 },
+    }
+    expect(marketcapMismatch.check(withinCustom, customCtx)).toEqual([])
+  })
 })
 
 describe('PE_EPS_INCOMPATIBLE', () => {
