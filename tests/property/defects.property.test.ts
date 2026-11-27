@@ -16,8 +16,8 @@ import { check } from './support/config'
  * Each injector's comment cites the rule semantics it relies on (verified in
  * src/rules/**).
  *
- * To cover another rule: add one entry to DEFECTS (see CONTRIBUTING.md,
- * "Property tests").
+ * To cover another rule: add one entry to DEFECTS (see docs/property-tests.md,
+ * "Adding a property for a rule").
  */
 
 interface Injection {

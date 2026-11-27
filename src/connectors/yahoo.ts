@@ -1,5 +1,13 @@
 import type { Bar, Dividend, MarketDataSet, Split } from '../schema/market-data'
-import { ConnectorError, DEFAULT_TIMEOUT_MS, isTimeoutError, type Connector, type FetchOptions } from './types'
+import {
+  assertProviderCollectionLimit,
+  ConnectorError,
+  DEFAULT_TIMEOUT_MS,
+  isTimeoutError,
+  readProviderJson,
+  type Connector,
+  type FetchOptions,
+} from './types'
 
 /**
  * Yahoo Finance connector — chart API v8, keyless.
@@ -93,6 +101,7 @@ export function parseYahooChart(payload: unknown, requestedSymbol: string): Mark
     throw new ConnectorError(`Malformed Yahoo payload for '${requestedSymbol}': missing timestamp array`)
   }
   const timestamps: unknown[] = result.timestamp
+  assertProviderCollectionLimit(timestamps, 'Yahoo chart API', 'timestamp collection')
 
   const indicators: Record<string, unknown> = isRecord(result.indicators) ? result.indicators : {}
   const quotes: unknown = indicators.quote
@@ -133,6 +142,7 @@ export function parseYahooChart(payload: unknown, requestedSymbol: string): Mark
 
   const dividends: Dividend[] = []
   if (isRecord(events.dividends)) {
+    assertProviderCollectionLimit(events.dividends, 'Yahoo chart API', 'dividend collection')
     for (const entry of Object.values(events.dividends)) {
       if (!isRecord(entry)) continue
       const date = asFiniteNumber(entry.date)
@@ -144,6 +154,7 @@ export function parseYahooChart(payload: unknown, requestedSymbol: string): Mark
 
   const splits: Split[] = []
   if (isRecord(events.splits)) {
+    assertProviderCollectionLimit(events.splits, 'Yahoo chart API', 'split collection')
     for (const entry of Object.values(events.splits)) {
       if (!isRecord(entry)) continue
       const date = asFiniteNumber(entry.date)
@@ -187,7 +198,7 @@ export const yahoo: Connector = {
       if (!response.ok) {
         throw new ConnectorError(`Yahoo chart API returned HTTP ${response.status} for '${symbol}'`)
       }
-      payload = await response.json()
+      payload = await readProviderJson(response, 'Yahoo chart API')
     } catch (error) {
       if (error instanceof ConnectorError) throw error
       if (isTimeoutError(error)) {

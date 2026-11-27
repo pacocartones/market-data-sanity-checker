@@ -4,12 +4,13 @@
 # (pacocartones, Paco Cartones, maintainer, agent:*) or a maintainer address (the account's
 # noreply, or an internal @hq.local address). A contributor is never checked, whatever their
 # name: they may use any address and may be assisted by AI tools if their change is verified.
-# Bots are exempt.
 #  1. No AI attribution trailers or footers in the commit message.
 #  2. The maintainer identity is exactly "Paco Cartones" with the account's noreply address,
 #     never a tool or agent name.
 #  3. On a pull request from a branch of this repository, the branch name follows CONTRIBUTING
-#     ("Branch names and commit identity"). Branches in contributors' forks are not checked.
+#     ("Branch names and commit identity"). Branches in contributors' forks are not checked;
+#     codex-security/arp_<32 lowercase hex> is accepted for naming only, and Dependabot's
+#     branch format is accepted only when the PR author is dependabot[bot].
 # Usage: scripts/check-commit-policy.sh <base-sha> <head-sha>
 set -euo pipefail
 
@@ -21,7 +22,8 @@ maintainer_names='^(pacocartones|paco cartones|maintainer|agent:.*)$'
 maintainer_emails='(^|\+)pacocartones@users\.noreply\.github\.com$|@hq\.local$'
 maintainer_name='Paco Cartones'
 maintainer_email='253313177+pacocartones@users.noreply.github.com'
-branch_pattern='^((feat|fix|docs|data|test|ci|chore|refactor)/[a-z0-9][a-z0-9-]*|gh-pages|changeset-release/main|bot/[a-z0-9][a-z0-9/-]*)$'
+branch_pattern='^((feat|fix|docs|data|test|ci|chore|refactor)/[a-z0-9][a-z0-9-]*|gh-pages|changeset-release/main|bot/[a-z0-9][a-z0-9/-]*|codex-security/arp_[0-9a-f]{32})$'
+dependabot_pattern='^dependabot/(github_actions|npm_and_yarn)/[a-z0-9][a-z0-9._+-]*$'
 
 fail=0
 while IFS= read -r sha; do
@@ -47,9 +49,18 @@ done < <(git rev-list --no-merges "${base}..${head}")
 # Rule 3: branch name, only for a pull request whose head branch lives in this repository.
 if [ -n "${GITHUB_HEAD_REF:-}" ] && [ -n "${GITHUB_EVENT_PATH:-}" ] && [ -f "$GITHUB_EVENT_PATH" ]; then
   head_repo="$(jq -r '.pull_request.head.repo.full_name // empty' "$GITHUB_EVENT_PATH")"
-  if [ "$head_repo" = "${GITHUB_REPOSITORY:-}" ] && ! printf '%s' "$GITHUB_HEAD_REF" | grep -Eq "$branch_pattern"; then
-    echo "::error title=Branch name::The branch name '$GITHUB_HEAD_REF' does not follow the pattern <type>/<short-slug> (types: feat, fix, docs, data, test, ci, chore, refactor; lowercase letters, digits and hyphens). Example: fix/sitemap-canonical. Rename the branch and push again; pull requests from forks are not checked."
-    fail=1
+  if [ "$head_repo" = "${GITHUB_REPOSITORY:-}" ]; then
+    branch_allowed=0
+    if printf '%s' "$GITHUB_HEAD_REF" | grep -Eq "$branch_pattern"; then
+      branch_allowed=1
+    elif [ "$(jq -r '.pull_request.user.login // empty' "$GITHUB_EVENT_PATH")" = 'dependabot[bot]' ] &&
+      printf '%s' "$GITHUB_HEAD_REF" | grep -Eq "$dependabot_pattern"; then
+      branch_allowed=1
+    fi
+    if [ "$branch_allowed" -eq 0 ]; then
+      echo "::error title=Branch name::The branch name '$GITHUB_HEAD_REF' does not follow the naming policy in CONTRIBUTING.md (Branch names and commit identity). Use <type>/<short-slug> (types: feat, fix, docs, data, test, ci, chore, refactor; lowercase letters, digits and hyphens), for example fix/sitemap-canonical. The generated Codex Security format is codex-security/arp_<32 lowercase hex characters>; Dependabot's generated format is accepted only for PRs opened by dependabot[bot]. Rename the branch and push again; pull requests from forks are not checked."
+      fail=1
+    fi
   fi
 fi
 

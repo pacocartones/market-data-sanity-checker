@@ -15,10 +15,22 @@ export const currencySchema = z
   .regex(/^[A-Z]{3}$/, 'currency must be a 3-letter uppercase code (e.g. USD, EUR, GBX)')
 
 /** ISO 8601 date or datetime. Timezone must be explicit for datetimes. */
+const ISO_DATE_OR_ZONED_DATETIME = /^(\d{4}-\d{2}-\d{2})(?:T\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?(?:Z|[+-]\d{2}:?\d{2}))?$/
+
+function isValidTimestamp(value: string): boolean {
+  const match = ISO_DATE_OR_ZONED_DATETIME.exec(value)
+  if (!match) return false
+  const date = match[1]!
+  const parsedDate = Date.parse(date)
+  return !Number.isNaN(parsedDate)
+    && new Date(parsedDate).toISOString().slice(0, 10) === date
+    && !Number.isNaN(Date.parse(value))
+}
+
 export const timestampSchema = z
   .string()
-  .refine((value) => !Number.isNaN(Date.parse(value)), {
-    message: 'must be a parseable ISO 8601 date or datetime',
+  .refine(isValidTimestamp, {
+    message: 'must be a real ISO 8601 date or timezone-qualified datetime',
   })
 
 export const barSchema = z.object({
