@@ -52,6 +52,8 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - name: Generate API docs
         run: pnpm typedoc
+      - name: Publish report JSON Schemas next to the API docs
+        run: cp -R schemas docs/api/schemas
       - name: Measure coverage
         id: coverage
         if: github.ref == 'refs/heads/main'

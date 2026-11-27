@@ -38,4 +38,12 @@ describe('docs workflow security contract', () => {
     expect(badge.if).toContain("steps.coverage.outcome == 'success'")
     expect(badge.run).toContain('docs/api/coverage-badge.json')
   })
+  it('publishes the report JSON Schemas where their $id points', () => {
+    const steps = workflow.jobs.build.steps as Array<{ run?: string; uses?: string; with?: { path?: string } }>
+    const copy = steps.findIndex((step) => step.run === 'cp -R schemas docs/api/schemas')
+    const upload = steps.findIndex((step) => step.uses?.startsWith('actions/upload-pages-artifact@'))
+    expect(copy).toBeGreaterThan(-1)
+    expect(copy).toBeLessThan(upload)
+    expect(steps[upload]?.with?.path).toBe('./docs/api')
+  })
 })
