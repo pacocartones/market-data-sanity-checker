@@ -9,11 +9,25 @@
  *   pnpm calibrate
  *
  * Output: console summary + calibration/latest.json (committed as evidence).
+ *
+ * Two-source mode (needs ALPHA_VANTAGE_API_KEY, spends 24 of the free key's 25 daily requests):
+ *
+ *   pnpm calibrate --two-source
+ *
+ * Output: console summary + calibration/two-source.json, with every Yahoo finding classified as
+ * corroborated, contradicted or not comparable against Alpha Vantage. See
+ * scripts/calibrate-two-source.ts and calibration/README.md. The default mode below is unchanged.
  */
 import { mkdir, writeFile } from 'node:fs/promises'
 import { yahoo } from '../src/connectors/yahoo'
 import { checkMarketData } from '../src/checker'
 import type { Finding } from '../src/report/types'
+
+if (process.argv.slice(2).includes('--two-source')) {
+  const { runTwoSourceCalibration } = await import('./calibrate-two-source')
+  await runTwoSourceCalibration()
+  process.exit()
+}
 
 const SYMBOLS = [
   // mega-cap tech

@@ -489,6 +489,11 @@ symbols, findings), reproducible by anyone with `pnpm scoreboard`. The weekly Mo
 run is parked: the workflow runs only manually until the activation prerequisites in
 [`docs/automation-scoreboard.md`](docs/automation-scoreboard.md) are met.
 [`calibration/`](calibration/) holds the latest 50-symbol calibration run — the corpus's honesty loop against real Yahoo data.
+A second mode, `pnpm calibrate --two-source`, checks 24 of those symbols against Alpha Vantage too and
+classifies every Yahoo finding as corroborated, contradicted or not comparable; it runs only in the
+manually dispatched calibration workflow, whose output is a workflow artifact rather than a committed
+file. The Alpha Vantage free tier has no dividends, splits or adjustment factors, so corporate-action
+rules are "not comparable" by design. How to read both files: [`calibration/README.md`](calibration/README.md).
 
 ## Development
 
