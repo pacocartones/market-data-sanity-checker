@@ -10,6 +10,7 @@ What we ask for is the same thing we ask of every contribution: **good human jud
 - **Test it.** Run the project's checks locally (see [CONTRIBUTING.md](CONTRIBUTING.md#setup)) and say what you ran.
 - **Check facts at the source.** AI tools can invent numbers, links and quotes. Every claim must come from a source you opened yourself. In this repository, every rule needs a real reference and a fixture, as described in [the rule contract](CONTRIBUTING.md#the-rule-contract).
 - **Own the change.** You are responsible for what you submit, whoever or whatever helped write it. Keep pull requests focused: one change, one reason.
+- **Leave `good first issue` to people.** Issues with that label are kept for people learning the project; please don't solve them with an agent.
 - **Keep secrets out.** Don't paste API keys, private data or anything confidential into AI tools.
 
 ## Telling us is optional

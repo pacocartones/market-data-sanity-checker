@@ -97,7 +97,7 @@ A human maintainer reviews and is responsible for every merge. Every review conv
 
 Contributions are voluntary; requests for payment get no reply and don't change how we review.
 
-By contributing you agree to follow the [Code of Conduct](CODE_OF_CONDUCT.md) and to license your contribution under the [MIT License](LICENSE). How decisions are made: [GOVERNANCE.md](.github/GOVERNANCE.md).
+By contributing you agree to follow the [Code of Conduct](https://github.com/pacocartones/.github/blob/main/CODE_OF_CONDUCT.md) and to license your contribution under the [MIT License](LICENSE). How decisions are made: [GOVERNANCE.md](GOVERNANCE.md) and [MAINTAINERS.md](MAINTAINERS.md).
 
 ## Branch names and commit identity
 
