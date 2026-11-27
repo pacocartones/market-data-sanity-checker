@@ -93,7 +93,7 @@ AI help is welcome under the [AI policy](AI_POLICY.md). Replies in this reposito
 
 We reply to every new issue, pull request and `/take` comment within 24 hours, usually the same day. A reply is a real answer (a review, a question or an assignment), not an acknowledgement. Security reports follow [SECURITY.md](SECURITY.md).
 
-A human maintainer reviews and is responsible for every merge. Automated review comments (CodeRabbit) are advisory: a person makes the call, and you don't need to reply to the bot. Every review conversation, from people or bots, is resolved before merging, by a change or a note saying why not. Maintainers request a CodeRabbit review with a `@coderabbitai review` comment on each pull request that changes code; a green CodeRabbit status is not a review.
+A human maintainer reviews and is responsible for every merge. Every review conversation is resolved before merging, by a change or a note saying why not.
 
 Contributions are voluntary; requests for payment get no reply and don't change how we review.
 
