@@ -13,9 +13,9 @@ What we ask for is the same thing we ask of every contribution: **good human jud
 - **Leave `good first issue` to people.** Issues with that label are kept for people learning the project; please don't solve them with an agent.
 - **Keep secrets out.** Don't paste API keys, private data or anything confidential into AI tools.
 
-## Telling us is optional
+## Tell us
 
-You don't have to tell us you used AI, and it never counts against you. If you'd like to, there's a checkbox in the pull request template. It simply helps reviewers know where to look more carefully. We review every pull request on its merits, by the same standard. Your commits may keep the trailers your tools add; the rule for maintainer commits is in [CONTRIBUTING.md](CONTRIBUTING.md#branch-names-and-commit-identity).
+If an AI tool helped, say so: add `Assisted-by: <tool>/<model>` to the commit message and tick the box in the pull request template. It never counts against you; it helps reviewers know where to look more carefully, and we review every pull request on its merits, by the same standard. An AI tool never appears as a co-author (`Co-authored-by`) or signs off; only people do. The rule for maintainer commits is in [CONTRIBUTING.md](CONTRIBUTING.md#branch-names-and-commit-identity).
 
 ## How we work
 

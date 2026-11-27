@@ -434,9 +434,7 @@ jump against plausible split ratios and cross-checks the volume signature; the c
 `SPLIT_MISMATCH` catches sources that disagree on the split itself.
 
 **What is the `sanity_score`?**
-A 0–100 quality score per dataset: `max(0, 100 − Σ penalties)` with −40/−15/−5 per
-critical/warning/info finding, each rule penalizing once per dataset. 90+ reliable,
-70–89 usable with caution, 40–69 suspicious, below 40 not fit for production. See
+A 0–100 quality score per dataset; the formula and the bands are in
 [The sanity score](#the-sanity-score).
 
 **Does `mdsc` fix my data?**
@@ -468,17 +466,9 @@ CSV/JSON with one command (or one call from TypeScript), with the same score in 
 
 ## Roadmap
 
-- [x] **Phase 0** — canonical schema, CSV/JSON ingestion, scoring model, CLI, CI
-- [x] **Phase 1** — OHLCV rules engine (12 rules: unadjusted splits, bad ticks, stale
-      prices, currency scale suspects…), per-rule config, `mdsc rules` → **v0.1.0**
-- [x] **Phase 2** — corporate actions, fundamentals and metadata (13 rules), `identifiers`
-      schema (ISIN/CUSIP/FIGI), golden report-contract tests → **v0.2.0**
-- [x] **Phase 3** — provider connectors (Yahoo keyless, Alpha Vantage), comparison engine
-      (`mdsc compare`, 5 compare rules), provider scoreboard, real-data calibration →
-      **v0.3.0**
-- [x] **Phase 4** — `mdsc.config.json` custom rules, CI gating (`--fail-on`/`--min-score`),
-      audit history (`mdsc history`), self-contained HTML dashboards, OKF datapackage →
-      **v1.0.0**
+- [x] **Phases 0–4** — schema and ingestion, the single-source and compare rules, connectors,
+      scoreboard, calibration, custom rules, CI gating, history and dashboards → **v1.0.0**
+      (the detail of each release is in [CHANGELOG.md](CHANGELOG.md))
 - [ ] **Phase 5+** (if traction) — user rule plugins, hosted API, more connectors, web app
 
 ## Provider scoreboard
@@ -497,16 +487,7 @@ rules are "not comparable" by design. How to read both files: [`calibration/READ
 
 ## Development
 
-```bash
-pnpm install
-pnpm test         # vitest
-pnpm typecheck    # tsc --noEmit
-pnpm lint         # eslint
-pnpm build        # tsup → dist/
-pnpm dev check --file tests/fixtures/ohlcv-valid.csv
-```
-
-
+Setup, checks and the scripts are in [CONTRIBUTING.md](CONTRIBUTING.md#setup).
 
 ## Contributing
 
@@ -515,13 +496,11 @@ severity, a documented real-world case or literature reference, and a fixture.
 
 New to the project? Start with [your first rule](docs/tutorial-first-rule.md).
 
-Thanks to the people who have improved it: [@KeuqS](https://github.com/KeuqS) (skipped
-symbols in the scoreboard, #72) and [@nova-loop](https://github.com/nova-loop) (`history
---limit` validation, #84). Looking for a place to start? The
+Thanks to everyone who has improved it: see [CONTRIBUTORS.md](CONTRIBUTORS.md). Looking for a place to start? The
 [good first issues](https://github.com/pacocartones/market-data-sanity-checker/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22)
 come with the files to touch and the check to run.
 
-AI-assisted contributions are welcome. Use AI tools if they help you — we do too. We ask for good judgement: understand and test what you send, and check every fact at its source. See [AI_POLICY.md](AI_POLICY.md).
+AI-assisted contributions are welcome under [AI_POLICY.md](AI_POLICY.md).
 
 ## Support
 
