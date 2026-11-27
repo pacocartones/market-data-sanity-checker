@@ -3,7 +3,7 @@ updates:
   # Keep the pinned GitHub Actions in .github/workflows up to date.
   - package-ecosystem: github-actions
     directory: /
-    labels: [chore]
+    labels: [dependencies]
     schedule:
       interval: weekly
     cooldown:
@@ -17,7 +17,7 @@ updates:
   # Keep npm dependencies (package.json / pnpm-lock.yaml) up to date.
   - package-ecosystem: npm
     directory: /
-    labels: [chore]
+    labels: [dependencies]
     schedule:
       interval: weekly
     cooldown:

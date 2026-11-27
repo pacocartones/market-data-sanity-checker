@@ -89,6 +89,15 @@ describe.skipIf(process.platform === 'win32')('check-commit-policy.sh', () => {
     ).toBe(0)
   })
 
+  it('accepts dots in a branch slug only inside a version', () => {
+    for (const branch of ['docs/pin-action-v1.8.0', 'chore/release-1.9.0']) {
+      expect(run({ name: 'Paco Cartones', email: NOREPLY, branch, headRepo: OWN })).toBe(0)
+    }
+    for (const branch of ['docs/foo.bar', 'docs/.hidden', 'docs/v1..2', 'docs/v1.8.', 'chore/release-1.9.0.']) {
+      expect(run({ name: 'Paco Cartones', email: NOREPLY, branch, headRepo: OWN })).toBe(1)
+    }
+  })
+
   // Observed heads of PRs #228, #230 and #232 on 2026-11-13.
   const securityBranches = [
     'codex-security/arp_b06980db192926d399661d7abb8f0352',

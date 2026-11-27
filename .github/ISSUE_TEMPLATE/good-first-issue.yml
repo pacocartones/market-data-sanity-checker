@@ -1,5 +1,6 @@
 name: Good first issue (maintainers)
 description: A bounded task for a newcomer. Maintainers only; it must meet every criterion in CONTRIBUTING.md under "Good first issues".
+type: Task
 labels: [good first issue, help wanted]
 body:
   - type: textarea

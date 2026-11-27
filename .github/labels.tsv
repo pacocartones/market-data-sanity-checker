@@ -1,13 +1,17 @@
-# The shared label standard, from labels-v1.tsv (dasousa contributors standard v1). Sync with standard v2.
+# The shared label standard, labels v2 (pacocartones shared repository standard v2).
 # One label per line: name, color (six hex digits, no #), description, tab-separated.
-# Type, one per issue or PR: bug, feature, docs, data, chore. Entry: good first issue, help wanted. State: needs info.
+# The kind of work (Task, Bug, Feature, Docs, Data) is the issue type, not a label.
+# Entry: good first issue, help wanted. State: needs info, blocked, duplicate. Other: dependencies, agent-assisted, tracker.
 # scripts/bootstrap.sh and the labels-sync workflow in pacocartones/.github read this file.
 # name	color	description
-bug	d73a4a	Something isn't working
-feature	a2eeef	New capability or improvement
-docs	0075ca	Documentation
-data	bfdadc	Facts the project ships: add, correct or re-verify
-chore	ededed	Dependency and CI upkeep
-good first issue	7057ff	Good for newcomers
-help wanted	008672	Extra attention is needed
 needs info	fbca04	Waiting for more information from the author
+blocked	fbca04	Waiting on something outside this issue
+duplicate	fbca04	Same as another issue or pull request
+good first issue	7057ff	Good for newcomers
+help wanted	7057ff	Extra attention is needed
+dependencies	ededed	Dependency update
+agent-assisted	ededed	Drafted by an AI agent session
+tracker	ededed	Tracks a group of related issues
+# Repository-only extras, not in the shared standard: optional and seasonal (Hacktoberfest).
+hacktoberfest	4a154b	October 2026 contribution push (no Hacktoberfest reward)
+hacktoberfest-accepted	9c4668	Accepted in October 2026 (no Hacktoberfest reward)

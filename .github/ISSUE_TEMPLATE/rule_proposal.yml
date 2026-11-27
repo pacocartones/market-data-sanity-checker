@@ -1,7 +1,7 @@
 name: Rule proposal
 description: Propose a new validation rule for the corpus
 title: "[rule] "
-labels: [data]
+type: Data
 body:
   - type: markdown
     attributes:
