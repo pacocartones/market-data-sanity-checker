@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import {
   buildReleaseNotes,
@@ -155,5 +157,61 @@ describe('GitHub generate-notes sections', () => {
 
   it('does not change the notes when there is no GitHub body', () => {
     expect(buildReleaseNotes(CHANGELOG, '2.0.0').body).not.toContain('Also merged')
+  })
+})
+
+describe('first sentence around abbreviations, code, links and parentheses', () => {
+  const WEEKEND = 'Add rule `BAR_ON_WEEKEND` (severity `info`) to flag daily bars dated on non-trading weekdays (e.g. timezone shifts into Saturday or Sunday).'
+  const RULES = "`mdsc rules <ID>` prints a single rule (case-insensitive id); with `--format json` it prints just that rule's `meta`. An unknown id exits 1 with up to three \"did you mean\" suggestions."
+
+  it('keeps the real 1.8.0 first entry whole', () => {
+    expect(firstSentence(WEEKEND)).toBe(WEEKEND.slice(0, -1))
+  })
+  it('stops the real 1.7.0 first entry at its first full stop', () => {
+    expect(firstSentence(RULES)).toBe("`mdsc rules <ID>` prints a single rule (case-insensitive id); with `--format json` it prints just that rule's `meta`")
+  })
+  it.each(['e.g.', 'i.e.', 'etc.', 'vs.', 'approx.', 'E.g.', 'cf.'])('does not end a sentence at %s', (abbr) => {
+    expect(firstSentence(`Compare A ${abbr} B with C. Second sentence.`)).toBe(`Compare A ${abbr} B with C`)
+  })
+  it('does not end a sentence inside inline code or a link', () => {
+    expect(firstSentence('Run `mdsc check. --file x` now. Then more.')).toBe('Run `mdsc check. --file x` now')
+    expect(firstSentence('See [the docs. Section 2](https://example.com/a. b) for it. Then more.'))
+      .toBe('See [the docs. Section 2](https://example.com/a. b) for it')
+  })
+  it('does not end a sentence before an unbalanced closing parenthesis', () => {
+    expect(firstSentence('Bars are flagged (one per day. Weekends too) when late. Then more.'))
+      .toBe('Bars are flagged (one per day. Weekends too) when late')
+  })
+  it('ignores a parenthesis that never closes', () => {
+    expect(firstSentence('Bars are flagged (see below. Then more.')).toBe('Bars are flagged (see below')
+  })
+  it('still ends at "!" and "?"', () => {
+    expect(firstSentence('It works! Really.')).toBe('It works')
+    expect(firstSentence('Why? Because.')).toBe('Why')
+  })
+
+  const changelog = readFileSync(resolve(import.meta.dirname, '../CHANGELOG.md'), 'utf8')
+  it('builds the 1.8.0 title and summary from the real changelog', () => {
+    const notes = buildReleaseNotes(changelog, '1.8.0')
+    expect(notes.title).toBe('v1.8.0 — Add rule `BAR_ON_WEEKEND` (severity `info`) to flag daily bars dated on…')
+    expect(notes.body.split('\n')[0]).toBe(`${WEEKEND} Also 19 more changes, listed below.`)
+    expect(checkReleaseNotes(notes.body, notes.title)).toEqual([])
+  })
+  it('builds the 1.7.0 title and summary from the real changelog', () => {
+    const notes = buildReleaseNotes(changelog, '1.7.0')
+    expect(notes.title).toBe('v1.7.0 — `mdsc rules <ID>` prints a single rule (case-insensitive id); with `--format…')
+    expect(notes.body.split('\n')[0]).toBe("`mdsc rules <ID>` prints a single rule (case-insensitive id); with `--format json` it prints just that rule's `meta`.")
+    expect(checkReleaseNotes(notes.body, notes.title)).toEqual([])
+  })
+  it('accepts the published 1.7.0 release in the house format', () => {
+    const body = [
+      `${RULES.split('. An')[0]}.`, '', 'No breaking changes.', '', '### Added', '',
+      `- ${RULES} \`mdsc rules --format\` is now case-insensitive (\`--format JSON\` works) and rejects unknown formats with exit code 2, like \`check\` and \`compare\`. Thanks @eddyflores100-lang.`,
+      '', '### Contributors', '', 'Thank you @eddyflores100-lang.', '', '### Verify', '',
+      'Releases published from CI carry npm provenance (trusted publishing). To check this one:', '',
+      '```bash', 'npm view market-data-sanity-checker@1.7.0 dist.attestations',
+      'npm install market-data-sanity-checker@1.7.0 && npm audit signatures', '```', '',
+    ].join('\n')
+    expect(checkReleaseNotes(body, 'v1.7.0 — `mdsc rules ` prints a single rule (case-insensitive id); with `--format…')).toEqual([])
   })
 })

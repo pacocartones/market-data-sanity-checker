@@ -83,11 +83,42 @@ function entriesByHeading(section: string): Map<string, string[]> {
   return groups
 }
 
-/** First sentence of an entry, as plain text, for the title and the summary. */
+/** Abbreviations whose full stop does not end a sentence ("e.g. timezone shifts"). */
+const ABBREVIATIONS = new Set(['e.g', 'eg', 'i.e', 'ie', 'etc', 'vs', 'approx', 'cf', 'incl', 'ca', 'resp', 'n.b'])
+
+/**
+ * First sentence of an entry, as plain text, for the title and the summary.
+ * A ".", "!" or "?" followed by a space (or the end) ends it, except after a
+ * common abbreviation, inside `inline code` or a [link](url), and inside
+ * parentheses that close later: "(e.g. Saturday or Sunday)" stays whole. A "("
+ * that never closes is ignored, so it cannot swallow the rest of the entry.
+ */
 export function firstSentence(entry: string): string {
   const flat = entry.split('\n')[0]!.replace(/\*\*/g, '').trim()
-  const match = /^(.+?[.!?])(\s|$)/.exec(flat)
-  return (match ? match[1]! : flat).replace(/[.!?]$/, '')
+  return sentenceEnd(flat, true) ?? sentenceEnd(flat, false) ?? flat.replace(/[.!?]$/, '')
+}
+
+function sentenceEnd(flat: string, respectParens: boolean): string | undefined {
+  let code = false
+  let brackets = 0
+  let parens = 0
+  for (let i = 0; i < flat.length; i++) {
+    const c = flat[i]!
+    if (c === '`') code = !code
+    if (code) continue
+    if (c === '[') brackets++
+    else if (c === ']' && brackets > 0) brackets--
+    else if (c === '(') parens++
+    else if (c === ')' && parens > 0) parens--
+    else if ('.!?'.includes(c) && i > 0 && (i + 1 === flat.length || /\s/.test(flat[i + 1]!))) {
+      if (brackets > 0 || (respectParens && parens > 0)) continue
+      const word = /[A-Za-z.]*$/.exec(flat.slice(0, i))![0].toLowerCase()
+      if (c === '.' && ABBREVIATIONS.has(word)) continue
+      return flat.slice(0, i)
+    }
+  }
+  // Every "(" closed: the parentheses did not hide a sentence end, so there is none.
+  return respectParens && parens === 0 ? flat.replace(/[.!?]$/, '') : undefined
 }
 
 function shorten(text: string, max: number): string {
