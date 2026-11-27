@@ -12,7 +12,7 @@ standard applies to the maintainer's other public repositories.
    tests, CI, refactors with no visible effect, Marketplace or README metadata, and crediting a
    contributor are **not** a reason for a version: they merge without a changeset (or with an
    empty one), and the thanks ship with the next real release.
-2. **Tags:** `vX.Y.Z`, never moved. The GitHub Action also has a moving major tag (`v1`)
+2. **Tags:** `vX.Y.Z`, never moved. They are the lightweight tags that changesets creates, an accepted exception to the shared standard's annotated-tag rule. The GitHub Action also has a moving major tag (`v1`)
    that follows the latest compatible release; users who want certainty pin a commit SHA. The
    README's Action example pins the commit of the latest release, with its version in the
    comment; update it in the same change that moves `v1`.
@@ -22,7 +22,9 @@ standard applies to the maintainer's other public repositories.
    is asked.
 5. **Changelog:** generated from changesets with `@changesets/changelog-github`, one entry per pull request, never edited by hand
    on a branch. The plugin adds the pull request link and `Thanks @user` for the author (maintainers are
-   left out of the release notes); an entry may also say `Thanks @user` itself.
+   left out of the release notes); an entry may also say `Thanks @user` itself. Its `Minor Changes` /
+   `Patch Changes` layout, not Keep a Changelog's, is an accepted exception to the shared standard; the
+   GitHub release notes use `Added` / `Changed and fixed`.
 6. **Attribution:** no AI attribution or AI co-author trailers in the title, the notes, the
    changelog or the tags.
 7. **Pre-releases:** `vX.Y.Z-rc.N` for a major version, marked as pre-release on GitHub.

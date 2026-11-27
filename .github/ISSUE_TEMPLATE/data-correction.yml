@@ -1,6 +1,6 @@
 name: Data or reference correction
 description: A rule reference, incident case, threshold citation or scoreboard fact is wrong, outdated or missing its source.
-labels: [data]
+type: Data
 body:
   - type: markdown
     attributes:

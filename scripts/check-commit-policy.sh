@@ -22,7 +22,11 @@ maintainer_names='^(pacocartones|paco cartones|maintainer|agent:.*)$'
 maintainer_emails='(^|\+)pacocartones@users\.noreply\.github\.com$|@hq\.local$'
 maintainer_name='Paco Cartones'
 maintainer_email='253313177+pacocartones@users.noreply.github.com'
-branch_pattern='^((feat|fix|docs|data|test|ci|chore|refactor)/[a-z0-9][a-z0-9-]*|gh-pages|changeset-release/main|bot/[a-z0-9][a-z0-9/-]*|codex-security/arp_[0-9a-f]{32})$'
+# A slug is hyphen-separated segments of [a-z0-9]; a segment may also be a version
+# (v?<digits>(.<digits>)+, e.g. v1.8.0 or 1.9.0). Any other dot is rejected.
+slug_segment='(v?[0-9]+(\.[0-9]+)+|[a-z0-9]+)'
+slug_pattern="${slug_segment}(-+${slug_segment})*-*"
+branch_pattern="^((feat|fix|docs|data|test|ci|chore|refactor)/${slug_pattern}|gh-pages|changeset-release/main|bot/[a-z0-9][a-z0-9/-]*|codex-security/arp_[0-9a-f]{32})$"
 dependabot_pattern='^dependabot/(github_actions|npm_and_yarn)/[a-z0-9][a-z0-9._+-]*$'
 
 fail=0
@@ -58,7 +62,7 @@ if [ -n "${GITHUB_HEAD_REF:-}" ] && [ -n "${GITHUB_EVENT_PATH:-}" ] && [ -f "$GI
       branch_allowed=1
     fi
     if [ "$branch_allowed" -eq 0 ]; then
-      echo "::error title=Branch name::The branch name '$GITHUB_HEAD_REF' does not follow the naming policy in CONTRIBUTING.md (Branch names and commit identity). Use <type>/<short-slug> (types: feat, fix, docs, data, test, ci, chore, refactor; lowercase letters, digits and hyphens), for example fix/sitemap-canonical. The generated Codex Security format is codex-security/arp_<32 lowercase hex characters>; Dependabot's generated format is accepted only for PRs opened by dependabot[bot]. Rename the branch and push again; pull requests from forks are not checked."
+      echo "::error title=Branch name::The branch name '$GITHUB_HEAD_REF' does not follow the naming policy in CONTRIBUTING.md (Branch names and commit identity). Use <type>/<short-slug> (types: feat, fix, docs, data, test, ci, chore, refactor; lowercase letters, digits and hyphens, with dots only inside a version such as v1.8.0), for example fix/sitemap-canonical or chore/release-1.9.0. The generated Codex Security format is codex-security/arp_<32 lowercase hex characters>; Dependabot's generated format is accepted only for PRs opened by dependabot[bot]. Rename the branch and push again; pull requests from forks are not checked."
       fail=1
     fi
   fi

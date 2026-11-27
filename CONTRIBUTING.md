@@ -33,7 +33,7 @@ Property tests (fast-check): how to run, replay and add them is in [docs/propert
 
 Comment `/take` on the issue and a bot assigns it to you straight away, if nobody has it and you have fewer than two open issues assigned. If you can't continue, comment `/release`; that's completely fine, and it frees the issue for someone else. An assigned issue with no activity for two weeks may be offered to another contributor, after a ping. A pull request for an issue assigned to someone else waits for them.
 
-Issues labelled both `good first issue` and `data` are small enough that nobody claims them: open a pull request when it's ready, and the first correct one is merged.
+Issues labelled `good first issue` with the type Data are small enough that nobody claims them: open a pull request when it's ready, and the first correct one is merged.
 
 ## Good first issues
 
@@ -46,7 +46,7 @@ An issue carries `good first issue` only if all of these hold:
 5. it is unclaimed: no assignee and no open pull request;
 6. a maintainer reviewed it in the last 30 days.
 
-Labels and their meanings are in [`.github/labels.tsv`](.github/labels.tsv).
+Labels and their meanings are in [`.github/labels.tsv`](.github/labels.tsv). The kind of work (Task, Bug, Feature, Docs or Data) is the issue type, not a label.
 
 ## The rule contract
 
@@ -98,7 +98,7 @@ A human maintainer reviews and is responsible for every merge. Every review conv
 
 Contributions are voluntary; requests for payment get no reply and don't change how we review.
 
-By contributing you agree to follow the [Code of Conduct](CODE_OF_CONDUCT.md) and to license your contribution under the [MIT License](LICENSE). How decisions are made: [GOVERNANCE.md](.github/GOVERNANCE.md).
+By contributing you agree to follow the [Code of Conduct](https://github.com/pacocartones/.github/blob/main/CODE_OF_CONDUCT.md) and to license your contribution under the [MIT License](LICENSE). How decisions are made: [GOVERNANCE.md](GOVERNANCE.md) and [MAINTAINERS.md](MAINTAINERS.md).
 
 ## Branch names and commit identity
 
@@ -106,7 +106,7 @@ By contributing you agree to follow the [Code of Conduct](CODE_OF_CONDUCT.md) an
 
 For maintainers' branches and commits in this repository, the *Commit policy* check runs [`scripts/check-commit-policy.sh`](scripts/check-commit-policy.sh), which is the source of truth for the exact patterns. In short:
 
-- **Branch names:** `<type>/<short-slug>`, lower case with hyphens; types `feat`, `fix`, `docs`, `data`, `test`, `ci`, `chore`, `refactor` (example: `fix/sitemap-canonical`). The name describes the change, not who made it. Reserved: `main`, `gh-pages`, `changeset-release/main` and `bot/*` (for example `bot/scoreboard`). Generated names accepted as-is: `codex-security/arp_<32 lowercase hex>`, and `dependabot/github_actions/<slug>` or `dependabot/npm_and_yarn/<slug>` only when Dependabot opened the pull request. These are naming exceptions only; they do not exempt commits from the identity rule.
+- **Branch names:** `<type>/<short-slug>`, lower case with hyphens, and dots only inside a version (`docs/pin-action-v1.8.0`, `chore/release-1.9.0`); types `feat`, `fix`, `docs`, `data`, `test`, `ci`, `chore`, `refactor` (example: `fix/sitemap-canonical`). The name describes the change, not who made it. Reserved: `main`, `gh-pages`, `changeset-release/main` and `bot/*` (for example `bot/scoreboard`). Generated names accepted as-is: `codex-security/arp_<32 lowercase hex>`, and `dependabot/github_actions/<slug>` or `dependabot/npm_and_yarn/<slug>` only when Dependabot opened the pull request. These are naming exceptions only; they do not exempt commits from the identity rule.
 - **Branch type and version:** `docs/`, `test/`, `ci/` and `chore/` carry no changeset; `fix/` is a patch; `feat/` is a minor (see [RELEASING.md](RELEASING.md), rules 1 and 9).
 - **Commit identity:** maintainer commits (including the part done by AI agents under human oversight) use `Paco Cartones <253313177+pacocartones@users.noreply.github.com>` and carry no AI attribution trailers or footers. When we squash-merge, we drop AI `Co-authored-by` lines from the final message so `main` stays clean; your authorship stays.
 - Merged and closed pull requests keep their commits; the branch in this repository is deleted afterwards.
