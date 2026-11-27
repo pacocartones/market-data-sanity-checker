@@ -4,9 +4,8 @@ on:
   push:
     branches: [main]
   pull_request:
-  # The weekly scoreboard dispatches this on bot/scoreboard: a PR opened with
-  # GITHUB_TOKEN triggers no pull_request runs, so the required checks would
-  # never report on it.
+  # Manual runs: a pull request opened with GITHUB_TOKEN (or by a bot whose runs
+  # wait for approval) can be given its required checks by dispatching on its branch.
   workflow_dispatch:
 
 # Cancel redundant runs on rapid pushes to the same branch/PR.
