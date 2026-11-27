@@ -6,7 +6,7 @@ on:
 permissions:
   contents: read
 
-# One writer for manual and scheduled runs; never cancel a publication midway.
+# One writer for manual runs (the weekly schedule is parked); never cancel a publication midway.
 concurrency:
   group: scoreboard-${{ github.repository }}
   cancel-in-progress: false
