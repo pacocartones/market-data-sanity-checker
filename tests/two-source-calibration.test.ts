@@ -204,8 +204,7 @@ describe('looksLikeAlphaVantageKey', () => {
     expect(looksLikeAlphaVantageKey('ABCDEFGH12345678')).toBe(true)
   })
   it('rejects placeholders and malformed values', () => {
-    for (const value of [undefined, '', '-', 'demo', 'changeme', 'ABCD-EFGH-1234', '-
--']) {
+    for (const value of [undefined, '', '-', 'demo', 'changeme', 'ABCD-EFGH-1234', '-\n-']) {
       expect(looksLikeAlphaVantageKey(value)).toBe(false)
     }
   })
