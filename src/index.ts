@@ -53,6 +53,7 @@ export { loadConfig, ConfigError } from './config'
 export type { MdscConfig } from './config'
 
 export { SEVERITY_ORDER } from './report/types'
+export { checkReportSchema, compareReportSchema } from './report/schema'
 export type {
   Finding,
   SanityReport,

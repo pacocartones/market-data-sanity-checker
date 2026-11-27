@@ -84,7 +84,14 @@ jobs:
         with:
           # v2 renamed the inputs (version -> version-script, publish ->
           # publish-script); the old names are silently ignored.
-          version-script: pnpm changeset version
+          # `version-packages` runs `changeset version` and then
+          # scripts/sync-floor-fixture-version.mjs, which moves only the package's
+          # own version in the package-floor consumer lock, so the bump and the
+          # fixture land in the same Version Packages commit (the action commits
+          # every working-tree change since the base). It is a package script
+          # because the action runs this input with @actions/exec, which does not
+          # use a shell: `a && b` here would hand `&&` to pnpm as an argument.
+          version-script: pnpm version-packages
           # `changeset publish` has no --provenance flag (verified against
           # @changesets/cli 3.0.3); it shells out to `pnpm publish`, which
           # enables provenance via the PNPM_CONFIG_PROVENANCE env var below.

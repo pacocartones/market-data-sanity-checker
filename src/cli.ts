@@ -24,6 +24,7 @@ import {
 } from './history/store'
 import type { Finding, SanityReport, Severity } from './report/types'
 import { SEVERITY_ORDER } from './report/types'
+import { REPORT_SCHEMA_NAMES, reportJsonSchema, type ReportSchemaName } from './report/schema'
 import { writeFileSecurely } from './filesystem/secure-output'
 
 const { version } = createRequire(import.meta.url)('../package.json') as { version: string }
@@ -598,6 +599,20 @@ program
       console.log(`  ${status.name.padEnd(16)} ${state}`)
     }
     console.log()
+  })
+
+program
+  .command('schema [name]')
+  .description(`Print the JSON Schema of a --format json report: ${REPORT_SCHEMA_NAMES.join(' | ')}`)
+  .action((name: string | undefined) => {
+    const known = REPORT_SCHEMA_NAMES as readonly string[]
+    if (name === undefined || !known.includes(name.toLowerCase())) {
+      const given = name === undefined ? 'no schema name given' : `unknown schema "${escapeTerminalText(name)}"`
+      console.error(`mdsc: ${given}; must be one of: ${REPORT_SCHEMA_NAMES.join(', ')}`)
+      process.exitCode = 2
+      return
+    }
+    console.log(JSON.stringify(reportJsonSchema(name.toLowerCase() as ReportSchemaName), null, 2))
   })
 
 // Bare `mdsc` with no subcommand prints help to stdout and exits 0 — asking
