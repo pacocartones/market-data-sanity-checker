@@ -279,7 +279,7 @@ describe('INSUFFICIENT_DATA', () => {
     expect(findings).toHaveLength(1)
     expect(findings[0]!.rule).toBe('INSUFFICIENT_DATA')
     expect(findings[0]!.severity).toBe('critical')
-    expect(findings[0]!.action).toBe('flag')
+    expect(findings[0]!.action).toBe('block')
     expect(findings[0]!.dimension).toBe('completeness')
     expect(findings[0]!.evidence).toEqual({ bars: 0, min_bars: 10 })
     expect(findings[0]!.explanation).toMatch(/no bars at all/)

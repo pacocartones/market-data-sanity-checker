@@ -1,4 +1,4 @@
-import type { Finding } from '../../report/types'
+import { actionForSeverity, type Finding } from '../../report/types'
 import type { Rule } from '../types'
 
 const DAY_MS = 24 * 60 * 60 * 1000
@@ -54,7 +54,7 @@ export const divDuplicated: Rule = {
         findings.push({
           rule: 'DIV_DUPLICATED',
           severity: context.config.severity,
-          action: 'flag',
+          action: actionForSeverity(context.config.severity),
           dimension: 'uniqueness',
           where: { date: b.exDate },
           explanation:

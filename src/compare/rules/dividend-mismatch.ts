@@ -1,4 +1,4 @@
-import type { Finding } from '../../report/types'
+import { actionForSeverity, type Finding } from '../../report/types'
 import type { CompareRule } from '../types'
 import { createDateWindowIndex } from '../date-window-index'
 
@@ -47,7 +47,7 @@ export const dividendMismatch: CompareRule = {
         findings.push({
           rule: 'DIVIDEND_MISMATCH',
           severity: context.config.severity,
-          action: 'flag',
+          action: actionForSeverity(context.config.severity),
           dimension: 'consistency',
           where: { date: dividend.exDate },
           explanation:
@@ -65,7 +65,7 @@ export const dividendMismatch: CompareRule = {
         findings.push({
           rule: 'DIVIDEND_MISMATCH',
           severity: context.config.severity,
-          action: 'flag',
+          action: actionForSeverity(context.config.severity),
           dimension: 'consistency',
           where: { date: dividend.exDate },
           explanation:
@@ -88,7 +88,7 @@ export const dividendMismatch: CompareRule = {
       findings.push({
         rule: 'DIVIDEND_MISMATCH',
         severity: context.config.severity,
-        action: 'flag',
+        action: actionForSeverity(context.config.severity),
         dimension: 'consistency',
         where: { date: dividend.exDate },
         explanation:

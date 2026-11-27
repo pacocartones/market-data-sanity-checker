@@ -1,4 +1,4 @@
-import type { Finding } from '../../report/types'
+import { actionForSeverity, type Finding } from '../../report/types'
 import type { CompareRule } from '../types'
 
 /**
@@ -30,12 +30,13 @@ export const insufficientOverlap: CompareRule = {
     const shared = context.shared.length
     if (shared >= minSharedDates) return []
 
+    // Deliberate escalation: zero overlap means nothing was compared at all.
+    const severity = shared === 0 ? 'critical' : context.config.severity
     const findings: Finding[] = [
       {
         rule: 'INSUFFICIENT_OVERLAP',
-        // Deliberate escalation: zero overlap means nothing was compared at all.
-        severity: shared === 0 ? 'critical' : context.config.severity,
-        action: 'flag',
+        severity,
+        action: actionForSeverity(severity),
         dimension: 'completeness',
         explanation:
           shared === 0

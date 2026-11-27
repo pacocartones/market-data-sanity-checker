@@ -57,7 +57,7 @@ describe('INSUFFICIENT_OVERLAP', () => {
     expect(f0[0]).toMatchObject({
       rule: 'INSUFFICIENT_OVERLAP',
       severity: 'critical',
-      action: 'flag',
+      action: 'block',
       evidence: { shared_dates: 0 },
     })
   })

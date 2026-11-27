@@ -1,4 +1,4 @@
-import type { Finding } from '../../report/types'
+import { actionForSeverity, type Finding } from '../../report/types'
 import type { CompareRule } from '../types'
 
 /**
@@ -42,7 +42,7 @@ export const priceDateMismatch: CompareRule = {
       findings.push({
         rule: 'PRICE_DATE_MISMATCH',
         severity: context.config.severity,
-        action: 'review',
+        action: actionForSeverity(context.config.severity),
         dimension: 'consistency',
         where: { date },
         explanation:

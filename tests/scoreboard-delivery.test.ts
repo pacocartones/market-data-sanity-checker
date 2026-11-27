@@ -55,6 +55,7 @@ function server(options: { noChange?: boolean; noBot?: boolean; leaseFail?: bool
     }
     if (method === 'POST' && path === prefix + 'git/commits') {
       expect(body?.parents).toEqual([SHA])
+      expect(body?.message).toBe('chore(scoreboard): provider audit')
       expect(body?.author).toEqual({ name: 'scoreboard-test[bot]', email: '4321+scoreboard-test[bot]@users.noreply.github.com' })
       if (options.advance) state.main = 'f'.repeat(40)
       return { sha: COMMIT }
@@ -79,6 +80,8 @@ function server(options: { noChange?: boolean; noBot?: boolean; leaseFail?: bool
     if (method === 'POST' && path === prefix + 'pulls') {
       expect(body?.head).toBe('bot/scoreboard')
       expect(body?.base).toBe('main')
+      expect(body?.title).toBe('chore(scoreboard): provider audit')
+      expect(body?.body).toBe('Provider audit from a validated data-only artifact. Review the pull request and required checks before merging.')
       if (options.createPrFail) throw new Error('PR creation rejected')
       state.prCreated = true
       return { html_url: 'https://github.com/pacocartones/market-data-sanity-checker/pull/999' }

@@ -1,4 +1,4 @@
-import type { Finding } from '../../report/types'
+import { actionForSeverity, type Finding } from '../../report/types'
 import { median } from '../../rules/stats'
 import type { CompareRule } from '../types'
 
@@ -52,7 +52,7 @@ export const volumeDivergence: CompareRule = {
     const finding: Finding = {
       rule: 'VOLUME_DIVERGENCE',
       severity: context.config.severity,
-      action: 'review',
+      action: actionForSeverity(context.config.severity),
       dimension: 'consistency',
       where: { date: worst.date },
       explanation:

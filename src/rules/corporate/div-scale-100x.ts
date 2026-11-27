@@ -1,4 +1,4 @@
-import type { Finding } from '../../report/types'
+import { actionForSeverity, type Finding } from '../../report/types'
 import type { Rule } from '../types'
 import { barIndexOnOrBefore, sortedBars } from '../series'
 
@@ -53,7 +53,7 @@ export const divScale100x: Rule = {
         findings.push({
           rule: 'DIV_SCALE_100X',
           severity: 'info',
-          action: 'flag',
+          action: actionForSeverity('info'),
           dimension: 'accuracy',
           where: { date: dividend.exDate },
           explanation:
@@ -69,7 +69,7 @@ export const divScale100x: Rule = {
       findings.push({
         rule: 'DIV_SCALE_100X',
         severity: context.config.severity,
-        action: 'flag',
+        action: actionForSeverity(context.config.severity),
         dimension: 'accuracy',
         where: { date: dividend.exDate },
         explanation:

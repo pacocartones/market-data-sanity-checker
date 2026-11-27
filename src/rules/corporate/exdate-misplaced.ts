@@ -1,4 +1,4 @@
-import type { Finding } from '../../report/types'
+import { actionForSeverity, type Finding } from '../../report/types'
 import { barIndexOnOrBefore, sortedBars } from '../series'
 import type { Rule } from '../types'
 
@@ -93,7 +93,7 @@ export const exdateMisplaced: Rule = {
       findings.push({
         rule: 'EXDATE_MISPLACED',
         severity: context.config.severity,
-        action: 'flag',
+        action: actionForSeverity(context.config.severity),
         dimension: 'consistency',
         where: { date: dividend.exDate },
         explanation:

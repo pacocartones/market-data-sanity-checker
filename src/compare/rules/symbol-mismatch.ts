@@ -1,4 +1,4 @@
-import type { Finding } from '../../report/types'
+import { actionForSeverity, type Finding } from '../../report/types'
 import type { CompareRule } from '../types'
 
 /**
@@ -30,7 +30,7 @@ export const symbolMismatch: CompareRule = {
     const finding: Finding = {
       rule: 'SYMBOL_MISMATCH',
       severity: context.config.severity,
-      action: 'block',
+      action: actionForSeverity(context.config.severity),
       dimension: 'consistency',
       explanation:
         `Left side is ${a.symbol} but right side is ${b.symbol} — these datasets describe different ` +

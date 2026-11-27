@@ -1,4 +1,4 @@
-import type { Finding } from '../../report/types'
+import { actionForSeverity, type Finding } from '../../report/types'
 import type { CompareRule } from '../types'
 
 /**
@@ -53,7 +53,7 @@ export const seriesTailTruncated: CompareRule = {
       findings.push({
         rule: 'SERIES_TAIL_TRUNCATED',
         severity: context.config.severity,
-        action: 'review',
+        action: actionForSeverity(context.config.severity),
         dimension: 'completeness',
         where: { date: missing[0]! },
         explanation:

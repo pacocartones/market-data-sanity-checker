@@ -1,4 +1,4 @@
-import type { Finding } from '../../report/types'
+import { actionForSeverity, type Finding } from '../../report/types'
 import { matchSplitRatio } from '../helpers'
 import type { Rule } from '../types'
 
@@ -73,7 +73,7 @@ export const splitNotAdjusted: Rule = {
       findings.push({
         rule: 'SPLIT_NOT_ADJUSTED',
         severity: context.config.severity,
-        action: 'block',
+        action: actionForSeverity(context.config.severity),
         dimension: 'accuracy',
         where: { date: current.timestamp },
         explanation:

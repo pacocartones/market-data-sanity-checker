@@ -1,4 +1,4 @@
-import type { Finding } from '../../report/types'
+import { actionForSeverity, type Finding } from '../../report/types'
 import { sortedBars } from '../series'
 import type { Rule } from '../types'
 
@@ -7,7 +7,7 @@ import type { Rule } from '../types'
  *
  * Payout = dividends / earnings. A negative ratio means the vendor published
  * the formula's output on negative earnings, where the number is not
- * interpretable as a payout policy. A ratio far above 100% is NOT
+ * interpretable as a payout policy. A ratio well above 100% is NOT
  * automatically wrong: for REITs and MLPs a payout/EPS around 290% is
  * structurally normal, because depreciation depresses EPS — the valid metric
  * for them is FFO, not EPS (2026-07-31 audit). The threshold therefore sits
@@ -21,7 +21,7 @@ export const payoutImpossible: Rule = {
     block: 'fundamentals',
     severity: 'warning',
     dimension: 'accuracy',
-    description: 'Payout ratio negative or far above 100%',
+    description: 'Payout ratio negative or above 300% of earnings',
     defaultParams: {
       /** Max plausible payout ratio; above this the datum is suspect even for REITs/MLPs (use FFO for them). */
       maxPayout: 3.0,
@@ -44,7 +44,7 @@ export const payoutImpossible: Rule = {
       findings.push({
         rule: 'PAYOUT_IMPOSSIBLE',
         severity: context.config.severity,
-        action: 'flag',
+        action: actionForSeverity(context.config.severity),
         dimension: 'accuracy',
         where: { date: lastBar.timestamp },
         explanation:
@@ -58,7 +58,7 @@ export const payoutImpossible: Rule = {
       findings.push({
         rule: 'PAYOUT_IMPOSSIBLE',
         severity: context.config.severity,
-        action: 'flag',
+        action: actionForSeverity(context.config.severity),
         dimension: 'accuracy',
         where: { date: lastBar.timestamp },
         explanation:

@@ -1,4 +1,4 @@
-import type { Finding } from '../../report/types'
+import { actionForSeverity, type Finding } from '../../report/types'
 import { median } from '../stats'
 import type { Rule } from '../types'
 
@@ -81,7 +81,7 @@ export const currencyScaleSuspect: Rule = {
       findings.push({
         rule: 'CURRENCY_SCALE_SUSPECT',
         severity: context.config.severity,
-        action: 'flag',
+        action: actionForSeverity(context.config.severity),
         dimension: 'consistency',
         where: { date: current.timestamp },
         explanation:

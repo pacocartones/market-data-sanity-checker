@@ -1,4 +1,4 @@
-import type { Finding } from '../../report/types'
+import { actionForSeverity, type Finding } from '../../report/types'
 import type { Rule } from '../types'
 
 /**
@@ -35,7 +35,7 @@ export const zeroVolumeMoved: Rule = {
       findings.push({
         rule: 'ZERO_VOLUME_MOVED',
         severity: context.config.severity,
-        action: 'flag',
+        action: actionForSeverity(context.config.severity),
         dimension: 'consistency',
         where: { date: bar.timestamp },
         explanation:

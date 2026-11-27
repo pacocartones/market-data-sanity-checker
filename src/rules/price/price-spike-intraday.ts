@@ -1,4 +1,4 @@
-import type { Finding } from '../../report/types'
+import { actionForSeverity, type Finding } from '../../report/types'
 import { isHampelOutlier, mad, median } from '../stats'
 import type { Rule } from '../types'
 
@@ -113,7 +113,7 @@ export const priceSpikeIntraday: Rule = {
       findings.push({
         rule: 'PRICE_SPIKE_INTRADAY',
         severity: context.config.severity,
-        action: 'block',
+        action: actionForSeverity(context.config.severity),
         dimension: 'accuracy',
         where: { date: current.timestamp },
         explanation:

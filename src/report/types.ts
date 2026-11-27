@@ -23,6 +23,23 @@ export type QualityDimension =
  */
 export const SEVERITY_ORDER: Record<Severity, number> = { critical: 0, warning: 1, info: 2 }
 
+/**
+ * Severity → recommended action. Fixed mapping: the action is the severity's
+ * consequence. Both engines set every reported finding's action from it, and
+ * rules use {@link actionForSeverity} so a direct `rule.check()` call returns
+ * the same pair the engine would report.
+ */
+export const ACTION_FOR_SEVERITY: Record<Severity, RecommendedAction> = {
+  critical: 'block',
+  warning: 'flag',
+  info: 'review',
+}
+
+/** The recommended action for a severity (see {@link ACTION_FOR_SEVERITY}). */
+export function actionForSeverity(severity: Severity): RecommendedAction {
+  return ACTION_FOR_SEVERITY[severity]
+}
+
 export interface Finding {
   /** Stable rule identifier, e.g. SPLIT_NOT_ADJUSTED. */
   rule: string

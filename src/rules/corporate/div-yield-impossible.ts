@@ -1,3 +1,4 @@
+import { actionForSeverity } from '../../report/types'
 import type { Rule } from '../types'
 import { latestClose, sortedBars, trailingDividends } from '../series'
 
@@ -43,7 +44,7 @@ export const divYieldImpossible: Rule = {
       {
         rule: 'DIV_YIELD_IMPOSSIBLE',
         severity: context.config.severity,
-        action: 'flag',
+        action: actionForSeverity(context.config.severity),
         dimension: 'accuracy',
         where: { date: refDate },
         explanation:

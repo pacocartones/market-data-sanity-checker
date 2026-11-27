@@ -1,4 +1,4 @@
-import type { Finding } from '../../report/types'
+import { actionForSeverity, type Finding } from '../../report/types'
 import type { Bar } from '../../schema/market-data'
 import type { Rule } from '../types'
 
@@ -114,7 +114,7 @@ export const barOnWeekend: Rule = {
       findings.push({
         rule: 'BAR_ON_WEEKEND',
         severity: context.config.severity,
-        action: 'review',
+        action: actionForSeverity(context.config.severity),
         dimension: 'validity',
         where: { date: bar.timestamp },
         explanation:

@@ -1,4 +1,4 @@
-import type { Finding } from '../../report/types'
+import { actionForSeverity, type Finding } from '../../report/types'
 import type { Rule } from '../types'
 
 const DAY_MS = 24 * 60 * 60 * 1000
@@ -136,7 +136,7 @@ export const divSpecialMisclassified: Rule = {
       findings.push({
         rule: 'DIV_SPECIAL_MISCLASSIFIED',
         severity: context.config.severity,
-        action: 'flag',
+        action: actionForSeverity(context.config.severity),
         dimension: 'consistency',
         where: { date: dividend.exDate },
         explanation:

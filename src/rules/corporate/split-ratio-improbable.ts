@@ -1,4 +1,4 @@
-import type { Finding } from '../../report/types'
+import { actionForSeverity, type Finding } from '../../report/types'
 import type { Rule } from '../types'
 
 /**
@@ -89,12 +89,13 @@ export const splitRatioImprobable: Rule = {
               `rare (~100 of ~6,000 corporate actions, Barron's) and a dropped or extra digit in the ` +
               `feed produces exactly this signature. Possible, but verify against the issuer's ` +
               `announcement before adjusting prices.`
+      // Deliberate 'info' for near-1:1: a probable spin-off, not a defect.
+      const severity = reason === 'near_one' ? 'info' : context.config.severity
 
       findings.push({
         rule: 'SPLIT_RATIO_IMPROBABLE',
-        // Deliberate 'info' for near-1:1: a probable spin-off, not a defect.
-        severity: reason === 'near_one' ? 'info' : context.config.severity,
-        action: 'flag',
+        severity,
+        action: actionForSeverity(severity),
         dimension: 'validity',
         where: { date: split.exDate },
         explanation,

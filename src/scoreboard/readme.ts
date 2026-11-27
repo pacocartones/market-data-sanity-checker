@@ -59,7 +59,7 @@ function formatFindings(findings: ScoreboardFinding[]): string {
     .join('; ')
 }
 
-/** Render the checked-in weekly scoreboard README without touching provider data. */
+/** Render the checked-in scoreboard README without touching provider data. */
 export function renderScoreboardReadme({
   generatedAt,
   basketSize,

@@ -1,4 +1,4 @@
-import type { Finding } from '../../report/types'
+import { actionForSeverity, type Finding } from '../../report/types'
 import type { Split } from '../../schema/market-data'
 import type { CompareRule } from '../types'
 import { createDateWindowIndex } from '../date-window-index'
@@ -53,7 +53,7 @@ export const splitMismatch: CompareRule = {
         findings.push({
           rule: 'SPLIT_MISMATCH',
           severity: context.config.severity,
-          action: 'flag',
+          action: actionForSeverity(context.config.severity),
           dimension: 'consistency',
           where: { date: split.exDate },
           explanation:
@@ -77,7 +77,7 @@ export const splitMismatch: CompareRule = {
         findings.push({
           rule: 'SPLIT_MISMATCH',
           severity: context.config.severity,
-          action: 'flag',
+          action: actionForSeverity(context.config.severity),
           dimension: 'consistency',
           where: { date: split.exDate },
           explanation:
@@ -100,7 +100,7 @@ export const splitMismatch: CompareRule = {
       findings.push({
         rule: 'SPLIT_MISMATCH',
         severity: context.config.severity,
-        action: 'flag',
+        action: actionForSeverity(context.config.severity),
         dimension: 'consistency',
         where: { date: split.exDate },
         explanation:

@@ -1,4 +1,4 @@
-import type { Finding } from '../../report/types'
+import { actionForSeverity, type Finding } from '../../report/types'
 import type { Rule } from '../types'
 
 /**
@@ -45,7 +45,7 @@ export const tsDuplicated: Rule = {
       findings.push({
         rule: 'TS_DUPLICATED',
         severity: context.config.severity,
-        action: 'block',
+        action: actionForSeverity(context.config.severity),
         dimension: 'uniqueness',
         where: { date: timestamp },
         explanation:

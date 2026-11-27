@@ -1,7 +1,6 @@
 import type { MarketDataSet } from '../schema/market-data'
 import type { Finding, Severity } from '../report/types'
-import { SEVERITY_ORDER } from '../report/types'
-import { ACTION_FOR_SEVERITY } from '../rules/engine'
+import { ACTION_FOR_SEVERITY, SEVERITY_ORDER } from '../report/types'
 import type { CompareConfig, CompareContext, CompareRule } from './types'
 import { compareRegistry } from './registry'
 

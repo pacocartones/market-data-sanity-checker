@@ -1,4 +1,4 @@
-import type { Finding } from '../../report/types'
+import { actionForSeverity, type Finding } from '../../report/types'
 import type { Rule } from '../types'
 
 const OHLC_FIELDS = ['open', 'high', 'low', 'close'] as const
@@ -33,7 +33,7 @@ export const priceNonpositive: Rule = {
         findings.push({
           rule: 'PRICE_NONPOSITIVE',
           severity: context.config.severity,
-          action: 'block',
+          action: actionForSeverity(context.config.severity),
           dimension: 'validity',
           where: { date: bar.timestamp },
           explanation:

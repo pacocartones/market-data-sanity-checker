@@ -1,4 +1,4 @@
-import type { Finding } from '../../report/types'
+import { actionForSeverity, type Finding } from '../../report/types'
 import { matchSplitRatio } from '../helpers'
 import { modifiedZScore } from '../stats'
 import type { Rule } from '../types'
@@ -91,11 +91,11 @@ export const returnSpike: Rule = {
       // 'info' so a warning keeps meaning "stop and look" (see rule JSDoc).
       const fullSeverity =
         Math.abs(zScore) >= FULL_SEVERITY_ZSCORE || Math.abs(observedReturn) >= FULL_SEVERITY_RETURN
-
+      const severity = fullSeverity ? context.config.severity : 'info'
       findings.push({
         rule: 'RETURN_SPIKE',
-        severity: fullSeverity ? context.config.severity : 'info',
-        action: 'flag',
+        severity,
+        action: actionForSeverity(severity),
         dimension: 'accuracy',
         where: { date: current.timestamp },
         explanation:

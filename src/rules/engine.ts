@@ -1,18 +1,18 @@
 import type { MarketDataSet } from '../schema/market-data'
-import type { Finding, RecommendedAction, Severity } from '../report/types'
-import { SEVERITY_ORDER } from '../report/types'
+import type { Finding, Severity } from '../report/types'
+import { ACTION_FOR_SEVERITY, SEVERITY_ORDER } from '../report/types'
 import { simpleReturns, mad, median } from './stats'
 import { registry } from './registry'
 import { divDuplicated } from './corporate/div-duplicated'
 import { summarizeDuplicateDividends } from './corporate/div-duplicated-summary'
 import type { CheckerConfig, DataProfile, Rule, RuleContext } from './types'
 
-/** Severity → recommended action. Fixed mapping: the action is the severity's consequence. */
-export const ACTION_FOR_SEVERITY: Record<Severity, RecommendedAction> = {
-  critical: 'block',
-  warning: 'flag',
-  info: 'review',
-}
+/**
+ * Severity → recommended action. Defined in the report model next to
+ * `actionForSeverity`, which rules use, so the engines and the rules share one
+ * mapping; re-exported here for existing imports.
+ */
+export { ACTION_FOR_SEVERITY } from '../report/types'
 
 /** Computes the shared statistical profile once per dataset. */
 export function buildDataProfile(data: MarketDataSet): DataProfile {

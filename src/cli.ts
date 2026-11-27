@@ -142,6 +142,10 @@ function isSeverity(value: string): value is Severity {
  * CI gating ("alerts"). Exit 1 when: any critical finding (default), or any
  * finding at or above --fail-on severity, or score below --min-score.
  * Returns the exit code and prints the reason to stderr.
+ *
+ * Precondition: `validateCommonFlags` has accepted these options. Every
+ * command that gates (`check`, `compare`) calls it first and exits 2 on a bad
+ * --fail-on or --min-score, so the values here are already valid.
  */
 function evaluateGating(
   summary: Record<Severity, number>,
@@ -152,10 +156,6 @@ function evaluateGating(
 
   if (options.failOn !== undefined) {
     const threshold = options.failOn as Severity
-    if (!isSeverity(threshold)) {
-      console.error(`mdsc: --fail-on must be one of: ${Object.keys(SEVERITY_ORDER).join(', ')}`)
-      return 2
-    }
     const count = (Object.keys(summary) as Severity[])
       .filter((severity) => SEVERITY_ORDER[severity] <= SEVERITY_ORDER[threshold])
       .reduce((total, severity) => total + summary[severity], 0)
@@ -166,10 +166,6 @@ function evaluateGating(
 
   if (options.minScore !== undefined) {
     const minScore = Number(options.minScore)
-    if (!Number.isFinite(minScore) || minScore < 0 || minScore > 100) {
-      console.error('mdsc: --min-score must be a number between 0 and 100')
-      return 2
-    }
     if (score < minScore) reasons.push(`score ${score} below --min-score ${minScore}`)
   }
 

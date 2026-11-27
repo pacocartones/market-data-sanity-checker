@@ -14,7 +14,7 @@ For `Ticker('ENV.CR').history(period='max')`, the maintainer explained that pric
 
 ## A checker should report
 
-`DIV_SCALE_100X` (`src/rules/corporate/div-scale-100x.ts:24`) emits a warning whenever a single payment yield exceeds `maxSingleYieldPct` (25%, line 29), so it flags the 2013-12-12 dividend (about 28x the prior close) across historical data — though its rule description hypothesis (a ÷100 pence/pounds scale error) does not fit this penny-stock case. Conversely, `DIV_YIELD_IMPOSSIBLE` (`src/rules/corporate/div-yield-impossible.ts:34-40`) measures trailing 12-month regular dividends against the latest close of the series, so on a full history ending in 2026 it does not see the 2013 event. Non-finite or NaN OHLC prices from Yahoo do not reach `PRICE_NONPOSITIVE` through the Yahoo connector: the parser skips bars with non-finite prices directly (`src/connectors/yahoo.ts:114-123`).
+`DIV_SCALE_100X` (`src/rules/corporate/div-scale-100x.ts:24`) emits a warning whenever a single payment yield exceeds `maxSingleYieldPct` (25%, line 29), so it flags the 2013-12-12 dividend (about 28x the prior close) across historical data — though its rule description hypothesis (a ÷100 pence/pounds scale error) does not fit this penny-stock case. Conversely, `DIV_YIELD_IMPOSSIBLE` (`src/rules/corporate/div-yield-impossible.ts:35-41`) measures trailing 12-month regular dividends against the latest close of the series, so on a full history ending in 2026 it does not see the 2013 event. Non-finite or NaN OHLC prices from Yahoo do not reach `PRICE_NONPOSITIVE` through the Yahoo connector: the parser skips bars with non-finite prices directly (`src/connectors/yahoo.ts:114-123`).
 
 ## The check does NOT establish
 

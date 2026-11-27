@@ -49,7 +49,7 @@ async function directory(path, names) {
 }
 function descriptor(created) {
   return { profile: 'tabular-data-package', name: 'market-data-provider-scoreboard',
-    title: 'Market Data Provider Scoreboard', description: 'weekly audit of market data providers with mdsc sanity scores',
+    title: 'Market Data Provider Scoreboard', description: 'audit of market data providers with mdsc sanity scores',
     homepage: 'https://github.com/pacocartones/market-data-sanity-checker', created,
     resources: [{ name: 'scoreboard', path: 'latest.csv', profile: 'tabular-data-resource',
       schema: { fields: ['generated_at', 'provider', 'symbol', 'sanity_score', 'critical', 'warning', 'info', 'rules'].map((name, index) => ({

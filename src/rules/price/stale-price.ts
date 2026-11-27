@@ -1,4 +1,4 @@
-import type { Finding } from '../../report/types'
+import { actionForSeverity, type Finding } from '../../report/types'
 import type { Rule } from '../types'
 
 /**
@@ -62,7 +62,7 @@ export const stalePrice: Rule = {
         findings.push({
           rule: 'STALE_PRICE',
           severity: context.config.severity,
-          action: 'flag',
+          action: actionForSeverity(context.config.severity),
           dimension: 'timeliness',
           where: { date: last.timestamp },
           explanation:
@@ -81,7 +81,7 @@ export const stalePrice: Rule = {
         findings.push({
           rule: 'STALE_PRICE',
           severity: 'info',
-          action: 'review',
+          action: actionForSeverity('info'),
           dimension: 'timeliness',
           where: { date: last.timestamp },
           explanation:
