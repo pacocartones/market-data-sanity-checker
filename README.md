@@ -205,7 +205,7 @@ in lower-trust checkout content, not concurrent mutation by another local proces
 Fail a workflow when a data file is bad, with the score and finding counts in the job summary. It is listed on the [GitHub Marketplace](https://github.com/marketplace/actions/market-data-sanity-checker).
 
 ```yaml
-- uses: pacocartones/market-data-sanity-checker@80f2bb54bc03bc3ce6c7445402c88b2b644e1a0f # v1.7.0
+- uses: pacocartones/market-data-sanity-checker@c2f90c14e13f1fa290703d8b26f5cf4cf3ce7905 # v1.8.0
   with:
     file: data/prices.csv
     fail-on: warning # critical (default) | warning | info
