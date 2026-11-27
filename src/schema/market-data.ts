@@ -14,11 +14,19 @@ export const currencySchema = z
   .string()
   .regex(/^[A-Z]{3}$/, 'currency must be a 3-letter uppercase code (e.g. USD, EUR, GBX)')
 
-/** ISO 8601 date or datetime. Timezone must be explicit for datetimes. */
-const ISO_DATE_OR_ZONED_DATETIME = /^(\d{4}-\d{2}-\d{2})(?:T\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?(?:Z|[+-]\d{2}:?\d{2}))?$/
+/**
+ * ISO 8601 calendar date, optionally followed by a time of day. The date part
+ * must be a real calendar date. The timezone (`Z`, `±HH:MM` or `±HHMM`) is
+ * recommended but optional: 1.x accepted timezone-less datetimes, including the
+ * `YYYY-MM-DD HH:MM:SS` form that spreadsheet and pandas CSV exports write, and
+ * kept them verbatim. They are still kept verbatim and the rules read them
+ * through `Date.parse`, exactly as 1.7.0 did (a timezone-less datetime is read
+ * in the process's local time).
+ */
+const ISO_DATE_OR_DATETIME = /^(\d{4}-\d{2}-\d{2})(?:[T ]\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?(?:Z|[+-]\d{2}:?\d{2})?)?$/
 
 function isValidTimestamp(value: string): boolean {
-  const match = ISO_DATE_OR_ZONED_DATETIME.exec(value)
+  const match = ISO_DATE_OR_DATETIME.exec(value)
   if (!match) return false
   const date = match[1]!
   const parsedDate = Date.parse(date)
@@ -30,7 +38,7 @@ function isValidTimestamp(value: string): boolean {
 export const timestampSchema = z
   .string()
   .refine(isValidTimestamp, {
-    message: 'must be a real ISO 8601 date or timezone-qualified datetime',
+    message: 'must be a real ISO 8601 date or datetime',
   })
 
 export const barSchema = z.object({
