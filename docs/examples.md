@@ -232,7 +232,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 22
       - name: Check market data
@@ -269,8 +269,6 @@ For a local smoke test, use the shipped anomalous fixture; it intentionally exit
 ```bash
 pnpm exec mdsc check --file tests/fixtures/mob-st-unadjusted-split.json --fail-on critical --min-score 80 --format json > report.json
 ```
-
-The command should report the `SPLIT_NOT_ADJUSTED` finding and create parseable `report.json` before returning the failing gate status.
 
 This smoke test prints `SPLIT_NOT_ADJUSTED`, scores 60/100, exits `1`, and leaves a parseable
 `report.json` for inspection.

@@ -138,7 +138,7 @@ mdsc --version
 ```
 
 Input dates must be real `YYYY-MM-DD` calendar dates. Datetimes should carry an ISO timezone
-(`Z`, `±HH:MM` or `±HHMM`); as in 1.x, a datetime without one (`2024-01-02T14:30:00` or the
+(`Z`, `±HH:MM` or `±HHMM`); as in earlier 1.x releases, a datetime without one (`2024-01-02T14:30:00` or the
 CSV-export form `2024-01-02 14:30:00`) is still accepted and read in the local time of the
 process running `mdsc`, so set `TZ` or add the zone when it matters. Bar timestamps in compact `YYYYMMDD` or plausible epoch
 seconds are normalized when CSV or JSON files are ingested. Invalid dates produce a
@@ -146,6 +146,7 @@ seconds are normalized when CSV or JSON files are ingested. Invalid dates produc
 
 Exit codes: `0` gate passed · `1` gate failed (critical findings, or `--fail-on`/`--min-score`)
 · `2` operational error (file unreadable, invalid flags, provider unavailable, invalid config).
+One 1.x exception, kept for compatibility: `mdsc rules <unknown-id>` exits `1`.
 
 Providers are plugins: `yahoo` works keyless; `alpha-vantage` needs the
 `ALPHA_VANTAGE_API_KEY` env var. A free key (alphavantage.co) returns the latest 100 daily
@@ -349,7 +350,7 @@ compare rules. Full details with defaults and references: `mdsc rules` (or
 | `OHLC_INCONSISTENT` | critical | `high < low`, open/close outside [low, high] |
 | `VOLUME_NEGATIVE` | critical | Negative or non-finite volume |
 | `TS_DUPLICATED` | critical | Two bars for the same timestamp |
-| `RETURN_SPIKE` | warning | Robust statistical outlier returns (modified z-score), deduplicated against splits |
+| `RETURN_SPIKE` | warning / info | Robust statistical outlier returns (modified z-score), deduplicated against splits |
 | `CURRENCY_SCALE_SUSPECT` | warning | Persistent ~100× level shifts — pence/pounds (GBX/GBP) block confusion |
 | `STALE_PRICE` | warning | Identical close for 3+ sessions with volume — frozen feed (`info` when the price is frozen with volume 0 for more than 10 sessions) |
 | `BAR_MISSING` | warning | Gaps of a full trading week or more |
@@ -394,7 +395,7 @@ compare rules. Full details with defaults and references: `mdsc rules` (or
 | Rule | Severity | What it catches |
 |---|---|---|
 | `SYMBOL_MISMATCH` | critical | The two datasets are for different symbols — comparison is meaningless |
-| `INSUFFICIENT_OVERLAP` | warning | Too few shared dates between sources — agreement cannot be evaluated |
+| `INSUFFICIENT_OVERLAP` | warning / critical | Too few shared dates between sources — agreement cannot be evaluated (critical when they share none) |
 | `SERIES_TAIL_TRUNCATED` | warning | One source ends sessions before the other — its most recent bars are missing |
 | `CLOSE_DIVERGENCE` | warning | Systematic close disagreement between two sources |
 | `DIVIDEND_MISMATCH` | warning | Dividend missing or different in the other source |

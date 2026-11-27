@@ -6,7 +6,7 @@
 
 ## Key facts
 
-- Install: `npm install market-data-sanity-checker` (Node ≥ 20, zero config).
+- Install: `npm install market-data-sanity-checker` (Node ≥ 22.12, zero config).
 - CLI check: `mdsc check --file aapl.csv --symbol AAPL --source yahoo` or fetch directly
   with `mdsc check --provider yahoo --symbol AAPL --range 1y` (Yahoo is keyless;
   Alpha Vantage needs `ALPHA_VANTAGE_API_KEY`).
