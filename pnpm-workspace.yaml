@@ -19,3 +19,8 @@ overrides:
   'vitest>vite': 7.3.7
   '@vitest/mocker>vite': 7.3.7
   'typedoc>markdown-it': 14.3.3
+  # GHSA-g3hv-75wg-m249: only typedoc pulls minimatch 10.x (no patched 10.x exists).
+  # Needs patches/typedoc@0.28.20.patch; remove when typedoc ships TypeStrong/typedoc#3151.
+  minimatch@<11.0.1: ^11.0.9
+patchedDependencies:
+  typedoc@0.28.20: patches/typedoc@0.28.20.patch
