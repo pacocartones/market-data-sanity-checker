@@ -24,6 +24,6 @@ jobs:
       - uses: actions/first-interaction@1c4688942c71f71d4f5502a26ea67c331730fa4d # v3.1.0
         with:
           issue_message: |
-            Welcome, and thank you for opening your first issue here. A maintainer replies within 24 hours, usually the same day. If you are reporting data that looks wrong, a small file that reproduces it (or a link to the public report) helps most. [CONTRIBUTING.md](../blob/main/CONTRIBUTING.md) has the details.
+            Welcome, and thank you for opening your first issue here. A maintainer replies within 3 business days (best effort; often sooner). If you are reporting data that looks wrong, a small file that reproduces it (or a link to the public report) helps most. [CONTRIBUTING.md](../blob/main/CONTRIBUTING.md) has the details.
           pr_message: |
-            Welcome, and thank you for your first pull request. The automatic checks on a first pull request wait for a maintainer to approve them; that happens soon, you do not need to do anything. A maintainer replies within 24 hours, usually the same day, and may push a small fix to your branch (your authorship stays) if you allow edits. [CONTRIBUTING.md](../blob/main/CONTRIBUTING.md) has the details.
+            Welcome, and thank you for your first pull request. The automatic checks on a first pull request wait for a maintainer to approve them; that happens soon, you do not need to do anything. A maintainer replies within 3 business days (best effort; often sooner) and may push a small fix to your branch (your authorship stays) if you allow edits. [CONTRIBUTING.md](../blob/main/CONTRIBUTING.md) has the details.
