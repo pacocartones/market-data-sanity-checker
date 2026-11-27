@@ -75,11 +75,22 @@ describe('scoreboard artifact boundary', () => {
     await expect(api.pack(source, join(dir, 'omitted-note'), env)).rejects.toThrow()
   })
 
-  it('accepts the checked-in 23/2/5 provider and preserves all four files', async () => {
+  // The weekly audit rewrites scoreboard/, so the 23/2/5 case is pinned to a saved
+  // copy of the 2026-10-17 snapshot instead of whatever is checked in today.
+  it('accepts the saved 2026-10-17 snapshot with a 23/2/5 provider and preserves all four files', async () => {
+    await rm(source, { recursive: true, force: true })
+    await cp(join(root, 'tests/scoreboard-snapshots/2026-10-17'), source, { recursive: true })
     const { pack, loadArtifact } = await module()
     expect((await json()).providers.find((p: { provider: string }) => p.provider === 'alpha-vantage')).toMatchObject({
       symbols_ok: 23, symbols_failed: 2, symbols_skipped: 5,
     })
+    const packed = await pack(source, bundle, env)
+    const result = await loadArtifact(bundle, env, packed.payloadSha256)
+    expect(Object.keys(result.files).sort()).toEqual(['README.md', 'datapackage.json', 'latest.csv', 'latest.json'])
+    for (const [name, data] of Object.entries(result.files)) expect(data.equals(await readFile(join(source, name)))).toBe(true)
+  })
+  it('accepts the checked-in snapshot and preserves all four files', async () => {
+    const { pack, loadArtifact } = await module()
     const packed = await pack(source, bundle, env)
     const result = await loadArtifact(bundle, env, packed.payloadSha256)
     expect(Object.keys(result.files).sort()).toEqual(['README.md', 'datapackage.json', 'latest.csv', 'latest.json'])
