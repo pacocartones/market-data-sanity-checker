@@ -1,0 +1,17 @@
+name: AI footer
+on:
+  issues:
+    types: [opened, edited]
+  issue_comment:
+    types: [created, edited]
+  pull_request_review_comment:
+    types: [created, edited]
+  pull_request_review:
+    types: [submitted, edited]
+permissions: {}
+jobs:
+  strip:
+    permissions:
+      issues: write
+      pull-requests: write
+    uses: pacocartones/.github/.github/workflows/ai-footer-strip.yml@158574d9d0b26732aad424eea7790bcd98213fab # main 2026-11-27
