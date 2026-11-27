@@ -403,7 +403,8 @@ compare rules. Full details with defaults and references: `mdsc rules` (or
 | `PRICE_DATE_MISMATCH` | info | Specific dates where the sources disagree beyond tolerance |
 | `VOLUME_DIVERGENCE` | info | Systematic volume disagreement (volumes are not cross-comparable) |
 
-Findings carry `rule`, `severity` (critical/warning/info), `action` (block/flag/review),
+Findings carry `rule`, `severity` (critical/warning/info), `action` (block/flag/review,
+always the severity's consequence: critical → block, warning → flag, info → review),
 `dimension` (DAMA data quality dimension), a human-readable `explanation`, `evidence`, and
 `references` to the incident or literature justifying the rule.
 

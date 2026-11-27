@@ -1,4 +1,4 @@
-import type { Finding } from '../../report/types'
+import { actionForSeverity, type Finding } from '../../report/types'
 import { weekdaysBetween } from '../calendar'
 import type { Rule } from '../types'
 
@@ -46,7 +46,7 @@ export const barMissing: Rule = {
       findings.push({
         rule: 'BAR_MISSING',
         severity: context.config.severity,
-        action: 'flag',
+        action: actionForSeverity(context.config.severity),
         dimension: 'completeness',
         where: { date: current.timestamp },
         explanation:

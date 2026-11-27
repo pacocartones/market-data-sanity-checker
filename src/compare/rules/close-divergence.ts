@@ -1,4 +1,4 @@
-import type { Finding } from '../../report/types'
+import { actionForSeverity, type Finding } from '../../report/types'
 import { median } from '../../rules/stats'
 import type { CompareRule } from '../types'
 
@@ -51,7 +51,7 @@ export const closeDivergence: CompareRule = {
     const finding: Finding = {
       rule: 'CLOSE_DIVERGENCE',
       severity: context.config.severity,
-      action: 'flag',
+      action: actionForSeverity(context.config.severity),
       dimension: 'consistency',
       where: { date: worst.date },
       explanation:

@@ -75,7 +75,7 @@ describe('scoreboard artifact boundary', () => {
     await expect(api.pack(source, join(dir, 'omitted-note'), env)).rejects.toThrow()
   })
 
-  // The weekly audit rewrites scoreboard/, so the 23/2/5 case is pinned to a saved
+  // The provider audit rewrites scoreboard/, so the 23/2/5 case is pinned to a saved
   // copy of the 2026-10-17 snapshot instead of whatever is checked in today.
   it('accepts the saved 2026-10-17 snapshot with a 23/2/5 provider and preserves all four files', async () => {
     await rm(source, { recursive: true, force: true })

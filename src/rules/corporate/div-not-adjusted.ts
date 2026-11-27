@@ -1,4 +1,4 @@
-import type { Finding } from '../../report/types'
+import { actionForSeverity, type Finding } from '../../report/types'
 import { barIndexOnOrBefore, sortedBars } from '../series'
 import { median } from '../stats'
 import type { Rule } from '../types'
@@ -86,7 +86,7 @@ export const divNotAdjusted: Rule = {
       findings.push({
         rule: 'DIV_NOT_ADJUSTED',
         severity: context.config.severity,
-        action: 'flag',
+        action: actionForSeverity(context.config.severity),
         dimension: 'consistency',
         where: { date: dividend.exDate },
         explanation:

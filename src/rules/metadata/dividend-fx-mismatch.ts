@@ -1,4 +1,4 @@
-import type { Finding } from '../../report/types'
+import { actionForSeverity, type Finding } from '../../report/types'
 import type { Rule } from '../types'
 
 /**
@@ -43,7 +43,7 @@ export const dividendFxMismatch: Rule = {
       findings.push({
         rule: 'DIVIDEND_FX_MISMATCH',
         severity: context.config.severity,
-        action: 'flag',
+        action: actionForSeverity(context.config.severity),
         dimension: 'consistency',
         where: { date: dividend.exDate },
         explanation:

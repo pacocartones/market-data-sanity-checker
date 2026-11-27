@@ -1,4 +1,4 @@
-import type { Finding } from '../../report/types'
+import { actionForSeverity, type Finding } from '../../report/types'
 import { sortedBars } from '../series'
 import type { Rule } from '../types'
 
@@ -36,7 +36,7 @@ export const signValidity: Rule = {
         findings.push({
           rule: 'FUNDAMENTALS_SIGN_VALIDITY',
           severity: context.config.severity,
-          action: 'block',
+          action: actionForSeverity(context.config.severity),
           dimension: 'validity',
           where,
           explanation:
@@ -55,7 +55,7 @@ export const signValidity: Rule = {
         findings.push({
           rule: 'FUNDAMENTALS_SIGN_VALIDITY',
           severity: context.config.severity,
-          action: 'block',
+          action: actionForSeverity(context.config.severity),
           dimension: 'validity',
           where,
           explanation:

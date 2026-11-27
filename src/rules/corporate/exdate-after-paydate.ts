@@ -1,4 +1,4 @@
-import type { Finding } from '../../report/types'
+import { actionForSeverity, type Finding } from '../../report/types'
 import { barIndexOnOrBefore, sortedBars } from '../series'
 import type { Rule } from '../types'
 
@@ -68,7 +68,7 @@ export const exdateAfterPaydate: Rule = {
       findings.push({
         rule: 'EXDATE_AFTER_PAYDATE',
         severity: context.config.severity,
-        action: 'block',
+        action: actionForSeverity(context.config.severity),
         dimension: 'validity',
         where: { date: dividend.exDate },
         explanation:

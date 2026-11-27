@@ -1,4 +1,4 @@
-import type { Finding } from '../../report/types'
+import { actionForSeverity, type Finding } from '../../report/types'
 import { latestClose, sortedBars } from '../series'
 import type { Rule } from '../types'
 
@@ -47,7 +47,7 @@ export const peEpsIncompatible: Rule = {
       findings.push({
         rule: 'PE_EPS_INCOMPATIBLE',
         severity: context.config.severity,
-        action: 'flag',
+        action: actionForSeverity(context.config.severity),
         dimension: 'accuracy',
         where: { date: lastBar.timestamp },
         explanation:
@@ -69,7 +69,7 @@ export const peEpsIncompatible: Rule = {
         findings.push({
           rule: 'PE_EPS_INCOMPATIBLE',
           severity: context.config.severity,
-          action: 'flag',
+          action: actionForSeverity(context.config.severity),
           dimension: 'accuracy',
           where: { date: lastBar.timestamp },
           explanation:

@@ -95,7 +95,7 @@ describe('RETURN_SPIKE — severity tiering (anti-cry-wolf, 2026-07-31 audit)', 
 
     expect(findings).toHaveLength(1)
     expect(findings[0]!.severity).toBe('info')
-    expect(findings[0]!.action).toBe('flag')
+    expect(findings[0]!.action).toBe('review')
     expect(findings[0]!.evidence).toMatchObject({ modified_zscore: -4.52 })
     expect(findings[0]!.explanation).toContain(
       '(statistically anomalous but within ordinary earnings-move magnitude)',

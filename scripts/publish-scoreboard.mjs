@@ -48,7 +48,7 @@ export async function publish(bundle,digest,env=process.env,request) {
   }
   const nextTree=await api('POST',PREFIX+'/git/trees',{base_tree:baseTree,tree:entries})
   const commit=await api('POST',PREFIX+'/git/commits',{
-    message:'chore(scoreboard): weekly provider audit',tree:sha(nextTree?.sha),parents:[context.sha],author,committer:author,
+    message:'chore(scoreboard): provider audit',tree:sha(nextTree?.sha),parents:[context.sha],author,committer:author,
   })
   const commitSha=sha(commit?.sha)
   // A main change aborts before the ref update; the two refs are not one atomic transaction.
@@ -67,8 +67,8 @@ export async function publish(bundle,digest,env=process.env,request) {
   requireThat(Array.isArray(pulls))
   let pull=pulls.find(p=>p.head?.ref==='bot/scoreboard'&&p.head?.repo?.full_name===REPOSITORY&&p.base?.ref==='main')
   if(!pull) pull=await api('POST',PREFIX+'/pulls',{
-    base:'main',head:'bot/scoreboard',title:'chore(scoreboard): weekly provider audit',
-    body:'Weekly provider audit from a validated data-only artifact. Review the pull request and required checks before merging.',
+    base:'main',head:'bot/scoreboard',title:'chore(scoreboard): provider audit',
+    body:'Provider audit from a validated data-only artifact. Review the pull request and required checks before merging.',
   })
   requireThat(typeof pull?.html_url==='string' && /^https:\/\/github\.com\/pacocartones\/market-data-sanity-checker\/pull\/[1-9][0-9]*$/.test(pull.html_url))
   return {changed:true,commit:commitSha,pr:pull.html_url}

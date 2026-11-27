@@ -1,4 +1,4 @@
-import type { Finding } from '../../report/types'
+import { actionForSeverity, type Finding } from '../../report/types'
 import { latestClose, sortedBars } from '../series'
 import type { Rule } from '../types'
 
@@ -56,7 +56,7 @@ export const marketcapMismatch: Rule = {
       {
         rule: 'MARKETCAP_MISMATCH',
         severity: context.config.severity,
-        action: 'flag',
+        action: actionForSeverity(context.config.severity),
         dimension: 'accuracy',
         where: { date: lastBar.timestamp },
         explanation:

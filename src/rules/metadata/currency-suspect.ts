@@ -1,6 +1,6 @@
 import { median } from '../stats'
 import { sortedBars } from '../series'
-import type { Finding } from '../../report/types'
+import { actionForSeverity, type Finding } from '../../report/types'
 import type { Rule } from '../types'
 
 /**
@@ -42,7 +42,7 @@ export const currencySuspect: Rule = {
       findings.push({
         rule: 'CURRENCY_SUSPECT',
         severity: 'info',
-        action: 'flag',
+        action: actionForSeverity('info'),
         dimension: 'consistency',
         explanation:
           `Dataset for ${data.symbol} has no currency. Without it, prices cannot be interpreted ` +
@@ -61,7 +61,7 @@ export const currencySuspect: Rule = {
         findings.push({
           rule: 'CURRENCY_SUSPECT',
           severity: context.config.severity,
-          action: 'flag',
+          action: actionForSeverity(context.config.severity),
           dimension: 'consistency',
           where: { date: sorted[sorted.length - 1]!.timestamp },
           explanation:

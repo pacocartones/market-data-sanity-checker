@@ -63,7 +63,7 @@ describe('DIV_SCALE_100X', () => {
     expect(findings[0]).toMatchObject({
       rule: 'DIV_SCALE_100X',
       severity: 'info',
-      action: 'flag',
+      action: 'review',
       where: { date: '2024-06-10' },
       evidence: { amount: 0.65, prev_close: 1.9 },
     })

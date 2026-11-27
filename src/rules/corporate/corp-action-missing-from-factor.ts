@@ -1,4 +1,4 @@
-import type { Finding } from '../../report/types'
+import { actionForSeverity, type Finding } from '../../report/types'
 import type { Bar } from '../../schema/market-data'
 import { sortedBars } from '../series'
 import { median } from '../stats'
@@ -79,7 +79,7 @@ export const corpActionMissingFromFactor: Rule = {
     findings.push({
       rule: 'CORPORATE_ACTION_MISSING_FROM_FACTOR',
       severity: context.config.severity,
-      action: 'flag',
+      action: actionForSeverity(context.config.severity),
       dimension: 'consistency',
       where: { date: stretch[0]!.timestamp },
       explanation:

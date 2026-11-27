@@ -204,6 +204,8 @@ describe('package floor fixture version sync', () => {
     const workflow = readFileSync(resolve(root, '.github/workflows/release.yml'), 'utf8')
     expect(workflow).toMatch(/^\s+version-script: pnpm version-packages$/m)
     const pkg = JSON.parse(readFileSync(resolve(root, 'package.json'), 'utf8'))
-    expect(pkg.scripts['version-packages']).toBe('changeset version && node scripts/sync-floor-fixture-version.mjs')
+    expect(pkg.scripts['version-packages']).toBe(
+      'changeset version && node scripts/sync-floor-fixture-version.mjs && node scripts/sync-citation-version.mjs',
+    )
   })
 })

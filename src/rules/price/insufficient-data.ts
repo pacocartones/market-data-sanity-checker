@@ -1,4 +1,4 @@
-import type { Finding } from '../../report/types'
+import { actionForSeverity, type Finding } from '../../report/types'
 import type { Rule } from '../types'
 
 /**
@@ -32,12 +32,13 @@ export const insufficientData: Rule = {
     const count = data.bars.length
     if (count >= minBars) return []
 
+    // Deliberate escalation: an empty dataset is worse than a small one.
+    const severity = count === 0 ? 'critical' : context.config.severity
     const findings: Finding[] = [
       {
         rule: 'INSUFFICIENT_DATA',
-        // Deliberate escalation: an empty dataset is worse than a small one.
-        severity: count === 0 ? 'critical' : context.config.severity,
-        action: 'flag',
+        severity,
+        action: actionForSeverity(severity),
         dimension: 'completeness',
         explanation:
           count === 0

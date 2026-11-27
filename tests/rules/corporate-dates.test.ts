@@ -47,7 +47,7 @@ describe('EXDATE_AFTER_PAYDATE', () => {
     expect(findings[0]).toMatchObject({
       rule: 'EXDATE_AFTER_PAYDATE',
       severity: 'warning',
-      action: 'block',
+      action: 'flag',
       dimension: 'validity',
       where: { date: '2023-05-10' },
       evidence: { exDate: '2023-05-10', payDate: '2023-05-05' },
@@ -97,7 +97,7 @@ describe('EXDATE_AFTER_PAYDATE', () => {
     expect(findings[0]).toMatchObject({
       rule: 'EXDATE_AFTER_PAYDATE',
       severity: 'warning',
-      action: 'block',
+      action: 'flag',
       dimension: 'validity',
       where: { date: '2023-05-10' },
       evidence: { exDate: '2023-05-10', payDate: '2023-05-05' },

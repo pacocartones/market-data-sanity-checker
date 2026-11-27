@@ -1,4 +1,4 @@
-import type { Finding } from '../../report/types'
+import { actionForSeverity, type Finding } from '../../report/types'
 import type { Rule } from '../types'
 
 const ISIN_FORMAT = /^[A-Z]{2}[A-Z0-9]{9}[0-9]$/
@@ -80,7 +80,7 @@ export const symbolMappingSuspect: Rule = {
       findings.push({
         rule: 'SYMBOL_MAPPING_SUSPECT',
         severity: context.config.severity,
-        action: 'flag',
+        action: actionForSeverity(context.config.severity),
         dimension: 'consistency',
         explanation:
           `ISIN ${isin} fails the ISO 6166 check digit. A corrupt identifier means joins against ` +
@@ -101,7 +101,7 @@ export const symbolMappingSuspect: Rule = {
         findings.push({
           rule: 'SYMBOL_MAPPING_SUSPECT',
           severity: context.config.severity,
-          action: 'flag',
+          action: actionForSeverity(context.config.severity),
           dimension: 'consistency',
           explanation:
             `ISIN ${isin} has country prefix ${isinCountry} but the series is attributed to ` +

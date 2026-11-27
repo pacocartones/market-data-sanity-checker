@@ -325,6 +325,29 @@ describe('check — early flag validation (exit 2, no report)', () => {
   )
 
   it(
+    'rejects --min-score out of range with exit 2, the same message and empty stdout',
+    async () => {
+      for (const value of ['500', '-1', 'abc']) {
+        const result = await runCli(['check', '--file', fixture('aet-l-currency-scale.json'), '--min-score', value])
+        expect(result.code).toBe(2)
+        expect(result.stdout).toBe('')
+        expect(result.stderr.trim()).toBe('mdsc: --min-score must be a number between 0 and 100')
+      }
+    },
+    CLI_TIMEOUT_MS,
+  )
+
+  it(
+    'rejects --fail-on bogus with the exact message',
+    async () => {
+      const result = await runCli(['check', '--file', fixture('aet-l-currency-scale.json'), '--fail-on', 'bogus'])
+      expect(result.code).toBe(2)
+      expect(result.stderr.trim()).toBe('mdsc: --fail-on must be one of: critical, warning, info')
+    },
+    CLI_TIMEOUT_MS,
+  )
+
+  it(
     'rejects --format bogus with exit 2',
     async () => {
       const result = await runCli(['check', '--file', fixture('aet-l-currency-scale.json'), '--format', 'bogus'])

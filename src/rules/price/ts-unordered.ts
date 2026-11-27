@@ -1,4 +1,4 @@
-import type { Finding } from '../../report/types'
+import { actionForSeverity, type Finding } from '../../report/types'
 import type { Rule } from '../types'
 
 /**
@@ -45,7 +45,7 @@ export const tsUnordered: Rule = {
       findings.push({
         rule: 'TS_UNORDERED',
         severity: context.config.severity,
-        action: 'flag',
+        action: actionForSeverity(context.config.severity),
         dimension: 'consistency',
         where: { date: reversed.first },
         explanation:
@@ -69,7 +69,7 @@ export const tsUnordered: Rule = {
       findings.push({
         rule: 'TS_UNORDERED',
         severity: context.config.severity,
-        action: 'flag',
+        action: actionForSeverity(context.config.severity),
         dimension: 'consistency',
         where: { date: next.timestamp },
         explanation:

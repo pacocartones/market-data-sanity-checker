@@ -53,7 +53,7 @@ describe('VOLUME_NEGATIVE', () => {
     expect(findings).toHaveLength(2)
     expect(findings[0]!.where).toEqual({ date: '2024-01-02' })
     expect(findings[0]!.evidence).toEqual({ volume: -500 })
-    expect(findings[0]!.action).toBe('block')
+    expect(findings[0]!.action).toBe('block') // critical → block, set by actionForSeverity
   })
 })
 ```
@@ -65,6 +65,9 @@ Run `pnpm test` and confirm it fails because the rule doesn't exist yet.
 One file under `src/rules/<block>/`, named after the rule in kebab-case. Here it is [`src/rules/price/volume-negative.ts`](../src/rules/price/volume-negative.ts):
 
 ```ts
+import { actionForSeverity, type Finding } from '../../report/types'
+import type { Rule } from '../types'
+
 export const volumeNegative: Rule = {
   meta: {
     id: 'VOLUME_NEGATIVE',      // stable, SCREAMING_SNAKE_CASE, part of the public report
@@ -84,7 +87,7 @@ export const volumeNegative: Rule = {
       findings.push({
         rule: 'VOLUME_NEGATIVE',
         severity: context.config.severity,
-        action: 'block',
+        action: actionForSeverity(context.config.severity), // never a literal: see below
         dimension: 'validity',
         where: { date: bar.timestamp },
         explanation: `Volume is ${volume}, which is structurally impossible: … Hypothesis: … Block this bar and re-fetch it from the source.`,
@@ -101,6 +104,7 @@ The rules every rule follows:
 - **Pure and total.** No I/O, no mutation of the input, and never throw. Degenerate datasets (empty, one bar) return no findings.
 - **One finding per occurrence.** The engine collapses them into one report entry with a count, so don't group them yourself.
 - **Explain like a person.** State what was seen, the causal hypothesis and what to do: "Volume is −500 … a vendor sign error … re-fetch it", not "check failed".
+- **The action follows the severity.** Set `action: actionForSeverity(severity)` with the same severity the finding carries; don't write `'block'`, `'flag'` or `'review'` yourself. The engine sets every reported finding's action from its final severity (critical → block, warning → flag, info → review), and the helper makes a direct `check()` call return the same pair. If a case deliberately lowers or raises the severity, compute it once and pass it to both fields.
 - **No magic numbers.** A threshold goes in `defaultParams` (users can override it), and its value is justified by `references`.
 
 ## 5. Register it
@@ -117,7 +121,7 @@ export const registry: Rule[] = [
 ]
 ```
 
-[`tests/rule-references.test.ts`](../tests/rule-references.test.ts) checks that every rule in the catalog cites at least one http(s) reference. It also pins the catalog size: raise the expected count by one.
+[`tests/rule-references.test.ts`](../tests/rule-references.test.ts) checks that every rule in the catalog cites at least one http(s) reference. It also pins the catalog size: raise the expected count by one. [`tests/rule-actions.test.ts`](../tests/rule-actions.test.ts) runs every registered rule on cases that make it fire and checks that each finding's action matches its severity; add a case that makes your rule fire.
 
 ## 6. Golden report (real-case fixtures only)
 
