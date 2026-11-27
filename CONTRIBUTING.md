@@ -92,7 +92,7 @@ AI help is welcome under the [AI policy](AI_POLICY.md). Replies in this reposito
 
 ## Review
 
-We reply to every new issue, pull request and `/take` comment within 24 hours, usually the same day. A reply is a real answer (a review, a question or an assignment), not an acknowledgement. Security reports follow [SECURITY.md](SECURITY.md).
+We aim to reply to every new issue, pull request and `/take` comment within 3 business days (best effort; often sooner). A reply is a real answer (a review, a question or an assignment), not an acknowledgement. Security reports follow [SECURITY.md](SECURITY.md).
 
 A human maintainer reviews and is responsible for every merge. Every review conversation is resolved before merging, by a change or a note saying why not.
 
@@ -102,7 +102,7 @@ By contributing you agree to follow the [Code of Conduct](https://github.com/pac
 
 ## Branch names and commit identity
 
-**From a fork, none of this applies to you:** name your branch as you like, commit under any address, and keep the trailers your tools add. If you do not want your email in the public history, use your [GitHub noreply address](https://docs.github.com/en/account-and-profile/setting-up-and-managing-your-personal-account-on-github/managing-email-preferences/setting-your-commit-email-address).
+**From a fork, none of this applies to you:** name your branch as you like, commit under any address. If an AI tool helped, say so with an `Assisted-by: <tool>/<model>` line (see [AI_POLICY.md](AI_POLICY.md)); tool `Co-authored-by` lines are dropped when we squash, because only people co-author. If you do not want your email in the public history, use your [GitHub noreply address](https://docs.github.com/en/account-and-profile/setting-up-and-managing-your-personal-account-on-github/managing-email-preferences/setting-your-commit-email-address).
 
 For maintainers' branches and commits in this repository, the *Commit policy* check runs [`scripts/check-commit-policy.sh`](scripts/check-commit-policy.sh), which is the source of truth for the exact patterns. In short:
 

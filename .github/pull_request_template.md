@@ -14,4 +14,4 @@
 - [ ] **New rule:** the full [rule contract](https://github.com/pacocartones/market-data-sanity-checker/blob/main/CONTRIBUTING.md#the-rule-contract): stable ID, severity, reference URL, fixture, and a hand-reviewed golden in `tests/golden/` (never updated blindly).
 - [ ] **User-visible change:** I added a changeset (`pnpm changeset`) and updated the docs it affects (`README.md` rule catalog, `docs/fixtures.md`).
 - [ ] **Factual change:** every fact comes from a primary source I opened myself, linked above with the day I read it.
-- [ ] (Optional) I used AI tools for part of this change, and I have read and tested it myself.
+- [ ] **AI help:** I used AI tools for part of this change, added an `Assisted-by: <tool>/<model>` line to the commit, and I have read and tested it myself.
