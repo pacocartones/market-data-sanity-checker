@@ -36,5 +36,5 @@
 - [docs/examples.md](docs/examples.md): real caught-in-the-wild cases with reproducible output
 - [CONTRIBUTING.md](CONTRIBUTING.md): how to add a rule (stable ID, severity, reference, fixture)
 - [docs/fixtures.md](docs/fixtures.md): real-case fixtures anchoring the headline rules
-- [scoreboard/README.md](scoreboard/README.md): weekly public provider audit, reproducible with `pnpm scoreboard`
+- [scoreboard/README.md](scoreboard/README.md): public provider audit, reproducible with `pnpm scoreboard` (weekly run parked until activation)
 - [CHANGELOG.md](CHANGELOG.md): release history

@@ -11,7 +11,10 @@ describe('scoreboard workflow security contract', () => {
     expect(document.errors).toEqual([])
     expect(Object.keys(workflow.on)).toContain('workflow_dispatch')
     expect(workflow.on.workflow_dispatch?.inputs).toBeUndefined()
-    expect(workflow.on.schedule).toEqual([{ cron: '23 5 * * 1' }])
+  })
+  it('is parked: no schedule until the activation prerequisites are met', () => {
+    expect(Object.keys(workflow.on)).toEqual(['workflow_dispatch'])
+    expect(workflow.on.schedule).toBeUndefined()
   })
   it('gates privileged jobs on a read-only context check and pins checkouts', () => {
     expect(workflow.permissions).toEqual({ contents: 'read' })

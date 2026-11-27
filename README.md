@@ -449,10 +449,11 @@ CSV/JSON with one command (or one call from TypeScript), with the same score in 
 ## Provider scoreboard
 
 The project audits itself against reality, publicly: [`scoreboard/`](scoreboard/) holds
-the latest weekly audit of ~30 liquid symbols per provider (mean sanity score, worst
-symbols, findings), regenerated every Monday by a GitHub Action and reproducible by
-anyone with `pnpm scoreboard`. [`calibration/`](calibration/) holds the latest 50-symbol
-calibration run — the corpus's honesty loop against real Yahoo data.
+the latest audit of ~30 liquid symbols per provider (mean sanity score, worst
+symbols, findings), reproducible by anyone with `pnpm scoreboard`. The weekly Monday
+run is parked: the workflow runs only manually until the activation prerequisites in
+[`docs/automation-scoreboard.md`](docs/automation-scoreboard.md) are met.
+[`calibration/`](calibration/) holds the latest 50-symbol calibration run — the corpus's honesty loop against real Yahoo data.
 
 ## Development
 
