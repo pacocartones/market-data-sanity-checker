@@ -43,7 +43,7 @@ describe('calibration workflow security contract', () => {
     const withSecret = steps.filter((step) => JSON.stringify(step).includes('secrets.'))
     expect(withSecret).toHaveLength(1)
     expect(withSecret[0]!.run).toBe('pnpm calibrate --two-source')
-    expect(withSecret[0]!.env?.ALPHA_VANTAGE_API_KEY).toBe('${{ secrets.SCOREBOARD_DATA_API_KEY }}')
+    expect(withSecret[0]!.env?.ALPHA_VANTAGE_API_KEY).toBe('${{ secrets.ALPHA_VANTAGE_API_KEY }}')
     expect(withSecret[0]!.env?.ALPHA_VANTAGE_PREMIUM).toBe('false')
     expect(source.match(/secrets\./g)).toHaveLength(1)
     const upload = steps.find((step) => step.uses?.startsWith('actions/upload-artifact@'))

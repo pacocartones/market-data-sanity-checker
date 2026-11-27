@@ -22,7 +22,8 @@ jobs:
       github.ref == 'refs/heads/main' &&
       github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
-    environment: scoreboard-data
+    # The repository secret ALPHA_VANTAGE_API_KEY (the scoreboard-data environment and its
+    # SCOREBOARD_DATA_API_KEY do not exist yet: they belong to the parked scoreboard activation).
     permissions:
       contents: read
     steps:
@@ -38,7 +39,7 @@ jobs:
       - name: Run the two-source calibration
         run: pnpm calibrate --two-source
         env:
-          ALPHA_VANTAGE_API_KEY: ${{ secrets.SCOREBOARD_DATA_API_KEY }}
+          ALPHA_VANTAGE_API_KEY: ${{ secrets.ALPHA_VANTAGE_API_KEY }}
           ALPHA_VANTAGE_DAILY_LIMIT: '25'
           ALPHA_VANTAGE_PREMIUM: 'false'
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
