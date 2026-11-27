@@ -12,9 +12,6 @@ help wanted	7057ff	Extra attention is needed
 dependencies	ededed	Dependency update
 agent-assisted	ededed	Drafted by an AI agent session
 tracker	ededed	Tracks a group of related issues
-# Repository-only extras, not in the shared standard: optional and seasonal (Hacktoberfest).
-hacktoberfest	4a154b	October 2026 contribution push (no Hacktoberfest reward)
-hacktoberfest-accepted	9c4668	Accepted in October 2026 (no Hacktoberfest reward)
 # Repository-only extras kept by the maintainer's decision (27-11): the kind of work is the issue
 # type, but older items still carry these. Do not use them on new issues; chore was removed.
 bug	d73a4a	Something isn't working
