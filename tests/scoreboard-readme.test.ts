@@ -128,3 +128,27 @@ describe('renderScoreboardReadme', () => {
     expect(readme).not.toContain('## Cross-provider consistency')
   })
 })
+
+
+describe('Alpha Vantage coverage note policy', () => {
+  const base = {
+    generatedAt: '2026-10-17T00:00:00.000Z', basketSize: 30,
+    providers: [provider(), provider({ provider: 'alpha-vantage' })],
+    excluded: [], skipped: [],
+    comparisons: [{ symbol: 'AAPL', consistency_score: 85, compared_dates: 100, findings: [] }],
+  }
+  it('adds a free-tier coverage warning while leaving premium and unknown output alone', () => {
+    const unknown = renderScoreboardReadme(base)
+    const free = renderScoreboardReadme({ ...base, alphaVantageTier: 'free' })
+    expect(free).not.toBe(unknown)
+    expect(free).toContain('unavailable coverage')
+    expect(free).not.toContain('not that either feed has wrong data')
+    expect(renderScoreboardReadme({ ...base, alphaVantageTier: 'premium' })).toBe(unknown)
+    expect(renderScoreboardReadme({ ...base, alphaVantageTier: 'unknown' })).toBe(unknown)
+  })
+  it('does not claim AV free usage when AV is absent or no comparisons are shown', () => {
+    for (const input of [{ ...base, providers: [provider()] }, { ...base, comparisons: [] }]) {
+      expect(renderScoreboardReadme({ ...input, alphaVantageTier: 'free' })).toBe(renderScoreboardReadme(input))
+    }
+  })
+})

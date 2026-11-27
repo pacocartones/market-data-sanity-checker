@@ -134,6 +134,11 @@ mdsc rules --format json | jq '.single_source[].id'
 mdsc --version
 ```
 
+Input dates must be real `YYYY-MM-DD` calendar dates. Datetimes need an ISO timezone
+(`Z`, `±HH:MM` or `±HHMM`). Bar timestamps in compact `YYYYMMDD` or plausible epoch
+seconds are normalized when CSV or JSON files are ingested. Invalid dates produce a
+`SCHEMA_INVALID` finding and fail the data gate.
+
 Exit codes: `0` gate passed · `1` gate failed (critical findings, or `--fail-on`/`--min-score`)
 · `2` operational error (file unreadable, invalid flags, provider unavailable, invalid config).
 
@@ -187,6 +192,11 @@ mdsc history --symbol AAPL --history-dir ./audit
 mdsc check --file aapl.csv --html report.html
 mdsc compare --files yahoo-aapl.json,stooq-aapl.csv --html compare.html   # writes a self-contained comparison dashboard
 ```
+
+HTML and audit-history writes reject pre-existing symbolic links and directory junctions
+in the selected output path. Use regular output files under regular directories;
+intentionally linked outputs are unsupported. This protects against links already present
+in lower-trust checkout content, not concurrent mutation by another local process.
 
 ### GitHub Action
 
@@ -360,6 +370,14 @@ compare rules. Full details with defaults and references: `mdsc rules` (or
 Findings carry `rule`, `severity` (critical/warning/info), `action` (block/flag/review),
 `dimension` (DAMA data quality dimension), a human-readable `explanation`, `evidence`, and
 `references` to the incident or literature justifying the rule.
+
+Corporate action arrays have no fixed length limit. The check report counts all
+`DIV_DUPLICATED` pairs but retains one representative finding; comparison uses
+date indexes and preserves the first matching action in input order. Direct
+`DIV_DUPLICATED.check` calls still return every matching pair, so their output
+and memory grow with the number of pairs. Other direct rules can also depend
+on the number of nearby bars or actions; large datasets need caller-side
+resource planning.
 
 ## When NOT to use it
 

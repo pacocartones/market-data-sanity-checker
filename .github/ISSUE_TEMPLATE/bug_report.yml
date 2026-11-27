@@ -7,6 +7,7 @@ body:
     attributes:
       value: |
         Thanks for reporting. The more precisely you fill this in, the faster we can reproduce it.
+        A wrong rule reference or incident fact uses the data correction form instead. Security problems go through the Security tab, never here.
   - type: textarea
     id: description
     attributes:

@@ -39,7 +39,18 @@ interface ScoreboardReadmeInput {
   excluded: ExcludedProvider[]
   skipped: SkippedProvider[]
   comparisons: ScoreboardComparison[]
+  /** Trusted endpoint configuration; absent means coverage is unknown. */
+  alphaVantageTier?: 'free' | 'premium' | 'unknown'
 }
+
+/** Coverage warning only; a missing field does not adjudicate provider accuracy. */
+export const ALPHA_VANTAGE_FREE_PLAN_NOTE =
+  'This run uses Alpha Vantage’s free daily endpoint, which returns the latest 100 daily bars ' +
+  'without dividends or splits. Corporate-action findings can reflect unavailable coverage and ' +
+  'do not by themselves establish a defect in either feed. This snapshot does not retain the raw ' +
+  'datasets and field-level coverage needed to adjudicate each event. Compare corporate actions ' +
+  'only over periods where both sources have verified coverage, then reconcile discrepancies ' +
+  'against issuer or exchange notices.'
 
 function formatFindings(findings: ScoreboardFinding[]): string {
   if (findings.length === 0) return 'none'
@@ -56,6 +67,7 @@ export function renderScoreboardReadme({
   excluded,
   skipped,
   comparisons,
+  alphaVantageTier = 'unknown',
 }: ScoreboardReadmeInput): string {
   const lines = [
     '# Provider scoreboard',
@@ -94,6 +106,8 @@ export function renderScoreboardReadme({
       ? [
           '## Cross-provider consistency',
           '',
+          ...(alphaVantageTier === 'free' && providers.some((p) => p.provider === 'alpha-vantage')
+            ? [ALPHA_VANTAGE_FREE_PLAN_NOTE, ''] : []),
           '| Symbol | Consistency score | Compared dates | Findings |',
           '|---|---|---|---|',
           ...comparisons.map(
