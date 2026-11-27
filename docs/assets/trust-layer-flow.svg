@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="960" height="430" viewBox="0 0 960 430" role="img" aria-label="Architecture map — market data sources (Yahoo Finance, Alpha Vantage, your CSV/JSON) flow into mdsc, the trust layer, which validates with 37 rules, scores 0-100, explains and recommends block/flag/review; the verified output feeds your backtests, screeners, dashboards and ML pipelines, and can gate CI with exit codes">
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="430" viewBox="0 0 960 430" role="img" aria-label="Architecture map — market data sources (Yahoo Finance, Alpha Vantage, your CSV/JSON) flow into mdsc, the trust layer, which validates with 38 rules, scores 0-100, explains and recommends block/flag/review; the verified output feeds your backtests, screeners, dashboards and ML pipelines, and can gate CI with exit codes">
   <style>
     text { font-family: ui-monospace, "SF Mono", "Cascadia Code", "JetBrains Mono", Menlo, Consolas, monospace; }
     .fg { fill: #e6edf3; } .dim { fill: #8b949e; } .accent { fill: #58a6ff; }
@@ -43,7 +43,7 @@
   <g class="stage s3">
     <rect x="354" y="100" width="252" height="250" rx="10" fill="#161b22" stroke="#1f6feb"/>
     <text x="372" y="128" class="accent h">MDSC — TRUST LAYER</text>
-    <text x="372" y="162" class="item-sm fg">1 · validate — 37 rules</text>
+    <text x="372" y="162" class="item-sm fg">1 · validate — 38 rules</text>
     <text x="372" y="194" class="item-sm fg">2 · score — 0 to 100</text>
     <text x="372" y="226" class="item-sm fg">3 · explain — with evidence</text>
     <text x="372" y="258" class="item-sm fg">4 · act — block/flag/review</text>

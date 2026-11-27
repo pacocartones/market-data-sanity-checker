@@ -35,8 +35,8 @@ standard applies to the maintainer's other public repositories.
    change users would notice. At most one minor release a week, and never two releases on the same
    day except under (a). The approval request for the `release` environment names which of (a),
    (b) or (c) applies; with none, no approval is asked.
-   **Current state:** the 1.7.x line is frozen until the 1.8.0 milestone (calibration against two
-   sources); until then only (a) patches are released.
+   **Current state:** the 1.7.x freeze was lifted on 2026-11-27 for the 1.8.0 security release;
+   the calibration milestone (calibration against two sources) is now 1.9.0.
 10. **GitHub Marketplace:** the Action is listed from a release; the maintainer ticks
     "Publish this Action to the GitHub Marketplace" on that release in the web interface.
 11. **0.x, 1.0 and 2.0:** **0.x** may change its interface in a minor version, said in the notes
