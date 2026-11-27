@@ -6,7 +6,10 @@ import {
   buildTwoSourceReport,
   classifyFinding,
   computeOverlap,
+  looksLikeAlphaVantageKey,
+  MIN_SECRET_LENGTH,
   NOT_COMPARABLE_RULES,
+  redactSecrets,
   safeErrorMessage,
   TWO_SOURCE_SYMBOLS,
   type ClassificationInput,
@@ -182,6 +185,29 @@ describe('safeErrorMessage', () => {
     )
     expect(safeErrorMessage(new Error('raw provider body: {"secret": true}'))).toBe('request failed (details withheld)')
     expect(safeErrorMessage(new ConnectorError('echo key-123 back'), ['key-123'])).toBe('echo [redacted] back')
+  })
+})
+
+describe('redactSecrets', () => {
+  it('redacts a real-length secret everywhere', () => {
+    expect(redactSecrets('a ABCDEFGH12345678 b ABCDEFGH12345678', ['ABCDEFGH12345678'])).toBe('a [redacted] b [redacted]')
+  })
+  it('ignores placeholders shorter than MIN_SECRET_LENGTH, which would rewrite dates and symbols', () => {
+    expect(MIN_SECRET_LENGTH).toBe(6)
+    const text = '{"date":"2026-11-27","symbol":"BRK-B","return":-0.061}'
+    expect(redactSecrets(text, ['-', '', undefined, '12345'])).toBe(text)
+  })
+})
+
+describe('looksLikeAlphaVantageKey', () => {
+  it('accepts 12 or more letters and digits', () => {
+    expect(looksLikeAlphaVantageKey('ABCDEFGH12345678')).toBe(true)
+  })
+  it('rejects placeholders and malformed values', () => {
+    for (const value of [undefined, '', '-', 'demo', 'changeme', 'ABCD-EFGH-1234', '-
+-']) {
+      expect(looksLikeAlphaVantageKey(value)).toBe(false)
+    }
   })
 })
 
