@@ -1,0 +1,22 @@
+name: Feature request
+description: A small improvement or new capability of the CLI, the library or the GitHub Action.
+labels: [feature]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        A new validation rule uses the rule proposal form instead. For a larger change (new structure, new dependency, public API), describe the scope below so the approach is agreed before anyone writes code.
+  - type: textarea
+    id: need
+    attributes:
+      label: What do you need, and why?
+      description: Who it helps and what they cannot do today.
+    validations:
+      required: true
+  - type: textarea
+    id: outcome
+    attributes:
+      label: What would done look like?
+      description: A concrete result, an example command or output, or the check that would prove it. Say whether it would change anything for existing users.
+    validations:
+      required: false

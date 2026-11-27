@@ -4,9 +4,11 @@ import { fileURLToPath } from 'node:url'
 import { marketDataSetSchema } from '../../src/schema/market-data'
 import type { MarketDataSet } from '../../src/schema/market-data'
 import type { RuleContext } from '../../src/rules/types'
+import { runRules } from '../../src/rules/engine'
 import { divScale100x } from '../../src/rules/corporate/div-scale-100x'
 import { divYieldImpossible } from '../../src/rules/corporate/div-yield-impossible'
 import { divSpecialMisclassified } from '../../src/rules/corporate/div-special-misclassified'
+import { computeSanityScore, summarize } from '../../src/scoring/score'
 
 const scaleCtx: RuleContext = {
   config: { severity: divScale100x.meta.severity, params: { ...divScale100x.meta.defaultParams } },
@@ -68,6 +70,35 @@ describe('DIV_SCALE_100X', () => {
     expect(findings[0]!.explanation).toContain('large special dividend')
     expect(findings[0]!.explanation).toContain('ZIM')
     expect(findings[0]!.explanation).not.toContain('×100')
+  })
+
+  it('collapses mixed severities to warning regardless of dividend order', async () => {
+    const data = await loadFixture('hlcl-l-dividend-100x.json')
+    const special = { exDate: '2024-06-06', amount: 0.65, type: 'special' as const }
+    const regular = { exDate: '2024-06-10', amount: 1.78, type: 'regular' as const }
+    const findingFor = (dividends: MarketDataSet['dividends']) =>
+      runRules({ ...data, dividends }).find((finding) => finding.rule === 'DIV_SCALE_100X')
+
+    const infoFirst = findingFor([special, regular])
+    const warningFirst = findingFor([regular, special])
+
+    expect(infoFirst).toMatchObject({
+      severity: 'warning',
+      action: 'flag',
+      where: { date: regular.exDate },
+      occurrences: 2,
+    })
+    expect(warningFirst).toEqual(infoFirst)
+    expect(computeSanityScore([infoFirst!])).toBe(85)
+    expect(summarize([infoFirst!])).toEqual({ critical: 0, warning: 1, info: 0 })
+
+    expect(findingFor([special])).toMatchObject({ severity: 'info', action: 'review', occurrences: 1 })
+    expect(
+      runRules(
+        { ...data, dividends: [special, regular] },
+        { rules: { DIV_SCALE_100X: { severity: 'critical' } } },
+      ).find((finding) => finding.rule === 'DIV_SCALE_100X'),
+    ).toMatchObject({ severity: 'critical', action: 'block', occurrences: 2 })
   })
 
   it('accepts a correctly scaled dividend', async () => {

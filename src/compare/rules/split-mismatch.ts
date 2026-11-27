@@ -1,13 +1,7 @@
 import type { Finding } from '../../report/types'
 import type { Split } from '../../schema/market-data'
 import type { CompareRule } from '../types'
-
-const MS_PER_DAY = 24 * 60 * 60 * 1000
-
-/** Absolute distance between two ex-dates, in calendar days. */
-function daysApart(x: string, y: string): number {
-  return Math.abs(Date.parse(x) - Date.parse(y)) / MS_PER_DAY
-}
+import { createDateWindowIndex } from '../date-window-index'
 
 /** Split ratio as a single number: 2 for a 2:1 split, 0.5 for a 1:2 reverse split. */
 function ratioOf(split: Split): number {
@@ -47,15 +41,14 @@ export const splitMismatch: CompareRule = {
     }
     const splitsA = a.splits ?? []
     const splitsB = b.splits ?? []
-
-    const matchIn = (split: Split, candidates: readonly Split[]): Split | undefined =>
-      candidates.find((candidate) => daysApart(split.exDate, candidate.exDate) <= matchWindowDays)
+    const indexA = createDateWindowIndex(splitsA)
+    const indexB = createDateWindowIndex(splitsB)
 
     const findings: Finding[] = []
 
     for (const split of splitsA) {
       const ratioA = ratioOf(split)
-      const match = matchIn(split, splitsB)
+      const match = indexB.find(split.exDate, matchWindowDays)
       if (!match) {
         findings.push({
           rule: 'SPLIT_MISMATCH',
@@ -103,7 +96,7 @@ export const splitMismatch: CompareRule = {
     }
 
     for (const split of splitsB) {
-      if (matchIn(split, splitsA)) continue
+      if (indexA.find(split.exDate, matchWindowDays)) continue
       findings.push({
         rule: 'SPLIT_MISMATCH',
         severity: context.config.severity,

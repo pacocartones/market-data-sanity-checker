@@ -11,13 +11,28 @@ export function weekdaysBetween(fromIso: string, toIso: string): number {
   const from = Date.parse(fromIso)
   const to = Date.parse(toIso)
   if (Number.isNaN(from) || Number.isNaN(to) || to <= from) return 0
-  let count = 0
-  const cursor = new Date(from)
-  cursor.setUTCDate(cursor.getUTCDate() + 1)
-  while (cursor.getTime() < to) {
-    const day = cursor.getUTCDay()
+
+  const millisecondsPerDay = 86_400_000
+  const fromDay = Math.floor(from / millisecondsPerDay)
+  const toDay = Math.floor(to / millisecondsPerDay)
+  const fromTime = from - fromDay * millisecondsPerDay
+  const toTime = to - toDay * millisecondsPerDay
+
+  // Count the UTC calendar-day steps the previous loop would have visited.
+  // Splitting day and time avoids subtracting endpoint timestamps beyond the
+  // safe-integer range, while the remainder loop stays bounded to six days.
+  const daysBetween = toDay - fromDay - (toTime <= fromTime ? 1 : 0)
+  if (daysBetween <= 0) return 0
+
+  const wholeWeeks = Math.floor(daysBetween / 7)
+  let count = wholeWeeks * 5
+  const remainingDays = daysBetween % 7
+  const firstDay = (new Date(from).getUTCDay() + 1) % 7
+
+  for (let offset = 0; offset < remainingDays; offset += 1) {
+    const day = (firstDay + offset) % 7
     if (day >= 1 && day <= 5) count += 1
-    cursor.setUTCDate(cursor.getUTCDate() + 1)
   }
+
   return count
 }

@@ -210,6 +210,7 @@ await writeFile(
     excluded,
     skipped: skippedForReadme,
     comparisons,
+    alphaVantageTier: process.env.ALPHA_VANTAGE_PREMIUM === 'true' ? 'premium' : 'free',
   }),
 )
 
