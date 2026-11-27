@@ -130,6 +130,9 @@ mdsc rules SERIES_TAIL_TRUNCATED     # one rule by id (case-insensitive)
 mdsc rules --format json | jq '.single_source[].id'
 # (outputs JSON with two top-level keys: "single_source" and "compare")
 
+# JSON Schema of the --format json reports (see "JSON output and schemas")
+mdsc schema check
+
 # print installed version
 mdsc --version
 ```
@@ -284,6 +287,36 @@ const report = checkMarketData(dataset, {
   "generated_at": "2026-07-31T17:00:00.000Z"
 }
 ```
+
+### JSON output and schemas
+
+The JSON output of `mdsc check --format json` and `mdsc compare --format json` is described by
+two versioned [JSON Schemas](https://json-schema.org/) (draft 2020-12), shipped in the npm
+package under `schemas/`:
+
+| Output | File | `$id` |
+|---|---|---|
+| `mdsc check --format json` | `schemas/check-report.v1.json` | `https://pacocartones.github.io/market-data-sanity-checker/schemas/check-report.v1.json` |
+| `mdsc compare --format json` | `schemas/compare-report.v1.json` | `https://pacocartones.github.io/market-data-sanity-checker/schemas/compare-report.v1.json` |
+
+```bash
+mdsc schema check     # print the check report schema
+mdsc schema compare   # print the compare report schema
+```
+
+From code, import the files (`market-data-sanity-checker/schemas/check-report.v1.json`) or
+validate with the zod schemas they are generated from:
+
+```ts
+import { checkReportSchema, compareReportSchema } from 'market-data-sanity-checker'
+
+const report = checkReportSchema.parse(JSON.parse(stdout))
+```
+
+**Stability:** the v1 schemas describe the 1.x output. A 1.x minor release may add optional
+fields (objects allow extra properties, so v1 still validates), but never removes, renames or
+retypes one. A breaking change to the output comes with a v2 schema and a major version
+([RELEASING.md](RELEASING.md), rule 11).
 
 ### The sanity score
 
