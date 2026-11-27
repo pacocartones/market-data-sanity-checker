@@ -12,4 +12,6 @@ Repository-specific rules come first and are in this repository:
 - [AI_POLICY.md](AI_POLICY.md) and [GOVERNANCE.md](GOVERNANCE.md): agents draft, a human maintainer
   reviews every pull request, and only a human merges.
 
+Accepted exception to the shared standard: claims use the `/take` bot (`.github/workflows/issue-assign.yml`) instead of manual assignment, for every issue type, including Data.
+
 Maintainer commits carry no AI trailer or footer, and neither do pull request bodies or comments.

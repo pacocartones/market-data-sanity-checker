@@ -1,10 +1,9 @@
 name: Issue assignment
 
-# "/take" in an issue comment assigns the commenter, "/release" unassigns them.
-# Issues labelled "good first issue" whose issue type is Data are not assigned: the
-# first correct pull request wins. The type comes from the event payload
-# (issue.type.name, null when the issue has no type). Runs on comments only; no code from the repository
-# is checked out.
+# "/take" in an issue comment assigns the commenter, "/release" unassigns them. Every
+# issue is claimed the same way, whatever its type (maintainer decision, 27-11-2026). /take is
+# this repository's documented exception to the shared standard's manual claims (AGENTS.md).
+# Runs on comments only; no code from the repository is checked out.
 on:
   issue_comment:
     types: [created]
@@ -28,8 +27,6 @@ jobs:
           ISSUE: ${{ github.event.issue.number }}
           AUTHOR: ${{ github.event.comment.user.login }}
           BODY: ${{ github.event.comment.body }}
-          LABELS: ${{ toJSON(github.event.issue.labels.*.name) }}
-          ISSUE_TYPE: ${{ github.event.issue.type.name }}
           ASSIGNEES: ${{ toJSON(github.event.issue.assignees.*.login) }}
         run: |
           set -u
@@ -37,11 +34,7 @@ jobs:
           say() { gh issue comment "$ISSUE" --repo "$REPO" --body "$1" >/dev/null; }
           case $cmd in
             /take)
-              # Temporary fallback: the old "data" label also counts as the Data type. Remove
-              # it once all open issues have types (standards v2 migration).
-              if jq -e --arg type "$ISSUE_TYPE" 'index("good first issue") and ($type == "Data" or index("data"))' <<<"$LABELS" >/dev/null; then
-                say "@$AUTHOR no need to claim this one: open a pull request when it's ready. The first correct, sourced PR is merged."
-              elif jq -e --arg a "$AUTHOR" 'index($a)' <<<"$ASSIGNEES" >/dev/null; then
+              if jq -e --arg a "$AUTHOR" 'index($a)' <<<"$ASSIGNEES" >/dev/null; then
                 exit 0
               elif [ "$(jq length <<<"$ASSIGNEES")" -gt 0 ]; then
                 say "@$AUTHOR this issue is already assigned to @$(jq -r '.[0]' <<<"$ASSIGNEES"). Any other issue labelled \`good first issue\` without an assignee is free."

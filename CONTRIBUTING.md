@@ -33,8 +33,6 @@ Property tests (fast-check): how to run, replay and add them is in [docs/propert
 
 Comment `/take` on the issue and a bot assigns it to you straight away, if nobody has it and you have fewer than two open issues assigned. If you can't continue, comment `/release`; that's completely fine, and it frees the issue for someone else. An assigned issue with no activity for two weeks may be offered to another contributor, after a ping. A pull request for an issue assigned to someone else waits for them.
 
-Issues labelled `good first issue` with the type Data are small enough that nobody claims them: open a pull request when it's ready, and the first correct one is merged.
-
 ## Good first issues
 
 An issue carries `good first issue` only if all of these hold:
