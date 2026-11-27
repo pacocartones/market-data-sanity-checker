@@ -243,13 +243,27 @@ export function safeErrorMessage(error: unknown, secrets: readonly (string | und
   return redactSecrets(error instanceof ConnectorError ? error.message : 'request failed (details withheld)', secrets)
 }
 
-/** Replaces every occurrence of each non-empty secret with [redacted]. */
+/**
+ * Shorter values are not treated as secrets: replacing a one-character placeholder such as "-"
+ * would rewrite every date, symbol and negative number in the report (27-11-2026 run).
+ */
+export const MIN_SECRET_LENGTH = 6
+
+/** Replaces every occurrence of each secret of at least MIN_SECRET_LENGTH characters with [redacted]. */
 export function redactSecrets(text: string, secrets: readonly (string | undefined)[]): string {
   let out = text
   for (const secret of secrets) {
-    if (secret && secret.length > 0) out = out.split(secret).join('[redacted]')
+    if (secret && secret.length >= MIN_SECRET_LENGTH) out = out.split(secret).join('[redacted]')
   }
   return out
+}
+
+/**
+ * Alpha Vantage keys are 16 letters and digits. Anything shorter or with other characters is a
+ * placeholder; Alpha Vantage answers some requests even then, so the run would look half successful.
+ */
+export function looksLikeAlphaVantageKey(value: string | undefined): boolean {
+  return value !== undefined && /^[A-Za-z0-9]{12,}$/.test(value.trim())
 }
 
 export interface ClassifiedFinding extends DatedFinding {

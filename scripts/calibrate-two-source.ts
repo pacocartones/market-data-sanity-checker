@@ -15,6 +15,7 @@ import { alphaVantage } from '../src/connectors/alphavantage'
 import { splitByDailyLimit } from '../src/connectors/types'
 import {
   buildTwoSourceReport,
+  looksLikeAlphaVantageKey,
   redactSecrets,
   safeErrorMessage,
   TWO_SOURCE_SYMBOLS,
@@ -32,6 +33,11 @@ export const OUTPUT_PATH = 'calibration/two-source.json'
 export async function runTwoSourceCalibration(): Promise<void> {
   if (!alphaVantage.available()) {
     console.error(`two-source calibration needs Alpha Vantage: it requires ${alphaVantage.requires}`)
+    process.exitCode = 1
+    return
+  }
+  if (!looksLikeAlphaVantageKey(process.env.ALPHA_VANTAGE_API_KEY)) {
+    console.error('two-source calibration: ALPHA_VANTAGE_API_KEY does not look like an Alpha Vantage key (12 or more letters and digits); set a real free key')
     process.exitCode = 1
     return
   }
