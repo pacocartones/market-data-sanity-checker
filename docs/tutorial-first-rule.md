@@ -137,6 +137,6 @@ pnpm test && pnpm typecheck && pnpm lint
 pnpm changeset   # "minor" for a new rule; describe it in one sentence
 ```
 
-Then open the pull request. The template has a short checklist, and it's the same contract as above. A maintainer replies within 24 hours.
+Then open the pull request. The template has a short checklist, and it's the same contract as above. A maintainer replies within the response target in [CONTRIBUTING.md](../CONTRIBUTING.md#review).
 
 Using an AI assistant for any of this is fine; see [AI_POLICY.md](../AI_POLICY.md). The one thing to check by hand is the source. Open the reference yourself and make sure it says what the rule claims.

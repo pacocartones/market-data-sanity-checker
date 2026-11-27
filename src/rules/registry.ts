@@ -31,8 +31,8 @@ import { symbolMappingSuspect } from './metadata/symbol-mapping-suspect'
 import { dividendFxMismatch } from './metadata/dividend-fx-mismatch'
 
 /**
- * The rule corpus. Phase 1: price/OHLCV (12). Phase 2: corporate actions,
- * fundamentals and metadata (13). Phase 3 adds multi-source comparison.
+ * The single-source rule corpus: price/OHLCV, corporate actions, fundamentals and
+ * metadata. Multi-source comparison rules live in src/compare/registry.ts.
  */
 export const registry: Rule[] = [
   // price

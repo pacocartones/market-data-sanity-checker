@@ -47,8 +47,8 @@ standard applies to the maintainer's other public repositories.
     will be removed warns for at least one minor release first), a real outside user, and the
     owner's approval as a milestone. **2.0** needs the breaking change justified in writing, a
     migration guide in the notes, at least one `-rc.N` first (rule 7), and breaking changes grouped
-    rather than spent one at a time. Candidates in view: a published, versioned JSON schema for
-    `check` and `compare`, and final rule names.
+    rather than spent one at a time. Candidates in view: promoting the v1 JSON schemas of `check` and
+    `compare` (published since 1.9.0) to a strict contract, and final rule names.
 
 ## What a release looks like
 
@@ -73,7 +73,7 @@ the release workflow applies them to the GitHub release after publishing, and th
 
 The README's coverage badge is a [shields.io endpoint badge](https://shields.io/badges/endpoint-badge)
 fed by `coverage-badge.json`, which the `Deploy API Docs` workflow publishes next to the API docs
-on GitHub Pages. On every push to `main` it runs `pnpm test:coverage` (vitest with the v8 provider)
+on GitHub Pages. On every push to `main` (once docs automation is activated, see [`docs/automation-docs.md`](docs/automation-docs.md)) it runs `pnpm test:coverage` (vitest with the v8 provider)
 and `pnpm coverage:badge`, which turns `coverage/coverage-summary.json` into the endpoint file.
 No coverage service and no secret are involved.
 

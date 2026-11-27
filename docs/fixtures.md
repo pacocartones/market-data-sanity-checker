@@ -3,7 +3,7 @@
 Every fixture in [`tests/fixtures/`](../tests/fixtures/) reproduces a **documented
 real-world data failure**, reduced to the smallest dataset that exhibits it. They are
 the project's memory: each one anchors one or more rules to a case that actually
-happened and cost someone money, time or trust. Each of the 17 real-case JSON
+happened and cost someone money, time or trust. Each real-case JSON
 fixtures has a hand-reviewed golden report in [`tests/golden/`](../tests/golden/)
 fixing the exact expected findings (see [`tests/golden.test.ts`](../tests/golden.test.ts)).
 A fixture that is minimal by design carries fewer than ten bars, so its golden

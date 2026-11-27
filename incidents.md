@@ -27,7 +27,7 @@ Cases are reviewed against their sources, so the same few problems cost the most
 4. **Scope.** mdsc works on daily bars. If the case is weekly, monthly or intraday, say at the start of the row that it is outside that unit and what, if anything, a comparison against another source can still show.
 5. **Say what you ran and what you only read.** "No rule fires" must say whether you ran it or read the rules.
 6. **Line references** point to the code that decides the behaviour (the `check()` body), not to a doc comment.
-7. **One case per pull request, one new file.** Name it with lowercase words joined by hyphens (`incidents/vwilx-capital-gains-in-dividend.md`) and copy the front matter and the four sections from any existing file. Do not touch `incidents.md`: the maintainers regenerate its table (`pnpm incidents:index`) at release time. `pnpm incidents:check` tells you whether your file is well formed.
+7. **One case per pull request, one new file.** Name it with lowercase words joined by hyphens (`incidents/vwilx-capital-gains-in-dividend.md`) and copy the front matter and the four sections from any existing file. Do not touch `incidents.md`: a maintainer regenerates its table (`pnpm incidents:index`) after merging. `pnpm incidents:check` tells you whether your file is well formed.
 
 ## Cases
 
