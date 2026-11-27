@@ -174,6 +174,49 @@ describe('DIV_YIELD_IMPOSSIBLE', () => {
       divYieldImpossible.check({ symbol: 'X', source: 'test', bars: data.bars }, yieldCtx),
     ).toEqual([])
   })
+
+  // Four quarterly dividends against a close of 10. Amounts of 0.5 and 0.75
+  // are exact in binary, so the trailing sum — and therefore the yield — is exact.
+  const yieldData = (amount: number, type: 'regular' | 'special'): MarketDataSet => ({
+    symbol: 'X',
+    source: 'test',
+    bars: [bar('2024-12-27', 10), bar('2024-12-30', 10), bar('2024-12-31', 10)],
+    dividends: ['2024-03-15', '2024-06-14', '2024-09-13', '2024-12-13'].map((exDate) => ({
+      exDate,
+      amount,
+      type,
+    })),
+  })
+
+  it('stays silent at exactly the 20% bound (the check is >)', () => {
+    // 4 × 0.5 = 2.0 against a close of 10 is exactly a 20% trailing yield.
+    expect(divYieldImpossible.check(yieldData(0.5, 'regular'), yieldCtx)).toEqual([])
+  })
+
+  it('flags a trailing yield just above the 20% bound', () => {
+    const findings = divYieldImpossible.check(yieldData(0.51, 'regular'), yieldCtx)
+    expect(findings).toHaveLength(1)
+    expect(findings[0]).toMatchObject({
+      rule: 'DIV_YIELD_IMPOSSIBLE',
+      severity: 'warning',
+      where: { date: '2024-12-31' },
+      evidence: { ttm_dividends: 2.04, close: 10, ttm_yield_pct: expect.closeTo(0.204, 10) },
+    })
+  })
+
+  it('accepts a 30% yield under a configured 50% bound', () => {
+    const customCtx: RuleContext = {
+      ...yieldCtx,
+      config: { ...yieldCtx.config, params: { maxAnnualYieldPct: 0.5 } },
+    }
+    // 4 × 0.75 = 3.0 against a close of 10 is exactly a 30% trailing yield.
+    expect(divYieldImpossible.check(yieldData(0.75, 'regular'), customCtx)).toEqual([])
+  })
+
+  it('ignores a 30% total made only of special dividends', () => {
+    // The trailing sum counts 'regular' dividends only; specials are excluded.
+    expect(divYieldImpossible.check(yieldData(0.75, 'special'), yieldCtx)).toEqual([])
+  })
 })
 
 describe('DIV_SPECIAL_MISCLASSIFIED', () => {
