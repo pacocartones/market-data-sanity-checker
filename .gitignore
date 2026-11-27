@@ -8,6 +8,9 @@ coverage/
 .env
 .env.*
 
+# two-source calibration output: published as a workflow artifact, never committed
+calibration/two-source.json
+
 # audit history written by `mdsc check --save` (per-user data, not source)
 .mdsc/
 

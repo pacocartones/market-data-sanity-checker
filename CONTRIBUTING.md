@@ -23,6 +23,7 @@ pnpm install
 pnpm test && pnpm typecheck && pnpm lint
 
 pnpm calibrate   # 50-symbol calibration run against real Yahoo data → calibration/
+pnpm calibrate --two-source  # 24 symbols, Yahoo vs Alpha Vantage (needs ALPHA_VANTAGE_API_KEY) → calibration/two-source.json
 pnpm scoreboard  # provider audit over ~30 liquid symbols → scoreboard/
 ```
 
