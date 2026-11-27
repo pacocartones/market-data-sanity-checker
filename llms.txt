@@ -12,7 +12,7 @@
   Alpha Vantage needs `ALPHA_VANTAGE_API_KEY`).
 - CLI compare: `mdsc compare --symbol AAPL --providers yahoo,alpha-vantage` (or
   `--files a.json,b.csv`) — multi-source divergence detection with a consistency score.
-- Rule corpus: 37 rules — 29 single-source (price/OHLCV, corporate actions, fundamentals,
+- Rule corpus: 38 rules — 30 single-source (price/OHLCV, corporate actions, fundamentals,
   metadata) plus 8 multi-source compare rules. Catalog: `mdsc rules --format json`.
 - Sanity score: `max(0, 100 − Σ penalties)` — critical −40, warning −15, info −5; each
   rule penalizes once per dataset (repeated defects count as `occurrences`). Bands:

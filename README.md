@@ -14,7 +14,7 @@
 
 [Quickstart](#quickstart-30-seconds) · [Rule catalog](#rule-catalog) · [Contribute: good first issues](https://github.com/pacocartones/market-data-sanity-checker/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22)
 
-<img src="docs/assets/trust-layer-flow.svg" alt="Architecture: market data sources (Yahoo Finance, Alpha Vantage, your CSV/JSON) flow into mdsc — the trust layer that validates with 37 rules, scores 0-100, explains with evidence and recommends block/flag/review — and only then into your backtests, screeners, dashboards and ML pipelines, with CI gating via exit codes" width="860">
+<img src="docs/assets/trust-layer-flow.svg" alt="Architecture: market data sources (Yahoo Finance, Alpha Vantage, your CSV/JSON) flow into mdsc — the trust layer that validates with 38 rules, scores 0-100, explains with evidence and recommends block/flag/review — and only then into your backtests, screeners, dashboards and ML pipelines, with CI gating via exit codes" width="860">
 
 - [Quickstart](#quickstart-30-seconds)
 - [Why this exists](#why-this-exists)
@@ -420,14 +420,14 @@ when the gate fails (0 pass, 2 operational error) — drop it into any pipeline.
 
 **How is this different from Great Expectations or Pandera?**
 Those are generic, structure-first validators (nulls, ranges, schemas) you configure
-yourself. `mdsc` is domain-first: it ships 37 rules that understand market-data semantics —
+yourself. `mdsc` is domain-first: it ships 38 rules that understand market-data semantics —
 splits, dividends, pence/pounds, ticker reuse — each with a causal explanation, evidence,
 a literature or incident reference, and a tunable severity, plus multi-source comparison.
 
 **Why not just write a few pandas checks?**
 You can, and for one dataset you already know well that may be enough. The hard part is
 knowing *which* checks: a 2:1 split looks like a −50% return, a pence/pounds switch like a
-×100 jump, a frozen feed like a calm market. Each of the 37 rules encodes one of those
+×100 jump, a frozen feed like a calm market. Each of the 38 rules encodes one of those
 documented failures with its threshold and its reference, and `mdsc` runs them all on any
 CSV/JSON with one command (or one call from TypeScript), with the same score in CI.
 
