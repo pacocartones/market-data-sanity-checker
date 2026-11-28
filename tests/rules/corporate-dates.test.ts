@@ -229,6 +229,27 @@ describe('EXDATE_MISPLACED', () => {
 })
 
 describe('DIV_NOT_ADJUSTED', () => {
+  /** Five pre-ex-date bars (2024-01-02..06) with the given factors, plus the ex-date bar (2024-01-07, close 100). */
+  function divBars(factors: number[]) {
+    const bars: Array<{
+      timestamp: string
+      open: number
+      high: number
+      low: number
+      close: number
+      adjustmentFactor?: number
+    }> = factors.map((adjustmentFactor, i) => ({
+      timestamp: `2024-01-0${i + 2}`,
+      open: 100,
+      high: 100,
+      low: 100,
+      close: 100,
+      adjustmentFactor,
+    }))
+    bars.push({ timestamp: '2024-01-07', open: 100, high: 100, low: 100, close: 100 })
+    return bars
+  }
+
   it('detects the unadjusted 8TRA.DE dividend (June 2023)', async () => {
     const findings = divNotAdjusted.check(await loadFixture('8tra-de-not-adjusted.json'), ctxNotAdjusted)
     expect(findings).toHaveLength(1)
@@ -260,5 +281,81 @@ describe('DIV_NOT_ADJUSTED', () => {
     expect(divNotAdjusted.check(earlyExdate, ctxNotAdjusted)).toEqual([])
 
     expect(divNotAdjusted.check({ symbol: 'X', source: 'test', bars: [] }, ctxNotAdjusted)).toEqual([])
+  })
+
+  it('stays silent when the expected adjustment is below minAdjustmentPct (0.1%)', () => {
+    // Amount 0.05 on a 100 close: expected 0.05%, below the 0.1% floor — factor noise, not evidence.
+    expect(
+      divNotAdjusted.check(
+        {
+          symbol: 'X',
+          source: 'test',
+          bars: divBars([1, 1, 1, 1, 1]),
+          dividends: [{ exDate: '2024-01-07', amount: 0.05 }],
+        },
+        ctxNotAdjusted,
+      ),
+    ).toEqual([])
+  })
+
+  it('stays silent when the observed adjustment is exactly 50% of the expected one', () => {
+    // Amount 6.25 on a 100 close: expected 6.25%; factor 0.96875 observes exactly 3.125% (all values exact in binary).
+    expect(
+      divNotAdjusted.check(
+        {
+          symbol: 'X',
+          source: 'test',
+          bars: divBars([0.96875, 0.96875, 0.96875, 0.96875, 0.96875]),
+          dividends: [{ exDate: '2024-01-07', amount: 6.25 }],
+        },
+        ctxNotAdjusted,
+      ),
+    ).toEqual([])
+  })
+
+  it('fires just below 50% of the expected adjustment', () => {
+    // Same dividend, factor 0.97 observes 3% — just under half of the expected 6.25%.
+    const findings = divNotAdjusted.check(
+      {
+        symbol: 'X',
+        source: 'test',
+        bars: divBars([0.97, 0.97, 0.97, 0.97, 0.97]),
+        dividends: [{ exDate: '2024-01-07', amount: 6.25 }],
+      },
+      ctxNotAdjusted,
+    )
+    expect(findings).toHaveLength(1)
+    expect(findings[0]).toMatchObject({
+      rule: 'DIV_NOT_ADJUSTED',
+      severity: 'warning',
+      where: { date: '2024-01-07' },
+      evidence: {
+        median_factor_before: 0.97,
+        dividend_amount: 6.25,
+        expected_adjustment_pct: 6.25,
+        observed_adjustment_pct: 3,
+      },
+    })
+  })
+
+  it('stays silent with only 2 factored bars before the ex-date, but fires with minBarsBefore: 2', () => {
+    const bars = divBars([1, 1])
+    const dataset = {
+      symbol: 'X',
+      source: 'test',
+      bars,
+      dividends: [{ exDate: '2024-01-07', amount: 5 }],
+    }
+    expect(divNotAdjusted.check(dataset, ctxNotAdjusted)).toEqual([])
+    const customCtx: RuleContext = {
+      config: {
+        severity: divNotAdjusted.meta.severity,
+        params: { ...divNotAdjusted.meta.defaultParams, minBarsBefore: 2 },
+      },
+      profile: { returns: [], medianReturn: 0, madReturn: 0 },
+    }
+    const findings = divNotAdjusted.check(dataset, customCtx)
+    expect(findings).toHaveLength(1)
+    expect(findings[0]).toMatchObject({ rule: 'DIV_NOT_ADJUSTED', where: { date: '2024-01-07' } })
   })
 })
