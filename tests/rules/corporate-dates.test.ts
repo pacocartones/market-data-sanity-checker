@@ -176,6 +176,29 @@ describe('EXDATE_AFTER_PAYDATE', () => {
 })
 
 describe('EXDATE_MISPLACED', () => {
+  /** Ex-date bar 2024-01-03 (close 100, no drop) preceded by one 100 bar, then flat 100 bars with a drop to `dropClose` at `dropOffset` sessions after the ex-date. */
+  function misplacedBars(dropOffset: number, dropClose: number, sessions = 40) {
+    const bars = [
+      { timestamp: '2024-01-02', open: 100, high: 100, low: 100, close: 100 },
+      { timestamp: '2024-01-03', open: 100, high: 100, low: 100, close: 100 },
+    ]
+    for (let i = 1; i <= sessions; i += 1) {
+      const date = new Date(Date.UTC(2024, 0, 3 + i))
+      const close = i === dropOffset ? dropClose : 100
+      bars.push({ timestamp: date.toISOString().slice(0, 10), open: close, high: close, low: close, close })
+    }
+    return bars
+  }
+
+  function misplacedDataset(dropOffset: number, dropClose: number, amount = 5) {
+    return {
+      symbol: 'X',
+      source: 'test',
+      bars: misplacedBars(dropOffset, dropClose),
+      dividends: [{ exDate: '2024-01-03', amount }],
+    }
+  }
+
   it('detects the misplaced TETY.ST ex-date (April–May 2023)', async () => {
     const findings = exdateMisplaced.check(await loadFixture('tety-st-misplaced-exdate.json'), ctxMisplaced)
     expect(findings).toHaveLength(1)
@@ -225,6 +248,40 @@ describe('EXDATE_MISPLACED', () => {
         ctxMisplaced,
       ),
     ).toEqual([])
+  })
+
+  it('fires on a matching drop 30 sessions after the ex-date, but not 31', () => {
+    // Amount 5 on a 100 close: expected 5% drop; the 100 -> 95 drop (~5.3%) sits inside the 0.5x–2x match band.
+    const findings = exdateMisplaced.check(misplacedDataset(30, 95), ctxMisplaced)
+    expect(findings).toHaveLength(1)
+    expect(findings[0]).toMatchObject({
+      rule: 'EXDATE_MISPLACED',
+      severity: 'warning',
+      where: { date: '2024-01-03' },
+      evidence: { expected_drop_pct: 5, actual_drop_pct: 0, matched_date: '2024-02-02' },
+    })
+    expect(exdateMisplaced.check(misplacedDataset(31, 95), ctxMisplaced)).toEqual([])
+  })
+
+  it('stays silent when the later drop is 2.5x the expected one (above maxMatchRatio)', () => {
+    // 100 -> 88.89 is a ~12.5% drop, above the 2x cap on a 5% expected drop.
+    expect(exdateMisplaced.check(misplacedDataset(5, 88.89), ctxMisplaced)).toEqual([])
+  })
+
+  it('stays silent for a 1% dividend (below minExpectedDropPct) even with a matching drop later', () => {
+    expect(exdateMisplaced.check(misplacedDataset(5, 95, 1), ctxMisplaced)).toEqual([])
+  })
+
+  it('stays silent when the match falls outside a custom 5-session window', () => {
+    const customCtx: RuleContext = {
+      config: {
+        severity: exdateMisplaced.meta.severity,
+        params: { ...exdateMisplaced.meta.defaultParams, searchWindowSessions: 5 },
+      },
+      profile: { returns: [], medianReturn: 0, madReturn: 0 },
+    }
+    expect(exdateMisplaced.check(misplacedDataset(6, 95), customCtx)).toEqual([])
+    expect(exdateMisplaced.check(misplacedDataset(5, 95), customCtx)).toHaveLength(1)
   })
 })
 
