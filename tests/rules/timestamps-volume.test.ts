@@ -172,4 +172,23 @@ describe('ZERO_VOLUME_MOVED', () => {
   it('stays silent on degenerate datasets', () => {
     expect(zeroVolumeMoved.check(dataset([]), ctx)).toEqual([])
   })
+
+  it('stays silent on a zero-volume bar with high == low but open != close (an impossible bar)', () => {
+    // The rule reads only high and low; the open/close contradiction is OHLC_INCONSISTENT's case.
+    expect(
+      zeroVolumeMoved.check(
+        dataset([bar('2024-01-02', { volume: 0, high: 10, low: 10, open: 10, close: 11 })]),
+        ctx,
+      ),
+    ).toEqual([])
+  })
+
+  it('treats volume -0 like volume 0 (-0 === 0 in JavaScript)', () => {
+    const findings = zeroVolumeMoved.check(
+      dataset([bar('2024-01-02', { volume: -0, high: 11, low: 9 })]),
+      ctx,
+    )
+    expect(findings).toHaveLength(1)
+    expect(findings[0]!.evidence).toEqual({ high: 11, low: 9 })
+  })
 })
