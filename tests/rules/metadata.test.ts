@@ -187,4 +187,57 @@ describe('SYMBOL_MAPPING_SUSPECT', () => {
   it('handles datasets without identifiers', () => {
     expect(symbolMappingSuspect.check({ symbol: 'AB', source: 'test', bars: [] }, symbolCtx)).toEqual([])
   })
+
+  it('accepts a valid ISIN on an exchange the rule does not map to a country', () => {
+    // SGX is absent from COUNTRY_EXCHANGES: a missing mapping is not evidence of a mismatch.
+    const data = {
+      symbol: 'AAPL',
+      source: 'test',
+      exchange: 'SGX',
+      identifiers: { isin: 'US0378331005' },
+      bars: [],
+    }
+    expect(symbolMappingSuspect.check(data, symbolCtx)).toEqual([])
+  })
+
+  it('reports a lower-case ISIN as an invalid ISIN (ISIN_FORMAT only accepts upper-case)', () => {
+    // us0378331005 is the valid Apple ISIN in lower case. ISIN_FORMAT requires [A-Z]{2},
+    // so the checksum check fails before any digit is examined — the rule reports it as
+    // an invalid ISIN rather than normalising the case. No rule change here; whether
+    // that is right is for the maintainer to decide.
+    const data = {
+      symbol: 'AAPL',
+      source: 'test',
+      identifiers: { isin: 'us0378331005' },
+      bars: [],
+    }
+    const findings = symbolMappingSuspect.check(data, symbolCtx)
+    expect(findings).toHaveLength(1)
+    expect(findings[0]).toMatchObject({
+      rule: 'SYMBOL_MAPPING_SUSPECT',
+      severity: 'warning',
+      evidence: { isin: 'us0378331005', reason: 'isin_checksum' },
+    })
+  })
+
+  it('also flags a country mismatch for a lower-case ISIN on a mapped exchange', () => {
+    // Knock-on effect of the same case-sensitivity: 'us' !== 'US', so the country
+    // comparison also fires on NYSE.
+    const data = {
+      symbol: 'AAPL',
+      source: 'test',
+      exchange: 'NYSE',
+      identifiers: { isin: 'us0378331005' },
+      bars: [],
+    }
+    const findings = symbolMappingSuspect.check(data, symbolCtx)
+    expect(findings).toHaveLength(2)
+    expect(findings.map((finding) => finding.evidence?.reason)).toEqual([
+      'isin_checksum',
+      'country_exchange_mismatch',
+    ])
+    expect(findings[1]).toMatchObject({
+      evidence: { isin: 'us0378331005', isin_country: 'us', exchange: 'NYSE' },
+    })
+  })
 })
