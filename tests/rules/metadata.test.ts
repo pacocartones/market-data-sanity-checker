@@ -187,4 +187,42 @@ describe('SYMBOL_MAPPING_SUSPECT', () => {
   it('handles datasets without identifiers', () => {
     expect(symbolMappingSuspect.check({ symbol: 'AB', source: 'test', bars: [] }, symbolCtx)).toEqual([])
   })
+
+  it('returns no findings for a valid ISIN on an unmapped exchange', () => {
+    const data = {
+      symbol: 'AB',
+      source: 'test',
+      exchange: 'KRX',
+      identifiers: { isin: 'US0028241000' },
+      bars: [],
+    }
+    expect(symbolMappingSuspect.check(data, symbolCtx)).toEqual([])
+  })
+
+  it('flags a lower-case ISIN as invalid checksum under ISIN_FORMAT', () => {
+    const data = {
+      symbol: 'AAPL',
+      source: 'test',
+      exchange: 'NASDAQ',
+      identifiers: { isin: 'us0378331005' },
+      bars: [],
+    }
+    const findings = symbolMappingSuspect.check(data, symbolCtx)
+    expect(findings).toHaveLength(2)
+    expect(findings[0]).toMatchObject({
+      rule: 'SYMBOL_MAPPING_SUSPECT',
+      severity: 'warning',
+      evidence: { isin: 'us0378331005', reason: 'isin_checksum' },
+    })
+    expect(findings[1]).toMatchObject({
+      rule: 'SYMBOL_MAPPING_SUSPECT',
+      severity: 'warning',
+      evidence: {
+        isin: 'us0378331005',
+        isin_country: 'us',
+        exchange: 'NASDAQ',
+        reason: 'country_exchange_mismatch',
+      },
+    })
+  })
 })
